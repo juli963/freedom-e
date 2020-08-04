@@ -10,3 +10,6 @@
 [submodule "nvidia-dla-blocks"]
 	path = nvidia-dla-blocks
 	url = https://github.com/sifive/nvidia-dla-blocks.git
+[submodule "hni-blocks"]
+	path = hni-blocks
+	url = https://github.com/hni-sct/hni-blocks.git
