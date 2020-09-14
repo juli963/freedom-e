@@ -152,6 +152,15 @@ class E300ArtyDevKitPlatform(implicit val p: Parameters) extends Module {
   BasePinToIOF(pwm_pins(2).pwm(2), iof_1(12))
   BasePinToIOF(pwm_pins(2).pwm(3), iof_1(13))
 
+  // Watchdog
+  if (p(PeripheryMockAONKey).Dogs > 1){
+    val wd = Wire(Vec(p(PeripheryMockAONKey).Dogs-1,PinGen()))
+    for (i <- 0 until p(PeripheryMockAONKey).Dogs-1){
+      wd(i).outputPin(sys.aon.wd_ext_reset.get(i))
+    }
+    BasePinToIOF(wd(0),iof_0(19))
+  }
+
   //-----------------------------------------------------------------------
   // Drive actual Pads
   //-----------------------------------------------------------------------
