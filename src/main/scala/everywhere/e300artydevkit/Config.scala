@@ -16,6 +16,8 @@ import sifive.blocks.devices.spi._
 import sifive.blocks.devices.uart._
 import sifive.blocks.devices.i2c._
 
+import hni.blocks.wdt._
+
 // Default FreedomEConfig
 class DefaultFreedomEConfig extends Config (
   new WithNBreakpoints(2)        ++
@@ -49,11 +51,14 @@ class E300DevKitPeripherals extends Config((site, here, up) => {
     MockAONParams(address = 0x10000000)
   case PeripheryMaskROMKey => List(
     MaskROMParams(address = 0x10000, name = "BootROM"))
+
+  case WDTKey => Some(WDTParams(address = 0x2000 ))
 })
 
 // Freedom E300 Arty Dev Kit Peripherals
 class E300ArtyDevKitConfig extends Config(
   new E300DevKitPeripherals    ++
+ // new WithWDT() ++
   new DefaultFreedomEConfig().alter((site,here,up) => {
     case DTSTimebase => BigInt(32768)
     case JtagDTMKey => new JtagDTMConfig (
