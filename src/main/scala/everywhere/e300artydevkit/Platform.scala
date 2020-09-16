@@ -20,6 +20,8 @@ import sifive.blocks.devices.uart._
 import sifive.blocks.devices.i2c._
 import sifive.blocks.devices.pinctrl._
 
+import hni.blocks.wdt._
+
 //-------------------------------------------------------------------------
 // PinGen
 //-------------------------------------------------------------------------
@@ -160,6 +162,13 @@ class E300ArtyDevKitPlatform(implicit val p: Parameters) extends Module {
     }
     BasePinToIOF(wd(0),iof_0(19))
   }
+
+  sys.wdt_out.get.clock := io.pins.aon.lfextclk.inputPin().asClock
+  val tlwd = Wire(Vec(p(WDTKey).get.Resets,PinGen()))
+  for (i <- 0 until p(WDTKey).get.Resets){
+    tlwd(i).outputPin(sys.wdt_out.get.outputs(i))
+  }
+  BasePinToIOF(tlwd(0),iof_0(21))
 
   //-----------------------------------------------------------------------
   // Drive actual Pads
