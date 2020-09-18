@@ -33,7 +33,8 @@ class E300ArtyDevKitSystem(implicit p: Parameters) extends RocketSubsystem
     with HasPeripheryGPIO
     with HasPeripheryPWM
     with HasPeripheryI2C
-    with CanHavePeripheryWDT {
+    //with CanHavePeripheryWDT {
+    with CanHavePeripheryWDTList {
   override lazy val module = new E300ArtyDevKitSystemModule(this)
 }
 
@@ -47,7 +48,8 @@ class E300ArtyDevKitSystemModule[+L <: E300ArtyDevKitSystem](_outer: L)
     with HasPeripheryMockAONModuleImp
     with HasPeripheryPWMModuleImp
     with HasPeripheryI2CModuleImp
-    with CanHavePeripheryWDTModuleImp {
+    //with CanHavePeripheryWDTModuleImp {
+    with CanHavePeripheryWDTListModuleImp {
   // Reset vector is set to the location of the mask rom
   val maskROMParams = p(PeripheryMaskROMKey)
   global_reset_vector := maskROMParams(0).address.U

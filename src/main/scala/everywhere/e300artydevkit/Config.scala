@@ -52,13 +52,17 @@ class E300DevKitPeripherals extends Config((site, here, up) => {
   case PeripheryMaskROMKey => List(
     MaskROMParams(address = 0x10000, name = "BootROM"))
 
-  case WDTKey => Some(WDTParams(address = 0x2000 ))
+  //case WDTKey => Some(WDTParams(address = 0x2000))
+  case WDTListKey => Some(
+                    List(
+                      WDTParams(address = 0x2000 ), 
+                      WDTParams(address = 0x4000, useAXI4 = true, PRBS = true) 
+                    ))
 })
 
 // Freedom E300 Arty Dev Kit Peripherals
 class E300ArtyDevKitConfig extends Config(
   new E300DevKitPeripherals    ++
- // new WithWDT() ++
   new DefaultFreedomEConfig().alter((site,here,up) => {
     case DTSTimebase => BigInt(32768)
     case JtagDTMKey => new JtagDTMConfig (

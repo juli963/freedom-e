@@ -163,12 +163,15 @@ class E300ArtyDevKitPlatform(implicit val p: Parameters) extends Module {
     BasePinToIOF(wd(0),iof_0(19))
   }
 
-  sys.wdt_out.get.clock := io.pins.aon.lfextclk.inputPin().asClock
-  val tlwd = Wire(Vec(p(WDTKey).get.Resets,PinGen()))
-  for (i <- 0 until p(WDTKey).get.Resets){
-    tlwd(i).outputPin(sys.wdt_out.get.outputs(i))
+  val periphery_wd = p(WDTListKey).get.map( param => Wire(Vec(param.Resets,PinGen())))
+  for (i <- 0 until periphery_wd.length){  // Seq[Vec[PinGen]]
+    sys.wdt_io.get(i).clock := io.pins.aon.lfextclk.inputPin().asClock
+    for(x <- 0 until periphery_wd(i).length){ // Vec[PinGen]
+      periphery_wd(i)(x).outputPin(sys.wdt_io.get(i).outputs(x))
+    }
   }
-  BasePinToIOF(tlwd(0),iof_0(21))
+  BasePinToIOF(periphery_wd(0)(0),iof_0(21))
+  BasePinToIOF(periphery_wd(1)(0),iof_0(22))
 
   //-----------------------------------------------------------------------
   // Drive actual Pads
