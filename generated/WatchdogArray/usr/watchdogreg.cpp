@@ -1,6 +1,6 @@
 #include "watchdogreg.h"
 
-unsigned int Watchdog_TB::readReg(Register reg, int timer){
+uint32_t Watchdog_TB::readReg(Register reg, uint8_t timer){
 	switch(reg){
 		case reg_ctrl_ip_0: 
 			read_CASE_TIMER_REG(timerIO_regs_cfg_read_ip_0)
@@ -43,7 +43,7 @@ unsigned int Watchdog_TB::readReg(Register reg, int timer){
 	return 0;
 };
 
-void Watchdog_TB::writeReg(Register reg,unsigned int data, int timer ){
+void Watchdog_TB::writeReg(Register reg,uint32_t data, uint8_t timer ){
 	switch(reg){
 		case reg_ctrl_ip_0:
 			write_CASE_TIMER_REG(timerIO_regs_cfg_write___05Fip_0, timerIO_regs_cfg_write_ip_0)
@@ -101,7 +101,9 @@ void Watchdog_TB::writeReg(Register reg,unsigned int data, int timer ){
 	write_TIMER_REGS_valid(timerIO_regs_feed_write_valid,false)    
     write_TIMER_REGS_valid(timerIO_regs_countHi_write_valid,false)
     write_TIMER_REGS_valid(timerIO_regs_countLo_write_valid,false)
-    write_TIMER_REGS_valid(timerIO_regs_cmp_1_write_valid,false)
+	#if defined(MODE_BOTH) || defined(MODE_WINDOW)
+    	write_TIMER_REGS_valid(timerIO_regs_cmp_1_write_valid,false)
+	#endif
     write_TIMER_REGS_valid(timerIO_regs_cmp_0_write_valid,false)
     write_TIMER_REGS_valid(timerIO_regs_s_write_valid,false)
     write_TIMER_REGS_valid(timerIO_regs_cfg_write_scale,false)
@@ -115,7 +117,7 @@ void Watchdog_TB::writeReg(Register reg,unsigned int data, int timer ){
     lock();
 };
 
-unsigned long  Watchdog_TB::configWatchdog(struct wd_unit *sWD, int timer){
+unsigned long  Watchdog_TB::configWatchdog(struct wd_unit *sWD, uint8_t timer){
 	unlock();
 	writeReg(Watchdog_TB::reg_ctrl_scale,sWD->cfg.field.scale,timer);
 	unlock();
@@ -153,7 +155,7 @@ unsigned long  Watchdog_TB::configWatchdog(struct wd_unit *sWD, int timer){
 	return offs;
 }
 
-void Watchdog_TB::updateStruct(struct wd_unit *sWD, int timer){
+void Watchdog_TB::updateStruct(struct wd_unit *sWD, uint8_t timer){
 	sWD->cfg.field.scale = readReg(Watchdog_TB::reg_ctrl_scale,timer);
 	sWD->cfg.field.zerocmp = readReg(Watchdog_TB::reg_ctrl_zerocmp,timer);
 	sWD->cfg.field.deglitch = readReg(Watchdog_TB::reg_ctrl_deglitch,timer);
@@ -202,7 +204,7 @@ void Watchdog_TB::calc_key(void){
     Key = ((Key << 1) | bit) & Key_Mask;
 }
 
-void Watchdog_TB::disableWatchdog(unsigned int timer){
+void Watchdog_TB::disableWatchdog(uint8_t timer){
     unlock();
     writeReg(Watchdog_TB::reg_ctrl_sticky,0,timer);
     unlock();
@@ -211,20 +213,37 @@ void Watchdog_TB::disableWatchdog(unsigned int timer){
 	writeReg(Watchdog_TB::reg_ctrl_running,0,timer);
 }
 
-void Watchdog_TB::writeInv(unsigned int data){
+void Watchdog_TB::writeInv(uint32_t data){
 	m_core->io_inv_write_valid = true;
 	m_core->io_inv_write_bits = data;
 	tick();
 	m_core->io_inv_write_valid = false;
 }
 
-unsigned int Watchdog_TB::readInterrupt(unsigned int interrupt){
-	read_CASE_Interrupt
-	return 0;
-};
+void Watchdog_TB::resetInterrupt(uint8_t interrupt){
+	unlock();
+	writeReg(Watchdog_TB::reg_ctrl_ip_0,0,interrupt);
+}
 
-unsigned int Watchdog_TB::readOutput(unsigned int output){
+void Watchdog_TB::resetCounter(uint8_t timer){
+	unlock();
+	writeReg(Watchdog_TB::reg_ctrl_countLo,0,timer);
+	unlock();
+	writeReg(Watchdog_TB::reg_ctrl_countHi,0,timer);
+}
+
+uint8_t Watchdog_TB::readInterrupt(uint8_t interrupt){
+	if(interrupt < WD_Ints){	// First use Signals
+		read_CASE_Interrupt
+	}else{	// If no Signal then use Register
+		return (uint8_t)readReg(Watchdog_TB::reg_ctrl_ip_0,interrupt);
+	}
+	
+	return 0;
+}
+
+uint8_t Watchdog_TB::readOutput(uint8_t output){
 	read_CASE_Output
 	return 0;
-};
+}
 
