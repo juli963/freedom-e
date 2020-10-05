@@ -1,4 +1,6 @@
+import glob
 import os
+import shutil
 import sys
 import string
 
@@ -70,6 +72,9 @@ def write_LFSRconfig(params):
     file = open(verilatorPath+"/usr/config.h", "w")
     file.write("#include <stdint.h> \n\n")
 
+    file.write("#if !defined(CONSTANTS_H)\n")
+    file.write("#define CONSTANTS_H 1\n")
+
     file.write("const uint32_t LFSR_shifts = 1000;\n")
     file.write("const uint8_t LFSR_width = "+ params['width'] + ";\n")
     file.write("uint64_t LFSR_init = "+ params['init'] + ";\n")
@@ -79,6 +84,7 @@ def write_LFSRconfig(params):
     line = line.strip(",")
     file.write("const uint8_t LFSR_taps[] = {" + line + "};\n")
 
+    file.write("#endif\n")
     file.close()
 
 arg = ""
@@ -102,8 +108,16 @@ if arg != "c":
     write_LFSRconfig(extracted)
 
     os.system('cd .. && java -jar rocket-chip/sbt-launch.jar ++2.12.4 "runMain '+genName+'"')
+    if os.path.isdir(verilatorPath +"/obj_dir"):
+        shutil.rmtree(verilatorPath +"/obj_dir")
     os.system('cd '+ verilatorPath +' && verilator -Wall --trace -cc '+ moduleName +'.v')
     os.system('cd '+ verilatorPath +'/obj_dir && make -f V'+ moduleName +'.mk')
-os.system('cd '+ verilatorPath +' && g++ -Iobj_dir -I/usr/share/verilator/include obj_dir/V'+ moduleName +'.cpp obj_dir/V'+ moduleName +'__Trace.cpp obj_dir/V'+ moduleName +'__Trace__Slow.cpp obj_dir/V'+ moduleName +'__Syms.cpp '+ c_srcs +' usr/testbench.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o')
-os.system('cd '+ verilatorPath +' && ./usr/testbench.o')
 
+verilatorFiles = " "
+for cfile in glob.glob(verilatorPath +"/obj_dir/*.cpp"):
+    if(not("ALL" in cfile)):
+        cfile = cfile.replace(verilatorPath + "/", "")
+        verilatorFiles = verilatorFiles + cfile + " "
+print('cd '+ verilatorPath +' && g++ -Iobj_dir -Iusr -I/usr/share/verilator/include'+ verilatorFiles + c_srcs +' usr/testbench.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o\n' )
+os.system('cd '+ verilatorPath +' && g++ -Iobj_dir -Iusr -I/usr/share/verilator/include'+ verilatorFiles + c_srcs +' usr/testbench.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o')
+os.system('cd '+ verilatorPath +' && ./usr/testbench.o')
