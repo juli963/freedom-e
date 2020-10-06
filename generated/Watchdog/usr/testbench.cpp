@@ -66,6 +66,7 @@ int main(int argc, char **argv) {
 	tb->sWD.cfg.field.enalways = 1; // Start Counter
 	tb->sWD.cfg.field.en = 1;   // Enable Output
 	tb->sWD.compare0 = std::rand() % max_cmp;
+	tb->sWD.compare1 = tb->sWD.compare0/2;
 
     offs = tb->configWatchdog(&tb->sWD) + 1;	// + 1 weil Ausgang 1 Takt Später erst übernommen wird
 	printf("Starte Test %i -> enalways, no zerocmp and cmp = %i \n", testnumber, tb->sWD.compare0);
