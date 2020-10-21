@@ -3,7 +3,7 @@ package sifive.freedom.everywhere.e300artydevkit
 
 import Chisel._
 import chisel3.core.{attach}
-import chisel3.experimental.{withClockAndReset}
+import chisel3.experimental.{withClockAndReset, withClock}
 
 import freechips.rocketchip.config._
 import freechips.rocketchip.diplomacy.{LazyModule}
@@ -28,15 +28,16 @@ class E300ArtyDevKitFPGAChip(implicit override val p: Parameters) extends ArtySh
   // Divide clock by 256, used to generate 32.768 kHz clock for AON block
   withClockAndReset(clock_8MHz, ~mmcm_locked) {
     val clockToggleReg = RegInit(false.B)
-    val (_, slowTick) = Counter(true.B, 256)
+    val (_, slowTick) = Counter(true.B, 256) 
     when (slowTick) {clockToggleReg := ~clockToggleReg}
     slow_clock := clockToggleReg
   }
-
+  val slow_io = IO((Bool(OUTPUT)))
+  slow_io := slow_clock
   //-----------------------------------------------------------------------
   // DUT
   //-----------------------------------------------------------------------
-
+  val wd_rst = IO(Vec(3,Bool(OUTPUT)))
   withClockAndReset(clock_32MHz, ck_rst) {
     val dut = Module(new E300ArtyDevKitPlatform)
 
@@ -182,6 +183,8 @@ class E300ArtyDevKitFPGAChip(implicit override val p: Parameters) extends ArtySh
     IOBUF(led_2, dut.io.pins.aon.pmu.dwakeup_n.i.ival)
     IOBUF(led_3, dut.io.pins.gpio.pins(14))
 
+    
+    wd_rst := dut.io.wd_rst
     //---------------------------------------------------------------------
     // Unconnected inputs
     //---------------------------------------------------------------------

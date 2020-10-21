@@ -46,6 +46,7 @@ class E300ArtyDevKitPlatformIO(implicit val p: Parameters) extends Bundle {
   }
   val jtag_reset = Bool(INPUT)
   val ndreset    = Bool(OUTPUT)
+  val wd_rst = Vec(3,Bool(OUTPUT))
 }
 
 //-------------------------------------------------------------------------
@@ -155,23 +156,32 @@ class E300ArtyDevKitPlatform(implicit val p: Parameters) extends Module {
   BasePinToIOF(pwm_pins(2).pwm(3), iof_1(13))
 
   // Watchdog
-  if (p(PeripheryMockAONKey).Dogs > 1){
+ /* if (p(PeripheryMockAONKey).Dogs > 1){
     val wd = Wire(Vec(p(PeripheryMockAONKey).Dogs-1,PinGen()))
     for (i <- 0 until p(PeripheryMockAONKey).Dogs-1){
       wd(i).outputPin(sys.aon.wd_ext_reset.get(i))
     }
     BasePinToIOF(wd(0),iof_0(19))
   }
-
+*/
   val periphery_wd = p(WDTListKey).get.map( param => Wire(Vec(param.Resets,PinGen())))
   for (i <- 0 until periphery_wd.length){  // Seq[Vec[PinGen]]
-    sys.wdt_io.get(i).clock := io.pins.aon.lfextclk.inputPin().asClock
+    if (i>0){
+      sys.wdt_io.get(i).clock := io.pins.aon.lfextclk.inputPin().asClock
+    }else{
+      sys.wdt_io.get(i).clock := clock 
+    }
     for(x <- 0 until periphery_wd(i).length){ // Vec[PinGen]
       periphery_wd(i)(x).outputPin(sys.wdt_io.get(i).outputs(x))
     }
   }
+
+  io.wd_rst(0) := periphery_wd(0)(1).o.oval
+  io.wd_rst(1) := periphery_wd(1)(1).o.oval
+  io.wd_rst(2) := periphery_wd(0)(2).o.oval
   BasePinToIOF(periphery_wd(0)(0),iof_0(21))
   BasePinToIOF(periphery_wd(1)(0),iof_0(22))
+  BasePinToIOF(periphery_wd(2)(0),iof_0(19))
 
   //-----------------------------------------------------------------------
   // Drive actual Pads

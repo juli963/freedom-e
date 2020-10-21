@@ -17,6 +17,7 @@ import sifive.blocks.devices.uart._
 import sifive.blocks.devices.i2c._
 
 import hni.blocks.wdt._
+import hni.blocks.devices.watchdog._
 
 // Default FreedomEConfig
 class DefaultFreedomEConfig extends Config (
@@ -55,8 +56,9 @@ class E300DevKitPeripherals extends Config((site, here, up) => {
   //case WDTKey => Some(WDTParams(address = 0x2000))
   case WDTListKey => Some(
                     List(
-                      WDTParams(address = 0x2000 ), 
-                      WDTParams(address = 0x4000, useAXI4 = true, PRBS = true) 
+                      WDTParams(address = 0x2000, Mode = hniWatchdogTimer.both, Dogs = 5, Resets = 3, Ints = 3, useAXI4=false, PRBS=true), 
+                      WDTParams(address = 0x4000, Mode = hniWatchdogTimer.timeout, Dogs = 2, Resets = 2, Ints = 1, useAXI4=false, PRBS=false),
+                      WDTParams(address = 0x6000, Mode = hniWatchdogTimer.window, Dogs = 5, Resets = 1, Ints = 3, useAXI4=true, PRBS=false)
                     ))
 })
 
