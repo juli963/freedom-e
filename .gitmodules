@@ -16,3 +16,6 @@
 [submodule "Chisel_Lib"]
 	path = Chisel_Lib
 	url = https://github.com/juli963/Chisel_Lib
+[submodule "juli-blocks"]
+	path = juli-blocks
+	url = https://github.com/juli963/juli-blocks
