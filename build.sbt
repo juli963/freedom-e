@@ -29,8 +29,10 @@ lazy val hniBlocks = (project in file("hni-blocks")).
   dependsOn(rocketChip, sifiveBlocks).
   settings(commonSettings: _*)
 
-lazy val Chisel_Lib = (project in file("Chisel_Lib"))
-  
+lazy val Chisel_Lib = (project in file("juli-blocks/Chisel_Lib")).
+  dependsOn(rocketChip, sifiveBlocks, hniBlocks).
+  settings(commonSettings: _*)  
+
 lazy val juliBlocks = (project in file("juli-blocks")).
   dependsOn(rocketChip, sifiveBlocks, hniBlocks, Chisel_Lib).
   settings(commonSettings: _*)  
