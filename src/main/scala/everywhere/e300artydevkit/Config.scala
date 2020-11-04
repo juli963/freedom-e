@@ -20,6 +20,7 @@ import hni.blocks.wdt._
 import hni.blocks.devices.watchdog._
 
 import juli.blocks.devices.tdpmem._
+import juli.blocks.devices.ethctrl._
 
 // Default FreedomEConfig
 class DefaultFreedomEConfig extends Config (
@@ -56,15 +57,19 @@ class E300DevKitPeripherals extends Config((site, here, up) => {
     MaskROMParams(address = 0x10000, name = "BootROM"))
 
   //case WDTKey => Some(WDTParams(address = 0x2000))
-  case WDTListKey => Some(
+  /*case WDTListKey => Some(
                     List(
-                      WDTParams(address = 0x2000, Mode = hniWatchdogTimer.both, Dogs = 5, Resets = 3, Ints = 3, useAXI4=false, PRBS=true), 
-                      WDTParams(address = 0x4000, Mode = hniWatchdogTimer.timeout, Dogs = 2, Resets = 2, Ints = 1, useAXI4=false, PRBS=false),
-                      WDTParams(address = 0x6000, Mode = hniWatchdogTimer.window, Dogs = 5, Resets = 1, Ints = 3, useAXI4=true, PRBS=false)
+                      WDTParams(address = 0x2000, Mode = hniWatchdogTimer.both, Dogs = 5, Resets = 3, Ints = 3, useAXI4=false, PRBS=true)//, 
+                      //WDTParams(address = 0x4000, Mode = hniWatchdogTimer.timeout, Dogs = 2, Resets = 2, Ints = 1, useAXI4=false, PRBS=false),
+                      //WDTParams(address = 0x6000, Mode = hniWatchdogTimer.window, Dogs = 5, Resets = 1, Ints = 3, useAXI4=true, PRBS=false)
                     ))
   case TDPMemListKey => Some(
                     List(
                       TDPMemParams(address = 0x8000, sizeBytes = 40)
+                    ))*/
+  case ETHCtrlListKey => Some(
+                    List(
+                      ETHCtrlParams(address = 0x10002000, sizeBytes = 16535, NumBuffers = 4)
                     ))
 })
 

@@ -14,6 +14,8 @@ import sifive.blocks.devices.spi._
 import sifive.fpgashells.shell.xilinx.artyshell.{ArtyShell}
 import sifive.fpgashells.ip.xilinx.{IBUFG, IOBUF, PULLUP, PowerOnResetFPGAOnly}
 
+
+import Ethernet.Interface.Types._
 //-------------------------------------------------------------------------
 // E300ArtyDevKitFPGAChip
 //-------------------------------------------------------------------------
@@ -32,14 +34,36 @@ class E300ArtyDevKitFPGAChip(implicit override val p: Parameters) extends ArtySh
     when (slowTick) {clockToggleReg := ~clockToggleReg}
     slow_clock := clockToggleReg
   }
-  val slow_io = IO((Bool(OUTPUT)))
+  val slow_io = IO(Bool(OUTPUT))
+  val ck_PHY = IO(Clock(OUTPUT))
+  ck_PHY := clock_25MHz
   slow_io := slow_clock
+
+  val RGMII  = IO(new RGMII_Interface())
+  val PHY_nrst = IO(Bool(OUTPUT))
+
   //-----------------------------------------------------------------------
   // DUT
   //-----------------------------------------------------------------------
   val wd_rst = IO(Vec(3,Bool(OUTPUT)))
   withClockAndReset(clock_32MHz, ck_rst) {
     val dut = Module(new E300ArtyDevKitPlatform)
+
+    //---------------------------------------------------------------------
+    //
+    //---------------------------------------------------------------------
+    /*val RGMII  = IO(new Ethernet.Interface.Types.RGMII_Interface())
+    val PHY_nrst = IO(Output(Bool()))
+    val EthernetClock125 = IO(Input(Clock()))
+    val EthernetClock250 = IO(Input(Clock()))*/
+
+    
+
+    RGMII <> dut.io.RGMII
+    PHY_nrst := dut.io.PHY_nrst
+    dut.io.EthernetClock125 := clock_125MHz
+    dut.io.EthernetClock250 := clock_250MHz
+
 
     //---------------------------------------------------------------------
     // SPI flash IOBUFs

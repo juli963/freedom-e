@@ -20,6 +20,7 @@ import sifive.blocks.devices.i2c._
 import hni.blocks.wdt._
 
 import juli.blocks.devices.tdpmem._
+import juli.blocks.devices.ethctrl._
 
 //-------------------------------------------------------------------------
 // E300ArtyDevKitSystem
@@ -37,6 +38,7 @@ class E300ArtyDevKitSystem(implicit p: Parameters) extends RocketSubsystem
     with HasPeripheryI2C
     //with CanHavePeripheryWDT {
     with CanHavePeripheryTDPMemList
+    with CanHavePeripheryETHCtrlList
     with CanHavePeripheryWDTList {
   override lazy val module = new E300ArtyDevKitSystemModule(this)
 }
@@ -53,6 +55,7 @@ class E300ArtyDevKitSystemModule[+L <: E300ArtyDevKitSystem](_outer: L)
     with HasPeripheryI2CModuleImp
     //with CanHavePeripheryWDTModuleImp {
     with CanHavePeripheryTDPMemListModuleImp 
+    with CanHavePeripheryETHCtrlListModuleImp 
     with CanHavePeripheryWDTListModuleImp {
   // Reset vector is set to the location of the mask rom
   val maskROMParams = p(PeripheryMaskROMKey)
