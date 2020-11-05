@@ -1,5 +1,5 @@
 // See LICENSE for license details.
-package sifive.freedom.everywhere.e300artydevkit
+package juli.GBEv1.base
 
 import Chisel._
 
@@ -22,6 +22,7 @@ import sifive.blocks.devices.pinctrl._
 
 import hni.blocks.wdt._
 
+import Ethernet.Interface.Types._
 //-------------------------------------------------------------------------
 // PinGen
 //-------------------------------------------------------------------------
@@ -37,31 +38,33 @@ object PinGen {
 // E300ArtyDevKitPlatformIO
 //-------------------------------------------------------------------------
 
-class E300ArtyDevKitPlatformIO(implicit val p: Parameters) extends Bundle {
+class GBEv1PlatformIO(implicit val p: Parameters) extends Bundle {
   val pins = new Bundle {
     val jtag = new JTAGPins(() => PinGen(), false)
     val gpio = new GPIOPins(() => PinGen(), p(PeripheryGPIOKey)(0))
     val qspi = new SPIPins(() => PinGen(), p(PeripherySPIFlashKey)(0))
-    val aon = new MockAONWrapperPins()
   }
   val jtag_reset = Bool(INPUT)
   val ndreset    = Bool(OUTPUT)
-  val wd_rst = Vec(3,Bool(OUTPUT))
 
+  //val RGMII = new Ethernet.Interface.Types.RGMII_Interface()
+  //val PHY_nrst = Bool(OUTPUT)
+  //val EthernetClock125 = Clock(INPUT)
+  //val EthernetClock250 = Clock(INPUT)
 }
 
 //-------------------------------------------------------------------------
 // E300ArtyDevKitPlatform
 //-------------------------------------------------------------------------
 
-class E300ArtyDevKitPlatform(implicit val p: Parameters) extends Module {
-  val sys = Module(LazyModule(new E300ArtyDevKitSystem).module)
-  val io = new E300ArtyDevKitPlatformIO
+class GBEv1Platform(implicit val p: Parameters) extends Module {
+  val sys = Module(LazyModule(new GBEv1System).module)
+  val io = new GBEv1PlatformIO
 
   // This needs to be de-asserted synchronously to the coreClk.
-  val async_corerst = sys.aon.rsts.corerst
+  //val async_corerst = sys.aon.rsts.corerst
   // Add in debug-controlled reset.
-  sys.reset := ResetCatchAndSync(clock, async_corerst, 20)
+  sys.reset := ResetCatchAndSync(clock, false.B, 20)
 
   //-----------------------------------------------------------------------
   // Check for unsupported rocket-chip connections
@@ -78,17 +81,15 @@ class E300ArtyDevKitPlatform(implicit val p: Parameters) extends Module {
 
   val sys_uart = sys.uart
   val sys_pwm  = sys.pwm
-  val sys_spi  = sys.spi
   val sys_i2c  = sys.i2c
 
   val uart_pins = p(PeripheryUARTKey).map { c => Wire(new UARTPins(() => PinGen()))}
   val pwm_pins  = p(PeripheryPWMKey).map  { c => Wire(new PWMPins(() => PinGen(), c))}
-  val spi_pins  = p(PeripherySPIKey).map  { c => Wire(new SPIPins(() => PinGen(), c))}
+  //val spi_pins  = p(PeripherySPIKey).map  { c => Wire(new SPIPins(() => PinGen(), c))}
   val i2c_pins  = p(PeripheryI2CKey).map  { c => Wire(new I2CPins(() => PinGen()))}
 
   (uart_pins zip  sys_uart) map {case (p, r) => UARTPinsFromPort(p, r, clock = clock, reset = reset, syncStages = 0)}
   (pwm_pins  zip  sys_pwm)  map {case (p, r) => PWMPinsFromPort(p, r) }
-  (spi_pins  zip  sys_spi)  map {case (p, r) => SPIPinsFromPort(p, r, clock = clock, reset = reset, syncStages = 0)}
   (i2c_pins  zip  sys_i2c)  map {case (p, r) => I2CPinsFromPort(p, r, clock = clock, reset = reset, syncStages = 0)}
 
   //-----------------------------------------------------------------------
@@ -107,83 +108,31 @@ class E300ArtyDevKitPlatform(implicit val p: Parameters) extends Module {
   val iof_0 = sys.gpio(0).iof_0.get
   val iof_1 = sys.gpio(0).iof_1.get
 
-  // SPI1 (0 is the dedicated)
-  BasePinToIOF(spi_pins(0).cs(0), iof_0(2))
-  BasePinToIOF(spi_pins(0).dq(0), iof_0(3))
-  BasePinToIOF(spi_pins(0).dq(1), iof_0(4))
-  BasePinToIOF(spi_pins(0).sck,   iof_0(5))
-  BasePinToIOF(spi_pins(0).dq(2), iof_0(6))
-  BasePinToIOF(spi_pins(0).dq(3), iof_0(7))
-  BasePinToIOF(spi_pins(0).cs(1), iof_0(8))
-  BasePinToIOF(spi_pins(0).cs(2), iof_0(9))
-  BasePinToIOF(spi_pins(0).cs(3), iof_0(10))
-
-  // SPI2
-  BasePinToIOF(spi_pins(1).cs(0), iof_0(26))
-  BasePinToIOF(spi_pins(1).dq(0), iof_0(27))
-  BasePinToIOF(spi_pins(1).dq(1), iof_0(28))
-  BasePinToIOF(spi_pins(1).sck,   iof_0(29))
-  BasePinToIOF(spi_pins(1).dq(2), iof_0(30))
-  BasePinToIOF(spi_pins(1).dq(3), iof_0(31))
 
   // I2C
   if (p(PeripheryI2CKey).length == 1) {
-    BasePinToIOF(i2c_pins(0).sda, iof_0(12))
-    BasePinToIOF(i2c_pins(0).scl, iof_0(13))
+    BasePinToIOF(i2c_pins(0).sda, iof_0(0))
+    BasePinToIOF(i2c_pins(0).scl, iof_0(1))
   }
 
   // UART0
-  BasePinToIOF(uart_pins(0).rxd, iof_0(16))
-  BasePinToIOF(uart_pins(0).txd, iof_0(17))
-
-  // UART1
-  BasePinToIOF(uart_pins(1).rxd, iof_0(24))
-  BasePinToIOF(uart_pins(1).txd, iof_0(25))
+  //BasePinToIOF(uart_pins(0).rxd, iof_0(16))
+  BasePinToIOF(uart_pins(0).txd, iof_0(2))
 
   //PWM
-  BasePinToIOF(pwm_pins(0).pwm(0), iof_1(0) )
-  BasePinToIOF(pwm_pins(0).pwm(1), iof_1(1) )
-  BasePinToIOF(pwm_pins(0).pwm(2), iof_1(2) )
-  BasePinToIOF(pwm_pins(0).pwm(3), iof_1(3) )
+  BasePinToIOF(pwm_pins(0).pwm(0), iof_0(3) )
+  BasePinToIOF(pwm_pins(0).pwm(1), iof_0(4) )
+  BasePinToIOF(pwm_pins(0).pwm(2), iof_0(5) )
 
-  BasePinToIOF(pwm_pins(1).pwm(1), iof_1(19))
-  BasePinToIOF(pwm_pins(1).pwm(0), iof_1(20))
-  BasePinToIOF(pwm_pins(1).pwm(2), iof_1(21))
-  BasePinToIOF(pwm_pins(1).pwm(3), iof_1(22))
+  BasePinToIOF(pwm_pins(1).pwm(0), iof_0(6))
+  BasePinToIOF(pwm_pins(1).pwm(1), iof_0(7))
+  BasePinToIOF(pwm_pins(1).pwm(2), iof_0(8))
 
-  BasePinToIOF(pwm_pins(2).pwm(0), iof_1(10))
-  BasePinToIOF(pwm_pins(2).pwm(1), iof_1(11))
-  BasePinToIOF(pwm_pins(2).pwm(2), iof_1(12))
-  BasePinToIOF(pwm_pins(2).pwm(3), iof_1(13))
 
-  // Watchdog
- /* if (p(PeripheryMockAONKey).Dogs > 1){
-    val wd = Wire(Vec(p(PeripheryMockAONKey).Dogs-1,PinGen()))
-    for (i <- 0 until p(PeripheryMockAONKey).Dogs-1){
-      wd(i).outputPin(sys.aon.wd_ext_reset.get(i))
-    }
-    BasePinToIOF(wd(0),iof_0(19))
-  }
-*/
- /* val periphery_wd = p(WDTListKey).get.map( param => Wire(Vec(param.Resets,PinGen())))
-  for (i <- 0 until periphery_wd.length){  // Seq[Vec[PinGen]]
-    if (i>0){
-      sys.wdt_io.get(i).clock := io.pins.aon.lfextclk.inputPin().asClock
-    }else{
-      sys.wdt_io.get(i).clock := clock 
-    }
-    for(x <- 0 until periphery_wd(i).length){ // Vec[PinGen]
-      periphery_wd(i)(x).outputPin(sys.wdt_io.get(i).outputs(x))
-    }
-  }
-
-  io.wd_rst(0) := periphery_wd(0)(1).o.oval
- // io.wd_rst(1) := periphery_wd(1)(1).o.oval
-  //io.wd_rst(2) := periphery_wd(0)(2).o.oval
-  BasePinToIOF(periphery_wd(0)(0),iof_0(21))
-  //BasePinToIOF(periphery_wd(1)(0),iof_0(22))
-  //BasePinToIOF(periphery_wd(2)(0),iof_0(19))*/
-
+  //io.RGMII <> sys.ethctrl_io.get(0).RGMII
+  //io.PHY_nrst := sys.ethctrl_io.get(0).PHY_nrst
+  //sys.ethctrl_io.get(0).EthernetClock125 := io.EthernetClock125
+  //sys.ethctrl_io.get(0).EthernetClock250 := io.EthernetClock250
 
   //-----------------------------------------------------------------------
   // Drive actual Pads
@@ -203,8 +152,4 @@ class E300ArtyDevKitPlatform(implicit val p: Parameters) extends Module {
 
   io.ndreset := sys.debug.ndreset
 
-  // AON Pads -- direct connection is OK because
-  // EnhancedPin is hard-coded in MockAONPads
-  // and thus there is no .fromPort method.
-  io.pins.aon <> sys.aon.pins
 }
