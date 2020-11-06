@@ -64,7 +64,7 @@ class E300DevKitPeripherals extends Config((site, here, up) => {
                     ))
   case TDPMemListKey => Some(
                     List(
-                      TDPMemParams(address = 0x8000, sizeBytes = 40)
+                      TDPMemParams(address = 0x6000, sizeBytes = 64, fAddress = 0x8000, fSize = 64)
                     ))
 })
 
