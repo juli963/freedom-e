@@ -38,10 +38,10 @@ class GBEv1FPGAChip(implicit override val p: Parameters) extends GBEv1Shell {
     val (_, slowTick) = Counter(true.B, 256) 
     when (slowTick) {clockToggleReg := ~clockToggleReg}
 
-    val countreg = RegInit(0.U(8.W))
+    val countreg = RegInit(0.U(20.W))
     val outreg = RegInit(true.B)
     wReset := outreg
-    when(countreg >= 200.U){
+    when(countreg >= 1000000.U){
       //countreg := 0.U
       outreg := false.B
     }.otherwise{
