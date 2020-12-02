@@ -47,10 +47,10 @@ class GBEv1PlatformIO(implicit val p: Parameters) extends Bundle {
   val jtag_reset = Bool(INPUT)
   val ndreset    = Bool(OUTPUT)
 
-  //val RGMII = new Ethernet.Interface.Types.RGMII_Interface()
-  //val PHY_nrst = Bool(OUTPUT)
-  //val EthernetClock125 = Clock(INPUT)
-  //val EthernetClock250 = Clock(INPUT)
+  val RGMII = new Ethernet.Interface.Types.RGMII_Interface()
+  val PHY_nrst = Bool(OUTPUT)
+  val EthernetClock125 = Clock(INPUT)
+  val EthernetClock250 = Clock(INPUT)
 }
 
 //-------------------------------------------------------------------------
@@ -64,7 +64,15 @@ class GBEv1Platform(implicit val p: Parameters) extends Module {
   // This needs to be de-asserted synchronously to the coreClk.
   //val async_corerst = sys.aon.rsts.corerst
   // Add in debug-controlled reset.
-  sys.reset := ResetCatchAndSync(clock, false.B, 20)
+  val countreg = RegInit(0.U(8.W))
+  val outreg = RegInit(true.B)
+  when(countreg >= 200.U){
+    //countreg := 0.U
+    outreg := false.B
+  }.otherwise{
+    countreg := countreg + 1.U
+  }
+  sys.reset := ResetCatchAndSync(clock, outreg, 20)
 
   //-----------------------------------------------------------------------
   // Check for unsupported rocket-chip connections
@@ -129,10 +137,10 @@ class GBEv1Platform(implicit val p: Parameters) extends Module {
   BasePinToIOF(pwm_pins(1).pwm(2), iof_0(8))
 
 
-  //io.RGMII <> sys.ethctrl_io.get(0).RGMII
-  //io.PHY_nrst := sys.ethctrl_io.get(0).PHY_nrst
-  //sys.ethctrl_io.get(0).EthernetClock125 := io.EthernetClock125
-  //sys.ethctrl_io.get(0).EthernetClock250 := io.EthernetClock250
+  io.RGMII <> sys.ethctrl_io.get(0).RGMII
+  io.PHY_nrst := sys.ethctrl_io.get(0).PHY_nrst
+  sys.ethctrl_io.get(0).EthernetClock125 := io.EthernetClock125
+  sys.ethctrl_io.get(0).EthernetClock250 := io.EthernetClock250
 
   //-----------------------------------------------------------------------
   // Drive actual Pads

@@ -31,24 +31,34 @@ class GBEv1FPGAChip(implicit override val p: Parameters) extends GBEv1Shell {
   //-----------------------------------------------------------------------
   // Clock divider
   //-----------------------------------------------------------------------
-
+  
   // Divide clock by 256, used to generate 32.768 kHz clock for AON block
   withClockAndReset(clock_8MHz, ~mmcm_locked) {
     val clockToggleReg = RegInit(false.B)
     val (_, slowTick) = Counter(true.B, 256) 
     when (slowTick) {clockToggleReg := ~clockToggleReg}
+
+    val countreg = RegInit(0.U(8.W))
+    val outreg = RegInit(true.B)
+    wReset := outreg
+    when(countreg >= 200.U){
+      //countreg := 0.U
+      outreg := false.B
+    }.otherwise{
+      countreg := countreg + 1.U
+    }
   }
 
-
-  //val RGMII  = IO(new RGMII_Interface())
-  //val PHY_nrst = IO(Bool(OUTPUT))
-
+  
+  val RGMII  = IO(new RGMII_Interface())
+  val PHY_nrst = IO(Bool(OUTPUT))
   //-----------------------------------------------------------------------
   // DUT
   //-----------------------------------------------------------------------
-  withClockAndReset(clock_32MHz, false.B) {
+  withClockAndReset(clock_32MHz, wReset) {
     val dut = Module(new GBEv1Platform)
 
+    
     //---------------------------------------------------------------------
     //
     //---------------------------------------------------------------------
@@ -59,10 +69,10 @@ class GBEv1FPGAChip(implicit override val p: Parameters) extends GBEv1Shell {
 
     
 
-    //RGMII <> dut.io.RGMII
-    //PHY_nrst := dut.io.PHY_nrst
-    //dut.io.EthernetClock125 := clock_32MHz
-    //dut.io.EthernetClock250 := clock_32MHz
+    RGMII <> dut.io.RGMII
+    PHY_nrst := dut.io.PHY_nrst
+    dut.io.EthernetClock125 := clock_125MHz
+    dut.io.EthernetClock250 := clock_250MHz
 
 
     //---------------------------------------------------------------------
@@ -184,6 +194,8 @@ abstract class GBEv1Shell(implicit val p: Parameters) extends RawModule {
   val clock_8MHz     = Wire(Clock())
   val clock_32MHz    = Wire(Clock())
   val clock_65MHz    = Wire(Clock())
+  val clock_125MHz    = Wire(Clock())
+  val clock_250MHz    = Wire(Clock())
 
   val mmcm_locked    = Wire(Bool())
 
@@ -202,17 +214,20 @@ abstract class GBEv1Shell(implicit val p: Parameters) extends RawModule {
   val dut_jtag_reset = Wire(Bool())
   val dut_ndreset    = Wire(Bool())
 
+  val wReset = Wire(Bool())
   //-----------------------------------------------------------------------
   // Clock Generator
   //-----------------------------------------------------------------------
   // Mixed-mode clock generator
 
-  val ip_mmcm = Module(new m_mmcm(3, ResetActiveLow = true))
+  val ip_mmcm = Module(new m_mmcm(5, ResetActiveLow = true))
 
   ip_mmcm.io.clk_in1 := CLK100MHZ
   clock_8MHz         := ip_mmcm.io.clk_out1.get  // 8.388 MHz = 32.768 kHz * 256
   clock_65MHz        := ip_mmcm.io.clk_out2.get  // 65 Mhz
   clock_32MHz        := ip_mmcm.io.clk_out3.get  // 65/2 Mhz
+  clock_125MHz        := ip_mmcm.io.clk_out4.get  // 65/2 Mhz
+  clock_250MHz        := ip_mmcm.io.clk_out5.get  // 65/2 Mhz
   ip_mmcm.io.resetn.get  := true.B
   mmcm_locked        := ip_mmcm.io.locked
 
@@ -225,7 +240,7 @@ abstract class GBEv1Shell(implicit val p: Parameters) extends RawModule {
 
   ip_reset_sys.io.slowest_sync_clk := clock_8MHz
   ip_reset_sys.io.ext_reset_in     := SRST_n
-  ip_reset_sys.io.aux_reset_in     := true.B
+  ip_reset_sys.io.aux_reset_in     := ~wReset
   ip_reset_sys.io.mb_debug_sys_rst := dut_ndreset
   ip_reset_sys.io.dcm_locked       := mmcm_locked
 

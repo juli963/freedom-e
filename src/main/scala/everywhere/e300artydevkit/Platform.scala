@@ -165,7 +165,7 @@ class E300ArtyDevKitPlatform(implicit val p: Parameters) extends Module {
     BasePinToIOF(wd(0),iof_0(19))
   }
 */
- /* val periphery_wd = p(WDTListKey).get.map( param => Wire(Vec(param.Resets,PinGen())))
+  val periphery_wd = p(WDTListKey).get.map( param => Wire(Vec(param.Resets,PinGen())))
   for (i <- 0 until periphery_wd.length){  // Seq[Vec[PinGen]]
     if (i>0){
       sys.wdt_io.get(i).clock := io.pins.aon.lfextclk.inputPin().asClock

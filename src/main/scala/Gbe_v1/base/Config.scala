@@ -48,9 +48,13 @@ class GBEv1Peripherals extends Config((site, here, up) => {
     I2CParams(address = 0x10016000))
   case PeripheryMaskROMKey => List(
     MaskROMParams(address = 0x10000, name = "BootROM"))
-  case TDPMemListKey => Some(
+  /*case TDPMemListKey => Some(
                     List(
-                      TDPMemParams(address = 0x8000, sizeBytes = 40)
+                      TDPMemParams(address = 0x8000, sizeBytes = 64, fAddress = 0x6000, fSize = 64)
+                    ))*/
+  case ETHCtrlListKey => Some(
+                    List(
+                      ETHCtrlParams(address = 0x2000, fAddress = 0x8000, sizeBytes = 2048, NumBuffers = 4)
                     ))
 })
 
