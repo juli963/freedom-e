@@ -29,8 +29,10 @@ int main(int argc, char **argv) {
                              "Configuration", "L0" };
 
 	printf("Start\n");
-	tb2->m_core->io_pRootPort = 1;
-	tb->m_core->io_pRootPort = 0;
+
+	enum e_Function{f_device=0, f_root=1};
+	tb2->m_core->io_pRootPort = f_device;
+	tb->m_core->io_pRootPort = f_root;
 	tb->init();
 	tb2->init();
 	/*training->device_linkinit();
