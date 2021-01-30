@@ -25,12 +25,13 @@ int main(int argc, char **argv) {
 	s_training.data_rate = (1<<1) | (1<<2); // Support 2.5 and 5 GT/s
 	s_training.training_control = (1<<2) | (1<<3); // Loopback, Disable Scrambling
 
-	const char *state_names[4] = { "Detect", "Polling", 
-                             "Configuration", "L0" };
-
-	printf("Start\n");
+	const char *state_names[11] = { "Detect", "Polling", 
+                             "Configuration", "Recovery", "L0", "L0s", "L1", "L2", "Disabled", "Loopback", "Hot Reset" };
 
 	enum e_Function{f_device=0, f_root=1};
+
+	printf("Start as Root Port\n");
+
 	tb2->m_core->io_pRootPort = f_device;
 	tb->m_core->io_pRootPort = f_root;
 	tb->init();
@@ -71,6 +72,44 @@ int main(int argc, char **argv) {
 
 
 	printf("Finished \n");
+
+
+	printf("Start as Device \n");
+
+	tb2->m_core->io_pRootPort = f_root;
+	tb->m_core->io_pRootPort = f_device;
+	tb->init();
+	tb2->init();
+
+	state_ff = 0;
+	substate_ff = 0;
+	for(uint32_t i = 0; i<100000; i++){
+		tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
+		tb2->m_core->io_GTP_data_rx_data  = tb->m_core->io_GTP_data_tx_data;
+		tb->m_core->io_GTP_data_rx_charisk  = tb2->m_core->io_GTP_data_tx_charisk;
+		tb->m_core->io_GTP_data_rx_data  = tb2->m_core->io_GTP_data_tx_data;
+
+		state_ff = tb->m_core->io_ltssm_state;
+		substate_ff = tb->m_core->io_ltssm_substate;
+		
+		tb->tick();
+		tb2->tick();
+		if(tb->m_core->io_ltssm_state != state_ff){
+			CGREEN
+			printf("State has Changed, now: %s \n", state_names[tb->m_core->io_ltssm_state]);
+			CDEFAULT
+		}
+		if(tb->m_core->io_ltssm_substate != substate_ff){
+			CGREEN
+			printf("Substate has Changed, now: %i \n", tb->m_core->io_ltssm_substate);
+			CDEFAULT
+		}
+	}
+
+
+	printf("Finished \n");
+
+
 	tb->closetrace();
 	/*while(!tb->done()) {
 		
