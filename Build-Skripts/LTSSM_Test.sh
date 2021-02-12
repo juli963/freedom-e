@@ -4,7 +4,7 @@ if [ $1 = "c" ]; then
     echo "Switch Directory to generated/LTSSM_Test"
     cd ../generated/LTSSM_Test
     echo "Compile CPP Program ..."
-    g++ -Iobj_dir -Iusr -I/usr/share/verilator/include obj_dir/VLTSSM_test__Syms.cpp obj_dir/VLTSSM_test__Trace__Slow.cpp obj_dir/VLTSSM_test__Trace.cpp obj_dir/VLTSSM_test.cpp usr/testbench.cpp usr/LTSSM_test.cpp usr/PCIe_detectors.cpp usr/States/FSMStorage.cpp usr/States/Polling.cpp usr/PCIe_training.cpp  /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
+    g++ -Iobj_dir -Iusr -I/usr/share/verilator/include obj_dir/VLTSSM_test__Syms.cpp obj_dir/VLTSSM_test_LCRC_2_1D.cpp obj_dir/VLTSSM_test__Trace__Slow.cpp obj_dir/VLTSSM_test__Trace.cpp obj_dir/VLTSSM_test.cpp usr/testbench.cpp usr/LTSSM_test.cpp usr/PCIe_detectors.cpp usr/States/FSMStorage.cpp usr/States/Polling.cpp usr/PCIe_training.cpp  /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
     echo "Run CPP Testbench"
     ./usr/testbench.o
 else
@@ -23,7 +23,7 @@ else
     echo "Switch Directory to generated/LTSSM_Test"
     cd ..
     echo "Compile CPP Program ..."
-    g++ -Iobj_dir -Iusr -I/usr/share/verilator/include obj_dir/VLTSSM_test__Syms.cpp obj_dir/VLTSSM_test__Trace__Slow.cpp obj_dir/VLTSSM_test__Trace.cpp obj_dir/VLTSSM_test.cpp usr/testbench.cpp usr/LTSSM_test.cpp usr/PCIe_detectors.cpp usr/PCIe_training.cpp usr/States/FSMStorage.cpp usr/States/Polling.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
+    g++ -Iobj_dir -Iusr -I/usr/share/verilator/include obj_dir/VLTSSM_test__Syms.cpp obj_dir/VLTSSM_test_LCRC_2_1D.cpp obj_dir/VLTSSM_test__Trace__Slow.cpp obj_dir/VLTSSM_test__Trace.cpp obj_dir/VLTSSM_test.cpp usr/testbench.cpp usr/LTSSM_test.cpp usr/PCIe_detectors.cpp usr/PCIe_training.cpp usr/States/FSMStorage.cpp usr/States/Polling.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
     echo "Run CPP Testbench"
     ./usr/testbench.o
 fi
