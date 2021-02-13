@@ -294,9 +294,7 @@ int main(int argc, char **argv) {
 
 			tb->m_core->io_tlp_bundle_data_intf_tx_valid = 1;
 			tb->m_core->io_tlp_bundle_data_intf_tx_bits_strb = 3;
-		
-			
-			
+
 			tb->m_core->io_tlp_bundle_data_intf_tx_bits_data = tlp_intf_data[x-1];
 			
 		}
@@ -315,6 +313,65 @@ int main(int argc, char **argv) {
 	}
 	x = 0;
 
+	for(uint32_t i = 0; i<4000; i++){
+		if(i > 2000){
+			tb->m_core->io_GTP_data_rx_charisk  = tb2->m_core->io_GTP_data_tx_charisk;
+			tb->m_core->io_GTP_data_rx_data  = tb2->m_core->io_GTP_data_tx_data;
+		}
+		
+
+		tb2->m_core->io_GTP_data_rx_data  = tb->m_core->io_GTP_data_tx_data;
+		tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
+	
+		if (x == 0){	// Reset Valid -> Marks end of Package
+			tb->m_core->io_tlp_bundle_data_intf_tx_valid = 0;
+			tb->m_core->io_tlp_bundle_data_intf_tx_bits_strb = 0;
+			tb->m_core->io_tlp_bundle_data_intf_tx_bits_data = 0;
+
+
+			tb->m_core->io_tlp_bundle_tx_fmt = ((tlp_intf_data[0] & 0x00E0)>>5);
+			tb->m_core->io_tlp_bundle_tx_type = ((tlp_intf_data[0] & 0x001F));
+			tb->m_core->io_tlp_bundle_tx_tc = ((tlp_intf_data[0] & 0x7000)>>12);
+			tb->m_core->io_tlp_bundle_tx_size = sizeof(tlp_intf_data);
+			while(tb->m_core->io_tlp_bundle_data_intf_tx_ready > 0){
+				tb->tick();
+				tb2->tick();
+
+				tb->m_core->io_GTP_data_rx_charisk  = tb2->m_core->io_GTP_data_tx_charisk;
+				tb->m_core->io_GTP_data_rx_data  = tb2->m_core->io_GTP_data_tx_data;
+
+				tb2->m_core->io_GTP_data_rx_data  = tb->m_core->io_GTP_data_tx_data;
+				tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
+			}
+			x = 1;
+
+		}else{	// Start Sending Data
+
+			tb->m_core->io_tlp_bundle_data_intf_tx_valid = 1;
+			if(x == 10){
+				tb->m_core->io_tlp_bundle_data_intf_tx_bits_strb = 1;
+			}else{
+				tb->m_core->io_tlp_bundle_data_intf_tx_bits_strb = 3;
+			}
+			
+			
+			tb->m_core->io_tlp_bundle_data_intf_tx_bits_data = tlp_intf_data[x-1];
+			
+		}
+
+		
+
+		tb->tick();
+		tb2->tick();
+
+		if(tb->m_core->io_tlp_bundle_data_intf_tx_ready > 0){
+			x = x+1;
+		}
+		if(x >= 11){
+			x = 0;
+		}
+	}
+	x=0;
 
 
 	// Switch Testbenches -> For receiving ACK Check
