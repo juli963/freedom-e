@@ -198,7 +198,126 @@ int main(int argc, char **argv) {
 	}
 	x = 0;
 
-	// Switch Testbenches
+	// Try TLP Interface
+	uint16_t tlp_intf_data[10] = {  0x0074,
+									0x0100, 0xC000, 0x5000,
+									0x0000, 0x0000, 0x0000, 0x0000,0x0000, 0x0000
+								};
+	x = 0;
+	for(uint32_t i = 0; i<500; i++){
+		tb->m_core->io_GTP_data_rx_charisk  = tb2->m_core->io_GTP_data_tx_charisk;
+		tb->m_core->io_GTP_data_rx_data  = tb2->m_core->io_GTP_data_tx_data;
+
+		tb2->m_core->io_GTP_data_rx_data  = tb->m_core->io_GTP_data_tx_data;
+		tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
+
+		if (x == 0){	// Reset Valid -> Marks end of Package
+			tb->m_core->io_tlp_bundle_data_intf_tx_valid = 0;
+			tb->m_core->io_tlp_bundle_data_intf_tx_bits_strb = 0;
+			tb->m_core->io_tlp_bundle_data_intf_tx_bits_data = 0;
+
+
+			tb->m_core->io_tlp_bundle_tx_fmt = ((tlp_intf_data[0] & 0x00E0)>>5);
+			tb->m_core->io_tlp_bundle_tx_type = ((tlp_intf_data[0] & 0x001F));
+			tb->m_core->io_tlp_bundle_tx_tc = ((tlp_intf_data[0] & 0x7000)>>12);
+			tb->m_core->io_tlp_bundle_tx_size = sizeof(tlp_intf_data);
+			while(tb->m_core->io_tlp_bundle_data_intf_tx_ready > 0){
+				tb->tick();
+				tb2->tick();
+
+				tb->m_core->io_GTP_data_rx_charisk  = tb2->m_core->io_GTP_data_tx_charisk;
+				tb->m_core->io_GTP_data_rx_data  = tb2->m_core->io_GTP_data_tx_data;
+
+				tb2->m_core->io_GTP_data_rx_data  = tb->m_core->io_GTP_data_tx_data;
+				tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
+			}
+			x = 1;
+
+		}else{	// Start Sending Data
+
+			tb->m_core->io_tlp_bundle_data_intf_tx_valid = 1;
+			if(x == 10){
+				tb->m_core->io_tlp_bundle_data_intf_tx_bits_strb = 1;
+			}else{
+				tb->m_core->io_tlp_bundle_data_intf_tx_bits_strb = 3;
+			}
+			
+			
+			tb->m_core->io_tlp_bundle_data_intf_tx_bits_data = tlp_intf_data[x-1];
+			
+		}
+
+		
+
+		tb->tick();
+		tb2->tick();
+
+		if(tb->m_core->io_tlp_bundle_data_intf_tx_ready > 0){
+			x = x+1;
+		}
+		if(x >= 11){
+			x = 0;
+		}
+	}
+	x = 0;
+
+	for(uint32_t i = 0; i<500; i++){
+		tb->m_core->io_GTP_data_rx_charisk  = tb2->m_core->io_GTP_data_tx_charisk;
+		tb->m_core->io_GTP_data_rx_data  = tb2->m_core->io_GTP_data_tx_data;
+
+		tb2->m_core->io_GTP_data_rx_data  = tb->m_core->io_GTP_data_tx_data;
+		tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
+
+		if (x == 0){	// Reset Valid -> Marks end of Package
+			tb->m_core->io_tlp_bundle_data_intf_tx_valid = 0;
+			tb->m_core->io_tlp_bundle_data_intf_tx_bits_strb = 0;
+			tb->m_core->io_tlp_bundle_data_intf_tx_bits_data = 0;
+
+
+			tb->m_core->io_tlp_bundle_tx_fmt = ((tlp_intf_data[0] & 0x00E0)>>5);
+			tb->m_core->io_tlp_bundle_tx_type = ((tlp_intf_data[0] & 0x001F));
+			tb->m_core->io_tlp_bundle_tx_tc = ((tlp_intf_data[0] & 0x7000)>>12);
+			tb->m_core->io_tlp_bundle_tx_size = sizeof(tlp_intf_data);
+			while(tb->m_core->io_tlp_bundle_data_intf_tx_ready > 0){
+				tb->tick();
+				tb2->tick();
+
+				tb->m_core->io_GTP_data_rx_charisk  = tb2->m_core->io_GTP_data_tx_charisk;
+				tb->m_core->io_GTP_data_rx_data  = tb2->m_core->io_GTP_data_tx_data;
+
+				tb2->m_core->io_GTP_data_rx_data  = tb->m_core->io_GTP_data_tx_data;
+				tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
+			}
+			x = 1;
+
+		}else{	// Start Sending Data
+
+			tb->m_core->io_tlp_bundle_data_intf_tx_valid = 1;
+			tb->m_core->io_tlp_bundle_data_intf_tx_bits_strb = 3;
+		
+			
+			
+			tb->m_core->io_tlp_bundle_data_intf_tx_bits_data = tlp_intf_data[x-1];
+			
+		}
+
+		
+
+		tb->tick();
+		tb2->tick();
+
+		if(tb->m_core->io_tlp_bundle_data_intf_tx_ready > 0){
+			x = x+1;
+		}
+		if(x >= 11){
+			x = 0;
+		}
+	}
+	x = 0;
+
+
+
+	// Switch Testbenches -> For receiving ACK Check
 
 	for(uint32_t i = 0; i<500; i++){
 		tb->m_core->io_GTP_data_rx_charisk  = tb2->m_core->io_GTP_data_tx_charisk;
@@ -246,6 +365,8 @@ int main(int argc, char **argv) {
 		tb->tick();
 		tb2->tick();
 	}
+
+
 
 	printf("Finished \n");
 
@@ -329,8 +450,8 @@ int main(int argc, char **argv) {
 	arr[4] = 0xC3; 
 	printf("CRC: 0x%X \n", CalculateDllpCRC(0x50,arr,6));
 
-	printf("TLPCRC: 0x%X \n", CalculateTlpCRC(tlp_arr,26));
-	printf("TLPCRC: 0x%X \n", CalculateTlpCRC(tlp_arr,30));
+	printf("TLPCRC: 0x%X \n", CalculateTlpCRC(tlp_arr,21));
+	printf("TLPCRC: 0x%X \n", CalculateTlpCRC(tlp_arr,22));
 }
 /* TLP Byte Array
 { 	0xFB, 0x00 ,0x00, 0x74, 0x00,
