@@ -84,6 +84,7 @@ void TCP_Bus::Connect(uint8_t requester, uint32_t destIP, uint64_t destMAC, uint
             m_core[1]->tick();
             m_core[0]->tick();
         if(i==20){
+            CrossPCIe();
             m_core[1]->tick();
             m_core[0]->tick();
             
@@ -98,7 +99,7 @@ void TCP_Bus::Connect(uint8_t requester, uint32_t destIP, uint64_t destMAC, uint
 
 }
 
-void TCP_Bus::Send_Data(uint8_t requester, uint32_t destIP, uint64_t destMAC, uint16_t Port, uint32_t ack_number, uint32_t seq_number, uint8_t* data, uint16_t Length){
+void TCP_Bus::Send_Data(uint8_t requester, uint32_t destIP, uint64_t destMAC, uint16_t Port, uint32_t ack_number, uint32_t seq_number, uint8_t ack, uint8_t* data, uint16_t Length){
 
     uint8_t ip_overhead = 20; // 20 Bytes for IP4 Header
     uint8_t syn_frame[] = {
@@ -116,8 +117,8 @@ void TCP_Bus::Send_Data(uint8_t requester, uint32_t destIP, uint64_t destMAC, ui
         0x3A, 0x98, // Dest Port
         0x6D, 0x1A, 0x56, 0x37, // Start Sequence Number
         0x00, 0x00, 0x00, 0x00, // Acknowledge Number
-        0x50,                   // Header Length in 4Bytes, Flags
-        0x02,                   // CWR
+        0x50,                   // Header Length in 4Bytes
+        0x00,                   // CWR, Flags
         0x20, 0x00,             // Window Size
         0x00, 0x00,             // TCP Checksum
         0x00, 0x00             // Urgent Pointer
@@ -158,15 +159,19 @@ void TCP_Bus::Send_Data(uint8_t requester, uint32_t destIP, uint64_t destMAC, ui
     syn_frame[11] = ip_checksum&0xFF;
     syn_frame[10] = ((ip_checksum&0xFF00)>>8);
 
-    /*for(uint32_t i = 0; i< sizeof(syn_frame); i++){
-        printf("Frame Byte %i   : 0x%X \n", i ,syn_frame[i]);
-    }*/
+    // Set ACK Flag if enabled
+    if(ack >= 1){
+        syn_frame[33] = 1<<4;
+    }
+    
+
+
     uint8_t data_frame[total_length];
     for(uint32_t i= 0; i<sizeof(syn_frame); i++){
-        data_frame[i] = syn_frame[i]
+        data_frame[i] = syn_frame[i];
     }
     for(uint32_t i= 0; i<total_length; i++){
-        data_frame[sizeof(syn_frame)+i] = data[i]
+        data_frame[sizeof(syn_frame)+i] = data[i];
     }
 
     m_core[requester]->m_core->io_EthernetBus_rx_strb = 1;
@@ -197,6 +202,83 @@ void TCP_Bus::Send_Data(uint8_t requester, uint32_t destIP, uint64_t destMAC, ui
     CrossPCIe();
     m_core[1]->tick();
     m_core[0]->tick();
+
+}
+
+void TCP_Bus::Send_TLP(uint8_t requester, uint8_t* data, uint8_t* charisk, uint16_t Length){
+    uint8_t x = 0;
+    uint8_t receiver = (~requester)&0x01;
+    for(uint16_t i = 0; i<Length; i++){
+
+        if(x== 0){
+            x = ~x;
+            m_core[requester]->m_core->io_GTP_data_rx_charisk  = charisk[i];
+            m_core[requester]->m_core->io_GTP_data_rx_data  = data[i];
+        }else{
+            m_core[receiver]->m_core->io_GTP_data_rx_charisk  = m_core[requester]->m_core->io_GTP_data_tx_charisk;
+            m_core[receiver]->m_core->io_GTP_data_rx_data  = m_core[requester]->m_core->io_GTP_data_tx_data;
+            m_core[requester]->m_core->io_GTP_data_rx_charisk  |= charisk[i]<<1;
+            m_core[requester]->m_core->io_GTP_data_rx_data  |= data[i] << 8;
+
+            m_core[1]->tick();
+            m_core[0]->tick();
+            x = ~x;
+        }
+    }
+    if(x != 0){
+        m_core[receiver]->m_core->io_GTP_data_rx_charisk  = m_core[requester]->m_core->io_GTP_data_tx_charisk;
+        m_core[receiver]->m_core->io_GTP_data_rx_data  = m_core[requester]->m_core->io_GTP_data_tx_data;
+        m_core[1]->tick();
+        m_core[0]->tick();
+    }
+}
+
+uint32_t TCP_Bus::CalculateTlpCRC(uint8_t* data, uint8_t len)
+{
+	uint32_t poly = 0xedb88320;
+
+	uint32_t crc = 0xffffffff;
+	for(size_t n=0; n<len; n++)
+	{
+		uint8_t d = data[n];
+		for(int i=0; i<8; i++)
+		{
+			bool b = ( crc ^ (d >> i) ) & 1;
+			crc >>= 1;
+			if(b)
+				crc ^= poly;
+		}
+	}
+
+	return ~(	((crc & 0x000000ff) << 24) |
+				((crc & 0x0000ff00) << 8) |
+				((crc & 0x00ff0000) >> 8) |
+				 (crc >> 24) );
+}
+
+void TCP_Bus::Send_TLP_Checksum(uint8_t requester, uint8_t* data, uint16_t Length){
+    uint8_t x = 0;
+    uint8_t receiver = (~requester)&0x01;
+    uint16_t max_len = Length+2+4;
+    uint8_t data_new[max_len];
+    uint8_t isk[max_len] = {0};
+
+    data_new[0] = 0xFB;
+    isk[0] = 0x1;
+    data_new[max_len-1] = 0xFD;
+    isk[max_len-1] = 0x1;
+
+
+    uint32_t checksum = CalculateTlpCRC(data,Length);
+    uint32_t mask = 0xFF;
+    for(uint8_t i = 0; i<4; i++){
+        data_new[max_len-2-i] = (checksum&mask)>>(i*8);
+        mask <<= 8;
+    }
+    for(uint16_t i = 1; i<=Length; i++){
+        data_new[i] = data[i-1];
+    }
+    Send_TLP(requester, data_new, isk, max_len);
 
 }
 

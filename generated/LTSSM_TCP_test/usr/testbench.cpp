@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
 	tcp_stack->Prepare_Address(1, 0xC0A86410, 0x111213140901);
 
 
-	tb2->opentrace("trace.vcd");
+	tb->opentrace("trace.vcd");
 	//tb2->opentrace("trace.vcd");
 
 	const char *state_names[11] = { "Detect", "Polling", 
@@ -36,9 +36,9 @@ int main(int argc, char **argv) {
 	tb->m_core->io_pRootPort = f_root;
 	tb->init();
 	tb2->init();
-	tb->tick();
-	tb->tick();
-	tb->tick();
+	//tb->tick();
+	//tb->tick();
+	//tb->tick();
 	tcp_stack->Connect(0,0xC0A86410,0x111213140901, 15000);
 	/*training->device_linkinit();
 	training->device_linkinit();
@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
 	}*/
 	uint32_t state_ff = 0;
 	uint32_t substate_ff = 0;
-	uint16_t tlp_data[14] = { 	0xFBFD, 0x0000, 0x0074,
+	/*uint16_t tlp_data[14] = { 	0xFBFD, 0x0000, 0x0074,
 								0x0100, 0xC000, 0x5000,
 								0x0000, 0x0000, 0x0000, 0x0000,0x0000, 0x0000,
 								0x7675, 0x2356
@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
 								0x0100, 0xC000, 0x5000,
 								0x0000, 0x0000, 0x0000, 0x0000,0x0000, 0x0000,
 								0x7675, 0x2356,0x00FD
-							};
+							};*/
 	uint8_t x = 0;
 	for(uint32_t i = 0; i<100000; i++){
 		tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
@@ -94,6 +94,59 @@ int main(int argc, char **argv) {
 		}
 	}
 
+	uint8_t tlp_data[]  = { 0xFB, 0x00 ,0x00, 0x74, 0x00,
+							0x00, 0x01, 0x00, 0xC0, 0x00, 0x50,
+							0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+							0x75, 0x76, 0x56, 0x23,0xFD
+	};
+	uint8_t tlp_dat[]  = {  0x00 ,0x00, 0x74, 0x00,
+							0x00, 0x01, 0x00, 0xC0, 0x00, 0x50,
+							0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x70, 0x71
+							
+	};
+
+	uint8_t tlp_isk [] = { 	0x01, 0x00 ,0x00, 0x00, 0x00,
+							0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+							0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+							0x00, 0x00, 0x00, 0x00,0x01
+	};
+	tcp_stack->Send_TLP(0, tlp_data, tlp_isk, sizeof(tlp_data));
+
+	for(uint16_t i = 0; i<300; i++){
+		tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
+		tb2->m_core->io_GTP_data_rx_data  = tb->m_core->io_GTP_data_tx_data;
+
+		tb->m_core->io_GTP_data_rx_charisk  = tb2->m_core->io_GTP_data_tx_charisk;
+		tb->m_core->io_GTP_data_rx_data  = tb2->m_core->io_GTP_data_tx_data;
+		tb->tick();
+		tb2->tick();
+	}
+
+	tcp_stack->Send_TLP_Checksum(0, tlp_dat, sizeof(tlp_dat)-1);
+
+	for(uint16_t i = 0; i<300; i++){
+		tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
+		tb2->m_core->io_GTP_data_rx_data  = tb->m_core->io_GTP_data_tx_data;
+
+		tb->m_core->io_GTP_data_rx_charisk  = tb2->m_core->io_GTP_data_tx_charisk;
+		tb->m_core->io_GTP_data_rx_data  = tb2->m_core->io_GTP_data_tx_data;
+		tb->tick();
+		tb2->tick();
+	}
+
+	tcp_stack->Send_TLP_Checksum(0, tlp_dat, sizeof(tlp_dat));
+
+	for(uint16_t i = 0; i<300; i++){
+		tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
+		tb2->m_core->io_GTP_data_rx_data  = tb->m_core->io_GTP_data_tx_data;
+
+		tb->m_core->io_GTP_data_rx_charisk  = tb2->m_core->io_GTP_data_tx_charisk;
+		tb->m_core->io_GTP_data_rx_data  = tb2->m_core->io_GTP_data_tx_data;
+		tb->tick();
+		tb2->tick();
+	}
+
+/*
 	for(uint32_t i = 0; i<500; i++){
 		tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
 		tb2->m_core->io_GTP_data_rx_data  = tb->m_core->io_GTP_data_tx_data;
@@ -146,7 +199,7 @@ int main(int argc, char **argv) {
 									0x0000, 0x0000, 0x0000, 0x0000,0x0000, 0x0000
 								};
 	x = 0;
-
+*/
 /*
   output        io_EthernetBus_busclock,
   output        io_EthernetBus_tx_strb,
@@ -250,8 +303,8 @@ int main(int argc, char **argv) {
 	arr[4] = 0xC3; 
 	printf("CRC: 0x%X \n", CalculateDllpCRC(0x50,arr,6));
 
-	printf("TLPCRC: 0x%X \n", CalculateTlpCRC(tlp_arr,21));
-	printf("TLPCRC: 0x%X \n", CalculateTlpCRC(tlp_arr,22));
+	//printf("TLPCRC: 0x%X \n", CalculateTlpCRC(tlp_arr,21));
+	//printf("TLPCRC: 0x%X \n", CalculateTlpCRC(tlp_arr,22));
 }
 /* TLP Byte Array
 { 	0xFB, 0x00 ,0x00, 0x74, 0x00,
@@ -293,25 +346,3 @@ uint16_t CalculateDllpCRC(uint8_t type, uint8_t* data, uint8_t len)
 	return ~( (crc << 8) | ( (crc >> 8) & 0xff) );
 }
 
-uint32_t CalculateTlpCRC(uint8_t* data, uint8_t len)
-{
-	uint32_t poly = 0xedb88320;
-
-	uint32_t crc = 0xffffffff;
-	for(size_t n=0; n<len; n++)
-	{
-		uint8_t d = data[n];
-		for(int i=0; i<8; i++)
-		{
-			bool b = ( crc ^ (d >> i) ) & 1;
-			crc >>= 1;
-			if(b)
-				crc ^= poly;
-		}
-	}
-
-	return ~(	((crc & 0x000000ff) << 24) |
-				((crc & 0x0000ff00) << 8) |
-				((crc & 0x00ff0000) >> 8) |
-				 (crc >> 24) );
-}
