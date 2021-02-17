@@ -40,6 +40,7 @@ int main(int argc, char **argv) {
 	//tb->tick();
 	//tb->tick();
 	tcp_stack->Connect(0,0xC0A86410,0x111213140901, 15000);
+	tcp_stack->Connect(1,0xC0A86401,0x111213141820, 15000);
 	/*training->device_linkinit();
 	training->device_linkinit();
 	training->device_linkinit();*/
@@ -104,6 +105,7 @@ int main(int argc, char **argv) {
 							0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x70, 0x71
 							
 	};
+	uint8_t tlp_testdat[]  = {  0x02,0x03,0x04,0x05,0x06 	};
 
 	uint8_t tlp_isk [] = { 	0x01, 0x00 ,0x00, 0x00, 0x00,
 							0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -134,9 +136,12 @@ int main(int argc, char **argv) {
 		tb2->tick();
 	}
 
-	tcp_stack->Send_TLP_Checksum(0, tlp_dat, sizeof(tlp_dat));
+	//tcp_stack->Send_TLP_Checksum(0, tlp_dat, sizeof(tlp_dat));
 
-	for(uint16_t i = 0; i<300; i++){
+	tcp_stack->Send_Data(1, 0xC0A86401,0x111213141820, 15000, 0x0, 0x6D1A5638, 0, tlp_testdat, 5);
+	tcp_stack->Send_Data(0, 0xC0A86410,0x111213140901, 15000, 0x15, 0x6D1A5638, 1, tlp_testdat, 0);
+
+	for(uint16_t i = 0; i<30000; i++){
 		tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
 		tb2->m_core->io_GTP_data_rx_data  = tb->m_core->io_GTP_data_tx_data;
 

@@ -149,30 +149,34 @@ void TCP_Bus::Send_Data(uint8_t requester, uint32_t destIP, uint64_t destMAC, ui
         ip_mask <<= 8;
     }
 
-    uint16_t tcp_checksum = CalcTCPChecksum(destIP, m_core[requester]->m_core->io_Params_IP, ((uint16_t) (sizeof(syn_frame)-ip_overhead)), &syn_frame[20]);
-    //printf("TCP Checksum = 0x%X \n", tcp_checksum);
-    syn_frame[37] = tcp_checksum&0xFF;
-    syn_frame[36] = ((tcp_checksum&0xFF00)>>8);
-
-    uint16_t ip_checksum = CalcIPChecksum(ip_overhead, syn_frame);
-    //printf("IP Checksum = 0x%X \n", ip_checksum);
-    syn_frame[11] = ip_checksum&0xFF;
-    syn_frame[10] = ((ip_checksum&0xFF00)>>8);
-
     // Set ACK Flag if enabled
     if(ack >= 1){
         syn_frame[33] = 1<<4;
     }
-    
-
 
     uint8_t data_frame[total_length];
     for(uint32_t i= 0; i<sizeof(syn_frame); i++){
         data_frame[i] = syn_frame[i];
     }
-    for(uint32_t i= 0; i<total_length; i++){
+    for(uint32_t i= 0; i<Length; i++){
         data_frame[sizeof(syn_frame)+i] = data[i];
     }
+
+    uint16_t tcp_checksum = CalcTCPChecksum(destIP, m_core[requester]->m_core->io_Params_IP, ((uint16_t) (sizeof(data_frame)-ip_overhead)), &data_frame[20]);
+    //printf("TCP Checksum = 0x%X \n", tcp_checksum);
+    data_frame[37] = tcp_checksum&0xFF;
+    data_frame[36] = ((tcp_checksum&0xFF00)>>8);
+
+    uint16_t ip_checksum = CalcIPChecksum(ip_overhead, data_frame);
+    //printf("IP Checksum = 0x%X \n", ip_checksum);
+    data_frame[11] = ip_checksum&0xFF;
+    data_frame[10] = ((ip_checksum&0xFF00)>>8);
+
+
+    
+
+
+
 
     m_core[requester]->m_core->io_EthernetBus_rx_strb = 1;
     m_core[requester]->m_core->io_EthernetBus_rx_empty = 1;
