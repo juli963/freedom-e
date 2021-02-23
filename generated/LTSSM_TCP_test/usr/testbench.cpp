@@ -5,6 +5,7 @@
 
 uint16_t CalculateDllpCRC(uint8_t type, uint8_t* data, uint8_t len = 4);
 uint32_t CalculateTlpCRC(uint8_t* data, uint8_t len);
+void decode_TLP(uint8_t* data, uint8_t len);
 
 int main(int argc, char **argv) {
 	//std::srand(static_cast<int>(time(0)));
@@ -112,6 +113,16 @@ int main(int argc, char **argv) {
 							0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 							0x00, 0x00, 0x00, 0x00,0x01
 	};
+	uint8_t tlp_new2 [] = { 	 0x04, 0x00, 0x00, 0x01, 0x00, 0xc0, 0x00, 0x0f, 0x03, 0x00, 0x00, 0x00 };
+	uint8_t tlp_new3 [] = { 	 0x04, 0x00, 0x00, 0x01, 0x00, 0xc0, 0x00, 0x0f, 0x03, 0x00, 0x00, 0x00, 0xca, 0x28, 0xa8, 0x44  };
+	uint8_t tlp_ans [] = { 	 0x4a, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x04, 0x00, 0xc0, 0x00, 0x00, 0xde, 0x10, 0x22, 0x06  };
+
+ 	decode_TLP(&tlp_dat[2], sizeof(tlp_dat)-2);
+	printf("Next \n \n ");
+ 	decode_TLP(tlp_new2, sizeof(tlp_new2));
+ 	decode_TLP(tlp_new2, sizeof(tlp_new2));
+ 	decode_TLP(tlp_ans, sizeof(tlp_ans));
+
 	tcp_stack->Send_TLP(0, tlp_data, tlp_isk, sizeof(tlp_data));
 
 	for(uint16_t i = 0; i<300; i++){
@@ -139,7 +150,7 @@ int main(int argc, char **argv) {
 	//tcp_stack->Send_TLP_Checksum(0, tlp_dat, sizeof(tlp_dat));
 
 	tcp_stack->Send_Data(1, 0xC0A86401,0x111213141820, 15000, 0x0, 0x6D1A5638, 0, tlp_testdat, 5);
-	tcp_stack->Send_Data(0, 0xC0A86410,0x111213140901, 15000, 0x15, 0x6D1A5638, 1, tlp_testdat, 0);
+	tcp_stack->Send_Data(0, 0xC0A86410,0x111213140901, 15000, 0x15, 0x6D1A5638, 1, tlp_testdat, 5);
 
 	for(uint16_t i = 0; i<30000; i++){
 		tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
@@ -324,6 +335,248 @@ int main(int argc, char **argv) {
 	0x7675, 0x2356
 }
 */
+void decode_type(uint8_t format, uint8_t type){
+	if( (format & 0x03) == 0){
+		printf("3DW Header, no data \n");
+	}else if( (format & 0x03) == 1){
+		printf("4DW Header, no data \n");
+	}else if( (format & 0x03) == 2){
+		printf("3DW Header, with data \n");
+	}else if( (format & 0x03) == 3){
+		printf("4DW Header, with data \n");
+	}else if( (format & 0x03) == 4){
+		printf("TLP Prefix \n");
+	}
+
+	if ( ((format & 0x06) == 0) && ((type & 0x1F) == 0) ){	// MRd
+		printf("MRd Non-Posted\n");
+	}
+	if ( ((format & 0x06) == 0) && ((type & 0x1F) == 1) ){	// MRdLk
+		printf("MRdLk Non-Posted\n");
+	}
+	if ( ((format & 0x06) == 1) && ((type & 0x1F) == 0) ){	// MWr
+		printf("MWr Posted\n");
+	}
+	if ( ((format & 0x07) == 0) && ((type & 0x1F) == 2) ){	// IORd
+		printf("IORd Non-Posted\n");
+	}
+	if ( ((format & 0x07) == 2) && ((type & 0x1F) == 2) ){	// IOWr
+		printf("IOWr Non-Posted\n");
+	}
+	if ( ((format & 0x07) == 0) && ((type & 0x1F) == 4) ){	// CfgRd0
+		printf("CfgRd0 Non-Posted\n");
+	}
+	if ( ((format & 0x07) == 2) && ((type & 0x1F) == 4) ){	// CfgWr0
+		printf("CfgWr0 Non-Posted\n");
+	}
+	if ( ((format & 0x07) == 0) && ((type & 0x1F) == 5) ){	// CfgRd1
+		printf("CfgRd1 Non-Posted\n");
+	}
+	if ( ((format & 0x07) == 2) && ((type & 0x1F) == 5) ){	// CfgWr1
+		printf("CfgWr1 Non-Posted\n");
+	}
+	if ( ((format & 0x07) == 0) && ((type & 0x1F) == 27) ){	// TCfgRd
+		printf("TCfgRd Non-Posted\n");
+	}
+	if ( ((format & 0x07) == 2) && ((type & 0x1F) == 27) ){	// TCfgWr
+		printf("TCfgWr Non-Posted\n");
+	}
+	if ( ((format & 0x07) == 1) && ((type & 0x18) == 0x10) ){	// Msg
+	
+		printf("Msg Posted ");
+		switch ((type&0x07))
+		{
+			case 0:
+				printf( "Routed to Root Complex\n");
+				break;
+			case 1:
+				printf( "Routed by Address\n");
+				break;
+			case 2:
+				printf( "Routed by ID\n");
+				break;
+			case 3:
+				printf( "Broadcast from Root Complex\n");
+				break;
+			case 4:
+				printf( "Local - Terminate\n");
+				break;
+			case 5:
+				printf( "Gathered and routed to Root Complex\n");
+				break;
+			default:
+				printf( "Reserved - Terminate\n");
+				break;
+		}
+	}
+	if ( ((format & 0x07) == 3) && ((type & 0x18) == 0x10) ){	// MsgD
+		printf("MsgD Posted");
+		switch ((type&0x07))
+		{
+			case 0:
+				printf( "Routed to Root Complex\n");
+				break;
+			case 1:
+				printf( "Routed by Address\n");
+				break;
+			case 2:
+				printf( "Routed by ID\n");
+				break;
+			case 3:
+				printf( "Broadcast from Root Complex\n");
+				break;
+			case 4:
+				printf( "Local - Terminate\n");
+				break;
+			case 5:
+				printf( "Gathered and routed to Root Complex\n");
+				break;
+			default:
+				printf( "Reserved - Terminate\n");
+				break;
+		}
+	}
+	if ( ((format & 0x07) == 0) && ((type & 0x1F) == 10) ){	// Cpl
+		printf("Cpl Completion\n");
+	}
+	if ( ((format & 0x07) == 2) && ((type & 0x1F) == 10) ){	// CplD
+		printf("CplD Completion\n");
+	}
+	if ( ((format & 0x07) == 0) && ((type & 0x1F) == 11) ){	// CplLk
+		printf("CplLk Completion\n");
+	}
+	if ( ((format & 0x07) == 2) && ((type & 0x1F) == 11) ){	// CplDLk
+		printf("CplDLk Completion\n");
+	}
+	if ( ((format & 0x06) == 2) && ((type & 0x1F) == 12) ){	// FetchAdd
+		printf("FetchAdd Completion\n");
+	}
+	if ( ((format & 0x06) == 2) && ((type & 0x1F) == 13) ){	// Swap
+		printf("Swap Completion\n");
+	}
+	if ( ((format & 0x06) == 2) && ((type & 0x1F) == 14) ){	// CAS
+		printf("CAS Completion\n");
+	}
+	if ( ((format & 0x07) == 4) && ((type & 0x10) == 0) ){	// LPrfx
+		printf("LPrfx\n");
+	}
+	if ( ((format & 0x07) == 4) && ((type & 0x10) == 0x10) ){	// EPrfx
+		printf("EPrfx\n");
+	}
+
+}
+void decode_TLP(uint8_t* data, uint8_t len){
+	if (len >= 12){
+		uint8_t format,type;
+		uint16_t Length;
+		for(uint8_t i = 0; i<len ; i++)
+		{
+			switch(i){
+				case 0: // FMT and Type
+					format = (data[i]&0xE0)>>5;
+					type = (data[i]&0x1F);
+
+					decode_type(format,type);
+					break;
+				case 1: // Traffic Class, Attributes, Hints
+					printf("Traffic Class: %i\n", ((data[i]&0x70)>>4) );
+					printf("Attribute: %i\n", ((data[i]&0x04)>>2) );
+					printf("TLP Hints: %i\n", ((data[i]&0x01)) );
+					break;
+				case 2: // Digest, Poisoned, More Attributes
+					printf("TLP Digest: %i, ", ((data[i]&0x80)>>7) );
+					if (((data[i]&0x80)>>7) == 0){
+						printf("No Digest\n");
+					}else{
+						printf("With Digest\n");
+					}
+					printf("TLP Poisoned: %i\n", ((data[i]&0x40)>>6) );
+					printf("Attribute2: %i\n", ((data[i]&0x30)>>4) );
+					switch(((data[i]&0x0C)>>2)){
+						case 0:
+							printf("Adress Type: Untranslated\n"  );
+							break;
+						case 1:
+							printf("Adress Type: Translation Request\n"  );
+							break;
+						case 2:
+							printf("Adress Type: Translated\n"  );
+							break;
+						case 3:
+							printf("Adress Type: Reserved\n"  );
+							break;
+					}
+					Length = (data[i]&0x03)<<8;
+					break;
+				case 3: // Length
+					Length |= data[i];
+					printf("Length: %i DW\n", Length);
+					break;
+				case 4: //  Vary with type
+
+					break;
+				case 5: //  Vary with type
+
+					break;
+				case 6: //  Vary with type
+
+					break;
+				case 7: // Byte Enables
+					switch(((data[i]&0xF0)>>4)){
+						case 1:
+							printf("Byte 0 in Last DW is valid\n"  );
+							break;
+						case 2:
+							printf("Byte 1 in Last DW is valid\n"  );
+							break;
+						case 4:
+							printf("Byte 2 in Last DW is valid\n"  );
+							break;
+						case 8:
+							printf("Byte 3 in Last DW is valid\n"  );
+							break;
+					}
+					switch(((data[i]&0x0F))){
+						case 1:
+							printf("Byte 0 in First DW is valid\n"  );
+							break;
+						case 2:
+							printf("Byte 1 in First DW is valid\n"  );
+							break;
+						case 4:
+							printf("Byte 2 in First DW is valid\n"  );
+							break;
+						case 8:
+							printf("Byte 3 in First DW is valid\n"  );
+							break;
+					}
+					break;
+				case 8: //  Vary with type
+
+					break;
+				case 9: //  Vary with type
+
+					break;
+				case 10: //  Vary with type
+
+					break;
+				case 11: //  Vary with type
+
+					break;
+				default: 
+					uint8_t diff = 0;
+					if ((format & 0x03) == 3){	// 4 DW
+						diff = 16;
+					}else{
+						diff = 12;
+					}
+					printf("Data %i : 0x%X" , (i-diff),data[i]);
+					break;
+			}
+		}
+
+	}
+}
 
 uint16_t CalculateDllpCRC(uint8_t type, uint8_t* data, uint8_t len)
 {
