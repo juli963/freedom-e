@@ -6,6 +6,8 @@
 uint16_t CalculateDllpCRC(uint8_t type, uint8_t* data, uint8_t len = 4);
 uint32_t CalculateTlpCRC(uint8_t* data, uint8_t len);
 void decode_TLP(uint8_t* data, uint8_t len);
+uint8_t tlp_data_format(uint8_t format, uint8_t type);
+
 
 int main(int argc, char **argv) {
 	//std::srand(static_cast<int>(time(0)));
@@ -118,11 +120,11 @@ int main(int argc, char **argv) {
 	uint8_t tlp_ans [] = { 	 0x4a, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x04, 0x00, 0xc0, 0x00, 0x00, 0xde, 0x10, 0x22, 0x06  };
 
  	decode_TLP(&tlp_dat[2], sizeof(tlp_dat)-2);
-	printf("Next \n \n ");
+	printf("\n--------------\n \n ");
  	decode_TLP(tlp_new2, sizeof(tlp_new2));
- 	decode_TLP(tlp_new2, sizeof(tlp_new2));
+	printf("\n--------------\n \n ");
  	decode_TLP(tlp_ans, sizeof(tlp_ans));
-
+	printf("\n--------------\n \n ");
 	tcp_stack->Send_TLP(0, tlp_data, tlp_isk, sizeof(tlp_data));
 
 	for(uint16_t i = 0; i<300; i++){
@@ -463,20 +465,89 @@ void decode_type(uint8_t format, uint8_t type){
 	if ( ((format & 0x07) == 4) && ((type & 0x10) == 0x10) ){	// EPrfx
 		printf("EPrfx\n");
 	}
-
 }
+/*
+	Data Formats p. 75
+
+	-> 0 = Memory Requests
+	-> 1 = IO Requests
+	-> 2 = Config Requests
+	-> 3 = Completion
+	-> 4 = TLP Prefix
+	-> 5 = Message Request
+*/
+uint8_t tlp_data_format(uint8_t format, uint8_t type){
+
+	if ( ((format & 0x06) == 0) && ((type & 0x1F) == 0) ||
+		((format & 0x06) == 0) && ((type & 0x1F) == 1) ||
+		((format & 0x06) == 1) && ((type & 0x1F) == 0) ||
+		((format & 0x06) == 2) && ((type & 0x1F) == 12)||
+		((format & 0x06) == 2) && ((type & 0x1F) == 13)||
+		((format & 0x06) == 2) && ((type & 0x1F) == 14)
+	){	// Memory Requests and Atomics
+		return 0;
+	}
+
+	if ( ((format & 0x07) == 0) && ((type & 0x1F) == 2) ||
+		((format & 0x07) == 2) && ((type & 0x1F) == 2)
+	){	// IO Requests
+		return 1;
+	}
+
+	if ( ((format & 0x07) == 0) && ((type & 0x1F) == 4) ||
+		((format & 0x07) == 2) && ((type & 0x1F) == 4)	||
+		((format & 0x07) == 0) && ((type & 0x1F) == 5)	||
+		((format & 0x07) == 2) && ((type & 0x1F) == 5) 	||
+		((format & 0x07) == 0) && ((type & 0x1F) == 27) ||
+		((format & 0x07) == 2) && ((type & 0x1F) == 27) 
+	){	// Config Requests
+		return 2;
+	}
+
+	if ( ((format & 0x07) == 1) && ((type & 0x18) == 0x10) ||
+		((format & 0x07) == 3) && ((type & 0x18) == 0x10)
+	){	// Message Request
+		return 5;
+	}
+	
+	if ( ((format & 0x07) == 0) && ((type & 0x1F) == 10) ||
+		((format & 0x07) == 2) && ((type & 0x1F) == 10) ||
+		((format & 0x07) == 0) && ((type & 0x1F) == 11) ||
+		((format & 0x07) == 2) && ((type & 0x1F) == 11)
+	){	// Completion
+		return 3;
+	}
+
+	if ( ((format & 0x07) == 4) && ((type & 0x10) == 0) ||
+		((format & 0x07) == 4) && ((type & 0x10) == 0x10)
+	
+	){	// TLP Prefix
+		return 4;
+	}
+	return 0;
+}
+
 void decode_TLP(uint8_t* data, uint8_t len){
 	if (len >= 12){
-		uint8_t format,type;
+		uint8_t format,type, addr64, data_format;
 		uint16_t Length;
+		uint16_t Requester, Completer, ByteCount;
+		uint64_t Address;
+		uint8_t diff = 0;
 		for(uint8_t i = 0; i<len ; i++)
 		{
 			switch(i){
 				case 0: // FMT and Type
 					format = (data[i]&0xE0)>>5;
 					type = (data[i]&0x1F);
-
+					addr64 = format & 0x01;	// 64 Bit addressing -> 4 DWord header
+					if (addr64){
+						diff = 16;
+					}else{
+						diff = 12;
+					}
 					decode_type(format,type);
+					data_format = tlp_data_format(format,type);
 					break;
 				case 1: // Traffic Class, Attributes, Hints
 					printf("Traffic Class: %i\n", ((data[i]&0x70)>>4) );
@@ -506,71 +577,233 @@ void decode_TLP(uint8_t* data, uint8_t len){
 							printf("Adress Type: Reserved\n"  );
 							break;
 					}
-					Length = (data[i]&0x03)<<8;
+					Length = ((uint16_t)data[i]&0x03)<<8;
 					break;
 				case 3: // Length
 					Length |= data[i];
 					printf("Length: %i DW\n", Length);
 					break;
 				case 4: //  Vary with type
-
-					break;
-				case 5: //  Vary with type
-
-					break;
-				case 6: //  Vary with type
-
-					break;
-				case 7: // Byte Enables
-					switch(((data[i]&0xF0)>>4)){
+					switch (data_format)
+					{
+						case 0: // Requester ID on all Requests
 						case 1:
-							printf("Byte 0 in Last DW is valid\n"  );
-							break;
 						case 2:
-							printf("Byte 1 in Last DW is valid\n"  );
+						case 5:
+							Requester = (uint16_t)data[i]<<8;
 							break;
-						case 4:
-							printf("Byte 2 in Last DW is valid\n"  );
-							break;
-						case 8:
-							printf("Byte 3 in Last DW is valid\n"  );
+						case 3: // Completer ID on Completion
+							Completer = (uint16_t)data[i]<<8;
 							break;
 					}
-					switch(((data[i]&0x0F))){
+					break;
+				case 5: //  Vary with type
+					switch (data_format)
+					{
+						case 0: // Requester ID on all Requests
 						case 1:
-							printf("Byte 0 in First DW is valid\n"  );
-							break;
 						case 2:
-							printf("Byte 1 in First DW is valid\n"  );
+						case 5:
+							Requester |= data[i];
+							printf("Requester ID: %i\n", Requester);
 							break;
-						case 4:
-							printf("Byte 2 in First DW is valid\n"  );
+						case 3: // Completer ID on Completion
+							Completer |= data[i];
+							printf("Completer ID: %i\n", Completer);
 							break;
-						case 8:
-							printf("Byte 3 in First DW is valid\n"  );
+					}
+					break;
+				case 6: //  Vary with type
+					switch (data_format)
+					{
+						case 0: // Tag on all Requests
+						case 1:
+						case 2:
+						case 5:
+							printf("Tag: %i\n", data[i]);
+							break;
+						case 3: //  on Completion
+							switch(((data[i]&0xE0)>>5)){
+								case 0:
+									printf("Completion Status: Succesful\n");
+									break;
+								case 1:
+									printf("Completion Status: Unsupported Request\n");
+									break;
+								case 2:
+									printf("Completion Status: Config Request Retry\n");
+									break;
+								case 3:
+									printf("Completion Status: Completer Abort\n");
+									break;
+								default:
+									printf("Completion Status: Reserved\n");
+									break;
+							}
+							printf("Byte Count Modified: %i\n", ((data[i]&0x10)>>4) );
+							ByteCount = (uint16_t)data[i]<<8;
+							break;
+					}
+					break;
+				case 7: // Byte Enables
+					switch (data_format)
+					{
+						case 0: // Tag on Config, Mem and IO Requests
+						case 1:
+						case 2:
+							switch(((data[i]&0xF0)>>4)){
+								case 1:
+									printf("Byte 0 in Last DW is valid\n"  );
+									break;
+								case 2:
+									printf("Byte 1 in Last DW is valid\n"  );
+									break;
+								case 4:
+									printf("Byte 2 in Last DW is valid\n"  );
+									break;
+								case 8:
+									printf("Byte 3 in Last DW is valid\n"  );
+									break;
+							}
+							switch(((data[i]&0x0F))){
+								case 1:
+									printf("Byte 0 in First DW is valid\n"  );
+									break;
+								case 2:
+									printf("Byte 1 in First DW is valid\n"  );
+									break;
+								case 4:
+									printf("Byte 2 in First DW is valid\n"  );
+									break;
+								case 8:
+									printf("Byte 3 in First DW is valid\n"  );
+									break;
+							}
+							break;
+						case 3: //  on Completion
+							ByteCount |= data[i];
+							printf("ByteCount: %i\n", ByteCount);
+							break;
+						case 5:
+							printf("Message Code: 0x%X\n", data[i]);
 							break;
 					}
 					break;
 				case 8: //  Vary with type
-
+					switch (data_format)
+					{
+						case 0: // Memory and IO
+						case 1:
+							if (addr64){
+								Address = (uint64_t)data[i]<<56;
+							}else{
+								Address = (uint64_t)data[i]<<24;
+							}
+							break;
+						case 2: // Configuration
+							printf("Bus Number: %i\n", data[i]);
+							break;
+						case 3: // Completion
+							Requester = (uint16_t)data[i]<<8;
+							break;
+					}
 					break;
 				case 9: //  Vary with type
-
+					switch (data_format)
+					{
+						case 0: // Memory and IO
+						case 1: 
+							if (addr64){
+								Address |= (uint64_t)data[i]<<48;
+							}else{
+								Address |= (uint64_t)data[i]<<16;
+							}
+							break;
+						case 2: // Configuration
+							printf("Device Number: %i\n", ((data[i]&0xF8) >>3) );
+							printf("Func Number: %i\n", data[i]&0x07 );
+							break;
+						case 3: // Completion
+							Requester |= data[i];
+							printf("Requester ID: %i\n", Requester);
+							break;
+					}
 					break;
 				case 10: //  Vary with type
-
+					switch (data_format)
+					{
+						case 0: // Memory and IO
+						case 1:
+							if (addr64){
+								Address |= (uint64_t)data[i]<<40;
+							}else{
+								Address |= (uint64_t)data[i]<<8;
+							}
+							break;
+						case 2: // Configuration
+							printf("Ext Reg Number: %i\n", (data[i]&0x0F) );
+							break;
+						case 3: // Completion
+							printf("Tag: %i\n", data[i]);
+							break;
+					}
 					break;
 				case 11: //  Vary with type
-
+					switch (data_format)
+					{
+						case 0: // Memory and IO
+						case 1:
+							if (addr64){
+								Address |= (uint64_t)data[i]<<32;
+							}else{
+								Address |= (uint64_t)data[i];
+								printf("Adress: 0x%lX\n", Address);
+							}
+							break;
+						case 2: // Configuration
+							printf("Reg Number: %i\n", ((data[i]&0xFC)>>2) );
+							break;
+						case 3: // Completion
+							printf("Lower Address: %i\n", data[i]&0x7F);
+							break;
+					}
+					break;
+				case 12: //  Vary with type
+					if (addr64){	// 4 DW
+						
+					}else{
+						printf("Data %i : 0x%X\n" , (i-diff),data[i]);
+					}
+					break;
+				case 13: //  Vary with type
+					if (addr64){	// 4 DW
+						
+					}else{
+						printf("Data %i : 0x%X\n" , (i-diff),data[i]);
+					}
+					break;
+				case 14: //  Vary with type
+					if (addr64){	// 4 DW
+						
+					}else{
+						printf("Data %i : 0x%X\n" , (i-diff),data[i]);
+					}
+					break;
+				case 15: //  Vary with type
+					if (addr64){	// 4 DW
+						
+					}else{
+						printf("Data %i : 0x%X\n" , (i-diff),data[i]);
+					}
 					break;
 				default: 
-					uint8_t diff = 0;
-					if ((format & 0x03) == 3){	// 4 DW
+					
+					if (addr64){	// 4 DW
 						diff = 16;
 					}else{
 						diff = 12;
 					}
-					printf("Data %i : 0x%X" , (i-diff),data[i]);
+					printf("Data %i : 0x%X\n" , (i-diff),data[i]);
 					break;
 			}
 		}
