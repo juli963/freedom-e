@@ -115,15 +115,27 @@ int main(int argc, char **argv) {
 							0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 							0x00, 0x00, 0x00, 0x00,0x01
 	};
-	uint8_t tlp_new2 [] = { 	 0x04, 0x00, 0x00, 0x01, 0x00, 0xc0, 0x00, 0x0f, 0x03, 0x00, 0x00, 0x00 };
+	uint8_t tlp_new2 [] = { 0x04, 0x00, 0x00, 0x01, 
+							0x00, 0xc0, 0x00, 0x0f, 
+							0x03, 0x00, 0x00, 0x00 };
+							
 	uint8_t tlp_new3 [] = { 	 0x04, 0x00, 0x00, 0x01, 0x00, 0xc0, 0x00, 0x0f, 0x03, 0x00, 0x00, 0x00, 0xca, 0x28, 0xa8, 0x44  };
-	uint8_t tlp_ans [] = { 	 0x4a, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x04, 0x00, 0xc0, 0x00, 0x00, 0xde, 0x10, 0x22, 0x06  };
+	uint8_t tlp_ans [] = { 	0x4a, 0x00, 0x00, 0x01,
+							0x00, 0x00, 0x00, 0x04, 
+							0x00, 0xc0, 0x00, 0x00, 
+							0xde, 0x10, 0x22, 0x06  };
+	uint8_t tlp_ans2 [] = { 	0x4a, 0x00, 0x00, 0x01,
+							0x03, 0x00, 0x00, 0x04, 
+							0x00, 0xc0, 0x00, 0x00, 
+							0xde, 0x10, 0x22, 0x06  };
 
  	decode_TLP(&tlp_dat[2], sizeof(tlp_dat)-2);
 	printf("\n--------------\n \n ");
  	decode_TLP(tlp_new2, sizeof(tlp_new2));
 	printf("\n--------------\n \n ");
  	decode_TLP(tlp_ans, sizeof(tlp_ans));
+	printf("\n--------------\n \n ");
+ 	decode_TLP(tlp_ans2, sizeof(tlp_ans2));
 	printf("\n--------------\n \n ");
 	tcp_stack->Send_TLP(0, tlp_data, tlp_isk, sizeof(tlp_data));
 
@@ -527,6 +539,97 @@ uint8_t tlp_data_format(uint8_t format, uint8_t type){
 	return 0;
 }
 
+void decode_Message_Code(uint8_t code, uint8_t r){
+	switch(code){
+		case 0x10:	// LTR Message r(2:0) = 4
+			printf("Message: LTR\n");
+			break;
+		
+		case 0x41: // Ignored Messages  r(2:0) = 4
+		case 0x43:	
+		case 0x40:	
+		case 0x45:	
+		case 0x47:	
+		case 0x44:	
+		case 0x48:	
+			printf("Message: Ignored\n");
+			break;
+
+		case 0x7E:	// Vendor Defined
+		case 0x7F:	
+			printf("Message: Vendor Defined\n");
+			break;
+
+		case 0x50:	// Set Slot Power Limit r(2:0) = 4
+			printf("Message: Set Slot Power Limit\n");
+			break;
+
+		case 0x00:	// Unlock r(2:0) = 3
+			printf("Message: Unlock\n");
+			break;
+
+		case 0x30:	// Error Correctable
+			printf("Message: Correctable PCIe Error\n");
+			break;
+
+		case 0x31:	// Error Non Fatal
+			printf("Message: Non Fatal PCIe Error\n");
+			break;
+
+		case 0x33:	// Error Fatal
+			printf("Message: Fatal PCIe Error\n");
+			break;
+
+		case 0x14:	// PM Active State Nak  r(2:0) = 4
+			printf("Message: PM Active State Nak\n");
+			break;
+
+		case 0x18:	// PM PME  r(2:0) = 0
+			printf("Message: PM PME\n");
+			break;
+
+		case 0x19:	// PME Turn Off  r(2:0) = 3
+			printf("Message: PM PME Turn Off\n");
+			break;
+
+		case 0x1B:	// PME TO Ack  r(2:0) =5
+			printf("Message: PM PME TO Ack\n");
+			break;
+
+		case 0x24:	// Deassert Int A r(2:0) = 4
+			printf("Message: Deassert INT B\n");
+			break;
+
+		case 0x25:	// Deassert Int B r(2:0) = 4
+			printf("Message: Deassert INT B\n");
+			break;
+
+		case 0x26:	// Deassert Int C r(2:0) = 4
+			printf("Message: Deassert INT B\n");
+			break;
+
+		case 0x27:	// Deassert Int D r(2:0) = 4
+			printf("Message: Deassert INT B\n");
+			break;
+
+		case 0x20:	// Assert Int A r(2:0) = 4
+			printf("Message: Assert INT B\n");
+			break;
+
+		case 0x21:	// Assert Int B r(2:0) = 4
+			printf("Message: Assert INT B\n");
+			break;
+
+		case 0x22:	// Assert Int C r(2:0) = 4
+			printf("Message: Assert INT B\n");
+			break;
+
+		case 0x23:	// Assert Int D r(2:0) = 4
+			printf("Message: Assert INT B\n");
+			break;
+	}
+}
+
 void decode_TLP(uint8_t* data, uint8_t len){
 	if (len >= 12){
 		uint8_t format,type, addr64, data_format;
@@ -686,6 +789,7 @@ void decode_TLP(uint8_t* data, uint8_t len){
 							break;
 						case 5:
 							printf("Message Code: 0x%X\n", data[i]);
+							decode_Message_Code(data[i], 0);
 							break;
 					}
 					break;
