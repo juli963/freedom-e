@@ -10,7 +10,6 @@ void UDP_TB::init(){
 		tick();
 	}
 	m_core->reset = 0;
-    m_core->io_ACKBus_tx_ready = 1;
     m_core->io_connected = 1;
 
     tick();
