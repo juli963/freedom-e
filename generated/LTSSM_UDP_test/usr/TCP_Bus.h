@@ -28,6 +28,7 @@
             
         private:
             uint16_t CalcTCPChecksum(uint32_t destIP, uint32_t srcIP, uint16_t Length, uint8_t* data);
+            uint16_t CalcUDPChecksum(uint32_t destIP, uint32_t srcIP, uint16_t Length, uint8_t* data);
             uint16_t CalcIPChecksum(uint16_t Length, uint8_t* data);
     };
 

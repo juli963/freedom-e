@@ -18,7 +18,7 @@ void TCP_Bus::Connect(uint8_t requester, uint32_t destIP, uint64_t destMAC, uint
         0x00, 0x34, // Total Length
         0x00, 0x01, // Ident
         0x40, 0x00, // Flags: Don't fragment
-        0x80, 0x06, // TTL 128, TCP
+        0x80, 0x11, // TTL 128, TCP
         0x00, 0x00, // Header Checksum -> Calculation method?
         0x00, 0x00, 0x00, 0x00, // Source IP
         0x00, 0x00, 0x00, 0x00, // Dest IP
@@ -26,17 +26,19 @@ void TCP_Bus::Connect(uint8_t requester, uint32_t destIP, uint64_t destMAC, uint
         // TCP Frame
         0x3A, 0x98, // Src Port
         0x3A, 0x98, // Dest Port
-        0x6D, 0x1A, 0x56, 0x37, // Start Sequence Number
-        0x00, 0x00, 0x00, 0x00, // Acknowledge Number
-        0x50,                   // Header Length in 4Bytes, Flags
-        0x12,                   // CWR
-        0x20, 0x00,             // Window Size
-        0x00, 0x00,             // TCP Checksum
-        0x00, 0x00             // Urgent Pointer
+        0x00, 0x00, // UDP Length
+        0x00, 0x00, // UDP Checksum
+        0x01, 0x00, // Syn Flag
+        0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00
     };
     // Save Package Length
     syn_frame[3] = sizeof(syn_frame) & 0xFF;   
     syn_frame[2] = ((sizeof(syn_frame) & 0xFF00)>>8);  
+
+    // Save Datagram Length
+    syn_frame[25] = sizeof(syn_frame) & 0xFF;   
+    syn_frame[24] = ((sizeof(syn_frame) & 0xFF00)>>8);  
 
     // Set MAC Adresses
     m_core[requester]->m_core->io_EthernetBus_rx_info_destMAC = m_core[requester]->m_core->io_Params_MAC;
@@ -54,10 +56,10 @@ void TCP_Bus::Connect(uint8_t requester, uint32_t destIP, uint64_t destMAC, uint
         ip_mask <<= 8;
     }
 
-    uint16_t tcp_checksum = CalcTCPChecksum(destIP, m_core[requester]->m_core->io_Params_IP, ((uint16_t) (sizeof(syn_frame)-ip_overhead)), &syn_frame[20]);
+    uint16_t udp_checksum = CalcUDPChecksum(destIP, m_core[requester]->m_core->io_Params_IP, ((uint16_t) (sizeof(syn_frame)-ip_overhead)), &syn_frame[20]);
     //printf("TCP Checksum = 0x%X \n", tcp_checksum);
-    syn_frame[37] = tcp_checksum&0xFF;
-    syn_frame[36] = ((tcp_checksum&0xFF00)>>8);
+    syn_frame[27] = udp_checksum&0xFF;
+    syn_frame[26] = ((udp_checksum&0xFF00)>>8);
 
     uint16_t ip_checksum = CalcIPChecksum(ip_overhead, syn_frame);
     //printf("IP Checksum = 0x%X \n", ip_checksum);
@@ -83,12 +85,12 @@ void TCP_Bus::Connect(uint8_t requester, uint32_t destIP, uint64_t destMAC, uint
         CrossPCIe();
             m_core[1]->tick();
             m_core[0]->tick();
-        if(i==20){
+       /* if(i==20){
             CrossPCIe();
             m_core[1]->tick();
             m_core[0]->tick();
             
-        }
+        }*/
     }
 
     m_core[requester]->m_core->io_EthernetBus_rx_last = 0;
@@ -107,7 +109,7 @@ void TCP_Bus::Send_Data(uint8_t requester, uint32_t destIP, uint64_t destMAC, ui
         0x00, 0x28, // Total Length
         0x00, 0x01, // Ident
         0x40, 0x00, // Flags: Don't fragment
-        0x80, 0x06, // TTL 128, TCP
+        0x80, 0x11, // TTL 128, TCP
         0x00, 0x00, // Header Checksum -> Calculation method?
         0x00, 0x00, 0x00, 0x00, // Source IP
         0x00, 0x00, 0x00, 0x00, // Dest IP
@@ -115,19 +117,20 @@ void TCP_Bus::Send_Data(uint8_t requester, uint32_t destIP, uint64_t destMAC, ui
         // TCP Frame
         0x3A, 0x98, // Src Port
         0x3A, 0x98, // Dest Port
-        0x6D, 0x1A, 0x56, 0x37, // Start Sequence Number
-        0x00, 0x00, 0x00, 0x00, // Acknowledge Number
-        0x50,                   // Header Length in 4Bytes
-        0x00,                   // CWR, Flags
-        0x20, 0x00,             // Window Size
-        0x00, 0x00,             // TCP Checksum
-        0x00, 0x00             // Urgent Pointer
+        0x00, 0x00,             // Length
+        0x00, 0x00,             // UDP Checksum
+        /*0x00, 0x00,             // Command
+        0x00, 0x00             // Number*/
     };
     
     uint16_t total_length = sizeof(syn_frame)+Length;
     // Save Package Length
     syn_frame[3] = (total_length) & 0xFF;   
     syn_frame[2] = (( total_length & 0xFF00)>>8);  
+
+    // Save Package Length
+    syn_frame[25] = (Length+12) & 0xFF;   
+    syn_frame[24] = (((Length+12) & 0xFF00)>>8);  
 
     // Set MAC Adresses
     m_core[requester]->m_core->io_EthernetBus_rx_info_destMAC = m_core[requester]->m_core->io_Params_MAC;
@@ -142,9 +145,9 @@ void TCP_Bus::Send_Data(uint8_t requester, uint32_t destIP, uint64_t destMAC, ui
         // Source IP
         syn_frame[15-i] = (destIP&ip_mask)>>(8*i);
         // Ack Number
-        syn_frame[31-i] = (ack_number&ip_mask)>>(8*i);
+       // syn_frame[31-i] = (ack_number&ip_mask)>>(8*i);
         // Seq Number
-        syn_frame[27-i] = (seq_number&ip_mask)>>(8*i);
+       // syn_frame[27-i] = (seq_number&ip_mask)>>(8*i);
 
         ip_mask <<= 8;
     }
@@ -162,10 +165,10 @@ void TCP_Bus::Send_Data(uint8_t requester, uint32_t destIP, uint64_t destMAC, ui
         data_frame[sizeof(syn_frame)+i] = data[i];
     }
 
-    uint16_t tcp_checksum = CalcTCPChecksum(destIP, m_core[requester]->m_core->io_Params_IP, ((uint16_t) (sizeof(data_frame)-ip_overhead)), &data_frame[20]);
+    uint16_t udp_checksum = CalcUDPChecksum(destIP, m_core[requester]->m_core->io_Params_IP, ((uint16_t) (sizeof(data_frame)-ip_overhead)), &data_frame[20]);
     //printf("TCP Checksum = 0x%X \n", tcp_checksum);
-    data_frame[37] = tcp_checksum&0xFF;
-    data_frame[36] = ((tcp_checksum&0xFF00)>>8);
+    data_frame[27] = udp_checksum&0xFF;
+    data_frame[26] = ((udp_checksum&0xFF00)>>8);
 
     uint16_t ip_checksum = CalcIPChecksum(ip_overhead, data_frame);
     //printf("IP Checksum = 0x%X \n", ip_checksum);
@@ -194,11 +197,11 @@ void TCP_Bus::Send_Data(uint8_t requester, uint32_t destIP, uint64_t destMAC, ui
         CrossPCIe();
             m_core[1]->tick();
             m_core[0]->tick();
-        if(i==20){
+        /*if(i==20){
             m_core[1]->tick();
             m_core[0]->tick();
             
-        }
+        }*/
     }
 
     m_core[requester]->m_core->io_EthernetBus_rx_last = 0;
@@ -326,6 +329,42 @@ uint16_t TCP_Bus::CalcTCPChecksum(uint32_t destIP, uint32_t srcIP, uint16_t Leng
     }
     return (uint16_t)((~checksum) & 0xFFFF);
 }
+
+uint16_t TCP_Bus::CalcUDPChecksum(uint32_t destIP, uint32_t srcIP, uint16_t Length, uint8_t* data){
+    uint32_t checksum = 0;
+
+    uint32_t ip_mask = 0xFFFF;
+    for(uint8_t i = 0; i<2; i++){
+        uint16_t temp[2] = {0,0};
+        temp[0] = (destIP&ip_mask)>>(i*16);
+        temp[1] = (srcIP&ip_mask)>>(i*16);
+        checksum += temp[0];
+        checksum += temp[1];
+        ip_mask <<= 16;
+        //printf("0x%X \n",temp[0] );
+    }
+
+    checksum += 0x11; // 
+    checksum += Length; // 
+
+
+    uint16_t temp = 1;
+    for(uint16_t i=0; i<Length; i++){
+        checksum += data[i]<<(temp*8);
+        if (temp == 1){
+            temp = 0;
+        }else{
+            temp = 1;
+        }
+    }
+
+    while((checksum & 0xFFFF0000) != 0){
+        checksum = ((checksum & 0xFFFF0000)>>16) + (checksum & 0xFFFF);
+    }
+    return (uint16_t)((~checksum) & 0xFFFF);
+}
+
+
 uint16_t TCP_Bus::CalcIPChecksum(uint16_t Length, uint8_t* data){
     uint32_t checksum = 0;
 

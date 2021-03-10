@@ -22,8 +22,8 @@ int main(int argc, char **argv) {
 
 	TCP_Bus *tcp_stack = new TCP_Bus(tb,tb2);
 
-	tcp_stack->Prepare_Address(0, 0xC0A86401, 0x111213141820);
-	tcp_stack->Prepare_Address(1, 0xC0A86410, 0x111213140901);
+	tcp_stack->Prepare_Address(0, 0xC0A802D4, 0x111213141516);
+	tcp_stack->Prepare_Address(1, 0xC0A802D5, 0x111213141517);
 
 
 	tb->opentrace("trace.vcd");
@@ -43,8 +43,8 @@ int main(int argc, char **argv) {
 	//tb->tick();
 	//tb->tick();
 	//tb->tick();
-	tcp_stack->Connect(0,0xC0A86410,0x111213140901, 15000);
-	tcp_stack->Connect(1,0xC0A86401,0x111213141820, 15000);
+	tcp_stack->Connect(1,0xC0A802D4,0x111213141516, 15000);
+	tcp_stack->Connect(0,0xC0A802D5,0x111213141517, 15000);
 	/*training->device_linkinit();
 	training->device_linkinit();
 	training->device_linkinit();*/
@@ -109,7 +109,9 @@ int main(int argc, char **argv) {
 							0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x70, 0x71
 							
 	};
-	uint8_t tlp_testdat[]  = {  0x02,0x03,0x04,0x05,0x06 	};
+	uint8_t tlp_testdat[]  = {  0x00, 0x00, 0x00, 0x00,
+		
+								0x02,0x03,0x04,0x05,0x06 	};
 
 	uint8_t tlp_isk [] = { 	0x01, 0x00 ,0x00, 0x00, 0x00,
 							0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -119,6 +121,7 @@ int main(int argc, char **argv) {
 	uint8_t tlp_new2 [] = { 0x04, 0x00, 0x00, 0x01, 
 							0x00, 0xc0, 0x00, 0x0c, 
 							0x03, 0x00, 0x00, 0x00 };
+							
 	uint8_t tlp_new3 [] = { 0x04, 0x00, 0x00, 0x01, 
 							0x00, 0xc0, 0x00, 0x03, 
 							0x03, 0x00, 0x00, 0x00 };
@@ -132,16 +135,7 @@ int main(int argc, char **argv) {
 							0x00, 0xc0, 0x00, 0x00, 
 							0xde, 0x10, 0x22, 0x06  };
 
- 	decode_TLP(&tlp_dat[2], sizeof(tlp_dat)-2);
-	printf("\n--------------\n \n ");
- 	decode_TLP(tlp_new2, sizeof(tlp_new2));
-	printf("\n--------------\n \n ");
- 	decode_TLP(tlp_new3, sizeof(tlp_new3));
-	printf("\n--------------\n \n ");
- 	decode_TLP(tlp_ans, sizeof(tlp_ans));
-	printf("\n--------------\n \n ");
- 	decode_TLP(tlp_ans2, sizeof(tlp_ans2));
-	printf("\n--------------\n \n ");
+
 	tcp_stack->Send_TLP(0, tlp_data, tlp_isk, sizeof(tlp_data));
 
 	for(uint16_t i = 0; i<300; i++){
@@ -168,8 +162,21 @@ int main(int argc, char **argv) {
 
 	//tcp_stack->Send_TLP_Checksum(0, tlp_dat, sizeof(tlp_dat));
 
-	tcp_stack->Send_Data(1, 0xC0A86401,0x111213141820, 15000, 0x0, 0x6D1A5638, 0, tlp_testdat, 5);
-	tcp_stack->Send_Data(0, 0xC0A86410,0x111213140901, 15000, 0x15, 0x6D1A5638, 1, tlp_testdat, 5);
+	uint8_t tcp_ack0 [] = { 	0x02, 0x00, 0x00, 0x00 };
+
+	tcp_stack->Send_Data(0, 0xC0A802D5,0x111213141517, 15000, 0x0, 0x6D1A5638, 0, tcp_ack0, sizeof(tcp_ack0));
+	for(uint16_t i = 0; i<300; i++){
+		tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
+		tb2->m_core->io_GTP_data_rx_data  = tb->m_core->io_GTP_data_tx_data;
+
+		tb->m_core->io_GTP_data_rx_charisk  = tb2->m_core->io_GTP_data_tx_charisk;
+		tb->m_core->io_GTP_data_rx_data  = tb2->m_core->io_GTP_data_tx_data;
+		tb->tick();
+		tb2->tick();
+	}
+
+	tcp_stack->Send_Data(1, 0xC0A802D4,0x111213141516, 15000, 0x0, 0x6D1A5638, 0, tlp_testdat, sizeof(tlp_testdat));
+	tcp_stack->Send_Data(0, 0xC0A802D5,0x111213141517, 15000, 0x15, 0x6D1A5638, 1, tlp_testdat,  sizeof(tlp_testdat));
 
 	for(uint16_t i = 0; i<30000; i++){
 		tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
@@ -342,24 +349,6 @@ int main(int argc, char **argv) {
 	//decode_Stream();
 	//printf("TLPCRC: 0x%X \n", CalculateTlpCRC(tlp_arr,21));
 	//printf("TLPCRC: 0x%X \n", CalculateTlpCRC(tlp_arr,22));
-
-	uint8_t tlp_1 [] = { 	0x04, 0x00, 0x00, 0x01,
-							0x00, 0xC0, 0x00, 0x0C, 
-							0x03, 0x00, 0x00, 0x00  };
-	printf("\n--------------\n \n ");
- 	decode_TLP(tlp_1, sizeof(tlp_1));
-
-	uint8_t tlp_2 [] = { 	0x04, 0x00, 0x00, 0x01,
-							0x00, 0xC0, 0x00, 0x03, 
-							0x03, 0x00, 0x00, 0x00  };
-	printf("\n--------------\n \n ");
- 	decode_TLP(tlp_2, sizeof(tlp_2));
-
-	uint8_t tlp_3 [] = { 	0x04, 0x00, 0x00, 0x01,
-							0x00, 0xC0, 0x00, 0x04, 
-							0x03, 0x00, 0x00, 0x0C  };
-	printf("\n--------------\n \n ");
- 	decode_TLP(tlp_3, sizeof(tlp_3));
 
 }
 /* TLP Byte Array
