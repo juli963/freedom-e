@@ -136,7 +136,7 @@ int main(int argc, char **argv) {
 							0xde, 0x10, 0x22, 0x06  };
 
 
-	tcp_stack->Send_TLP(0, tlp_data, tlp_isk, sizeof(tlp_data));
+	
 
 	for(uint16_t i = 0; i<300; i++){
 		tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
@@ -148,7 +148,86 @@ int main(int argc, char **argv) {
 		tb2->tick();
 	}
 
-	tcp_stack->Send_TLP_Checksum(0, tlp_dat, sizeof(tlp_dat)-1);
+	//tcp_stack->Send_TLP(0, tlp_data, tlp_isk, sizeof(tlp_data));
+	{
+
+		/*uint16_t data_tl[] = {
+				0xFB00, 0x0000, 0x0004, 0x0100, 0xc000, 0x0c00, 0x0003, 0x0000, 0x8b9f, 0xde9e, 0x00fd
+		};
+		uint8_t data_k[] = {
+				0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0000, 0x00, 0x00, 0x01
+		};*/
+
+		/*uint16_t data_tl[] = {
+				0x00FB, 0x4A00, 0x0000, 0x0001, 0x0000, 0x0004, 0x00C0, 0xDE00, 0x2210, 0x5606, 0xCD1A, 0xFD65,0x00,0x00
+		};
+		uint8_t data_k[] = {
+				0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0000, 0x00, 0x00, 0x00, 0x02,0x00,0x00
+		};*/
+		uint16_t data_tl[] = {
+				0xFB00, 0x0000, 0x004A, 0x0100, 0x0000, 0x0400, 0xC000, 0x0000, 0x10DE, 0x0622, 0x1A56, 0x65CD,0x00FD,0x0000
+		};
+		uint8_t data_k[] = {
+				0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0000, 0x00, 0x00, 0x00, 0x00,0x01,0x00
+		};
+
+		for(uint16_t i = 0; i<sizeof(data_tl); i++){
+			tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
+			tb2->m_core->io_GTP_data_rx_data  = tb->m_core->io_GTP_data_tx_data;
+
+			tb->m_core->io_GTP_data_rx_charisk  = data_k[i];//tb2->m_core->io_GTP_data_tx_charisk;
+			tb->m_core->io_GTP_data_rx_data  = data_tl[i];//tb2->m_core->io_GTP_data_tx_data;
+			tb->tick();
+			tb2->tick();
+		}
+
+					tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
+			tb2->m_core->io_GTP_data_rx_data  = tb->m_core->io_GTP_data_tx_data;
+
+			tb->m_core->io_GTP_data_rx_charisk  = 0;//tb2->m_core->io_GTP_data_tx_charisk;
+			tb->m_core->io_GTP_data_rx_data  =0;//tb2->m_core->io_GTP_data_tx_data;
+			tb->tick();
+			tb2->tick();
+
+			tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
+			tb2->m_core->io_GTP_data_rx_data  = tb->m_core->io_GTP_data_tx_data;
+
+			tb->m_core->io_GTP_data_rx_charisk  = 0;//tb2->m_core->io_GTP_data_tx_charisk;
+			tb->m_core->io_GTP_data_rx_data  = 0;//tb2->m_core->io_GTP_data_tx_data;
+			tb->tick();
+			tb2->tick();
+	}
+	
+	for(uint16_t i = 0; i<300; i++){
+		tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
+		tb2->m_core->io_GTP_data_rx_data  = tb->m_core->io_GTP_data_tx_data;
+
+		tb->m_core->io_GTP_data_rx_charisk  = tb2->m_core->io_GTP_data_tx_charisk;
+		tb->m_core->io_GTP_data_rx_data  = tb2->m_core->io_GTP_data_tx_data;
+		tb->tick();
+		tb2->tick();
+	}
+	uint8_t tcp_ack0 [] = { 	0x02, 0x00, 0x00, 0x00 };
+
+	tcp_stack->Send_Data(0, 0xC0A802D5,0x111213141517, 15000, 0x0, 0x6D1A5638, 0, tcp_ack0, sizeof(tcp_ack0));
+
+	for(uint16_t i = 0; i<100; i++){
+		tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
+		tb2->m_core->io_GTP_data_rx_data  = tb->m_core->io_GTP_data_tx_data;
+
+		tb->m_core->io_GTP_data_rx_charisk  = tb2->m_core->io_GTP_data_tx_charisk;
+		tb->m_core->io_GTP_data_rx_data  = tb2->m_core->io_GTP_data_tx_data;
+		tb->tick();
+		tb2->tick();
+	}
+
+	uint8_t tcp_seq0 [] = { 	0x00, 0x00, 0x00, 0x00,
+		0x04, 0x00, 0x00, 0x01, 0x00, 0xc0, 0x00, 0x0c, 0x03, 0x00, 0x00, 0x11
+	 };
+
+	tcp_stack->Send_Data(0, 0xC0A802D5,0x111213141517, 15000, 0x0, 0x6D1A5638, 0, tcp_seq0, sizeof(tcp_seq0));
+
+	//tcp_stack->Send_TLP_Checksum(0, tlp_dat, sizeof(tlp_dat)-1);
 
 	for(uint16_t i = 0; i<300; i++){
 		tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
@@ -162,9 +241,7 @@ int main(int argc, char **argv) {
 
 	//tcp_stack->Send_TLP_Checksum(0, tlp_dat, sizeof(tlp_dat));
 
-	uint8_t tcp_ack0 [] = { 	0x02, 0x00, 0x00, 0x00 };
-
-	tcp_stack->Send_Data(0, 0xC0A802D5,0x111213141517, 15000, 0x0, 0x6D1A5638, 0, tcp_ack0, sizeof(tcp_ack0));
+	
 	for(uint16_t i = 0; i<300; i++){
 		tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
 		tb2->m_core->io_GTP_data_rx_data  = tb->m_core->io_GTP_data_tx_data;
