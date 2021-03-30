@@ -129,8 +129,8 @@ void TCP_Bus::Send_Data(uint8_t requester, uint32_t destIP, uint64_t destMAC, ui
     syn_frame[2] = (( total_length & 0xFF00)>>8);  
 
     // Save Package Length
-    syn_frame[25] = (Length+12) & 0xFF;   
-    syn_frame[24] = (((Length+12) & 0xFF00)>>8);  
+    syn_frame[25] = (Length+8) & 0xFF;   
+    syn_frame[24] = (((Length+8) & 0xFF00)>>8);  
 
     // Set MAC Adresses
     m_core[requester]->m_core->io_EthernetBus_rx_info_destMAC = m_core[requester]->m_core->io_Params_MAC;
@@ -203,6 +203,131 @@ void TCP_Bus::Send_Data(uint8_t requester, uint32_t destIP, uint64_t destMAC, ui
             
         }*/
     }
+
+    m_core[requester]->m_core->io_EthernetBus_rx_last = 0;
+    m_core[requester]->m_core->io_EthernetBus_rx_strb = 0;
+    CrossPCIe();
+    m_core[1]->tick();
+    m_core[0]->tick();
+
+}
+
+void TCP_Bus::Send_Data2Pad(uint8_t requester, uint32_t destIP, uint64_t destMAC, uint16_t Port, uint32_t ack_number, uint32_t seq_number, uint8_t ack, uint8_t* data, uint16_t Length){
+
+    uint8_t ip_overhead = 20; // 20 Bytes for IP4 Header
+    uint8_t syn_frame[] = {
+        0x45, 0x00, // IPV, IHL, DSCP
+        0x00, 0x28, // Total Length
+        0x00, 0x01, // Ident
+        0x40, 0x00, // Flags: Don't fragment
+        0x80, 0x11, // TTL 128, TCP
+        0x00, 0x00, // Header Checksum -> Calculation method?
+        0x00, 0x00, 0x00, 0x00, // Source IP
+        0x00, 0x00, 0x00, 0x00, // Dest IP
+
+        // TCP Frame
+        0x3A, 0x98, // Src Port
+        0x3A, 0x98, // Dest Port
+        0x00, 0x00,             // Length
+        0x00, 0x00,             // UDP Checksum
+        /*0x00, 0x00,             // Command
+        0x00, 0x00             // Number*/
+    };
+    
+    uint16_t total_length = sizeof(syn_frame)+Length;
+    // Save Package Length
+    syn_frame[3] = (total_length) & 0xFF;   
+    syn_frame[2] = (( total_length & 0xFF00)>>8);  
+
+    // Save Package Length
+    syn_frame[25] = (Length+8) & 0xFF;   
+    syn_frame[24] = (((Length+8) & 0xFF00)>>8);  
+
+    // Set MAC Adresses
+    m_core[requester]->m_core->io_EthernetBus_rx_info_destMAC = m_core[requester]->m_core->io_Params_MAC;
+    m_core[requester]->m_core->io_EthernetBus_rx_info_srcMAC = destMAC;
+    m_core[requester]->m_core->io_EthernetBus_rx_info_etype = 0x0800;
+
+    // Write IP Addresses
+    uint32_t ip_mask = 0xFF;
+    for(uint8_t i = 0; i<4;i++){
+        // Dest IP
+        syn_frame[19-i] = (m_core[requester]->m_core->io_Params_IP&ip_mask)>>(8*i);
+        // Source IP
+        syn_frame[15-i] = (destIP&ip_mask)>>(8*i);
+        // Ack Number
+       // syn_frame[31-i] = (ack_number&ip_mask)>>(8*i);
+        // Seq Number
+       // syn_frame[27-i] = (seq_number&ip_mask)>>(8*i);
+
+        ip_mask <<= 8;
+    }
+
+    // Set ACK Flag if enabled
+    if(ack >= 1){
+        syn_frame[33] = 1<<4;
+    }
+
+    uint8_t data_frame[total_length];
+    for(uint32_t i= 0; i<sizeof(syn_frame); i++){
+        data_frame[i] = syn_frame[i];
+    }
+    for(uint32_t i= 0; i<Length; i++){
+        data_frame[sizeof(syn_frame)+i] = data[i];
+    }
+
+    uint16_t udp_checksum = CalcUDPChecksum(destIP, m_core[requester]->m_core->io_Params_IP, ((uint16_t) (sizeof(data_frame)-ip_overhead)), &data_frame[20]);
+    //printf("TCP Checksum = 0x%X \n", tcp_checksum);
+    data_frame[27] = udp_checksum&0xFF;
+    data_frame[26] = ((udp_checksum&0xFF00)>>8);
+
+    uint16_t ip_checksum = CalcIPChecksum(ip_overhead, data_frame);
+    //printf("IP Checksum = 0x%X \n", ip_checksum);
+    data_frame[11] = ip_checksum&0xFF;
+    data_frame[10] = ((ip_checksum&0xFF00)>>8);
+
+
+    
+
+
+
+
+    m_core[requester]->m_core->io_EthernetBus_rx_strb = 1;
+    m_core[requester]->m_core->io_EthernetBus_rx_empty = 1;
+    CrossPCIe();
+    m_core[1]->tick();
+    m_core[0]->tick();
+
+    for(uint32_t i = 0; i<total_length; i++ ){
+        m_core[requester]->m_core->io_EthernetBus_rx_strb = 1;
+        m_core[requester]->m_core->io_EthernetBus_rx_empty = 0;
+        m_core[requester]->m_core->io_EthernetBus_rx_data = data_frame[i];
+       /* if(i==(total_length-1)){
+            m_core[requester]->m_core->io_EthernetBus_rx_last = 1;
+        }*/
+        CrossPCIe();
+            m_core[1]->tick();
+            m_core[0]->tick();
+        /*if(i==20){
+            m_core[1]->tick();
+            m_core[0]->tick();
+            
+        }*/
+    }
+
+    m_core[requester]->m_core->io_EthernetBus_rx_strb = 1;
+    m_core[requester]->m_core->io_EthernetBus_rx_empty = 0;
+    m_core[requester]->m_core->io_EthernetBus_rx_data = 0;
+    CrossPCIe();
+    m_core[1]->tick();
+    m_core[0]->tick();
+    m_core[requester]->m_core->io_EthernetBus_rx_strb = 1;
+    m_core[requester]->m_core->io_EthernetBus_rx_empty = 0;
+    m_core[requester]->m_core->io_EthernetBus_rx_last = 1;
+    m_core[requester]->m_core->io_EthernetBus_rx_data = 0;
+    CrossPCIe();
+    m_core[1]->tick();
+    m_core[0]->tick();
 
     m_core[requester]->m_core->io_EthernetBus_rx_last = 0;
     m_core[requester]->m_core->io_EthernetBus_rx_strb = 0;
