@@ -4,7 +4,7 @@ if [ $1 = "c" ]; then
     echo "Switch Directory to generated/LTSSM_UDP_test"
     cd ../generated/LTSSM_UDP_test
     echo "Compile CPP Program ..."
-    g++ -Iobj_dir -Iusr -I/usr/share/verilator/include obj_dir/VLTSSM_UDP_test__Syms.cpp obj_dir/VLTSSM_UDP_test_LCRC_2_1D.cpp obj_dir/VLTSSM_UDP_test__Trace__Slow.cpp obj_dir/VLTSSM_UDP_test__Trace.cpp obj_dir/VLTSSM_UDP_test.cpp usr/testbench.cpp usr/TCP_Bus.cpp usr/LTSSM_TCP_test.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
+    g++ -Iobj_dir -Iusr -I/usr/share/verilator/include obj_dir/VLTSSM_UDP_test__Syms.cpp obj_dir/VLTSSM_UDP_test_LCRC_2_1D.cpp obj_dir/VLTSSM_UDP_test_PCIe_Scrambler_16_single.cpp obj_dir/VLTSSM_UDP_test__Trace__Slow.cpp obj_dir/VLTSSM_UDP_test__Trace.cpp obj_dir/VLTSSM_UDP_test.cpp usr/testbench.cpp usr/TCP_Bus.cpp usr/LTSSM_TCP_test.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
     echo "Run CPP Testbench"
     ./usr/testbench.o
 else
@@ -23,7 +23,7 @@ else
     echo "Switch Directory to generated/LTSSM_UDP_test"
     cd ..
     echo "Compile CPP Program ..."
-    g++ -Iobj_dir -Iusr -I/usr/share/verilator/include obj_dir/VLTSSM_UDP_test__Syms.cpp obj_dir/VLTSSM_UDP_test_LCRC_2_1D.cpp obj_dir/VLTSSM_UDP_test__Trace__Slow.cpp obj_dir/VLTSSM_UDP_test__Trace.cpp obj_dir/VLTSSM_UDP_test.cpp usr/testbench.cpp usr/TCP_Bus.cpp usr/LTSSM_TCP_test.cpp  /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
+    g++ -Iobj_dir -Iusr -I/usr/share/verilator/include obj_dir/VLTSSM_UDP_test__Syms.cpp obj_dir/VLTSSM_UDP_test_LCRC_2_1D.cpp obj_dir/VLTSSM_UDP_test_PCIe_Scrambler_16_single.cpp obj_dir/VLTSSM_UDP_test__Trace__Slow.cpp obj_dir/VLTSSM_UDP_test__Trace.cpp obj_dir/VLTSSM_UDP_test.cpp usr/testbench.cpp usr/TCP_Bus.cpp usr/LTSSM_TCP_test.cpp  /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
     echo "Run CPP Testbench"
     ./usr/testbench.o
 fi
