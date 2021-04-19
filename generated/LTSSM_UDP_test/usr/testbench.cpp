@@ -13,6 +13,10 @@ void decode_Stream();
 void wait_Clock(LTSSM_TB *tb, LTSSM_TB *tb2, uint32_t n);
 void send_initTLP(LTSSM_TB *tb, LTSSM_TB *tb2, TCP_Bus *tcp_stack );
 void send_initTLP_back(LTSSM_TB *tb, LTSSM_TB *tb2, TCP_Bus *tcp_stack );
+int scramble_byte(int inbyte);
+
+bool TrainingSequence = false;
+uint16_t lfsr_g = 0;
 int main(int argc, char **argv) {
 	//std::srand(static_cast<int>(time(0)));
 	// Calculate Timeouts -> Assume we are using 125MHz Clock
@@ -42,7 +46,79 @@ int main(int argc, char **argv) {
 	tb2->m_core->io_pRootPort = f_device;
 	tb->m_core->io_pRootPort = f_root;
 	tb->init();
+
+	for(uint32_t i = 0; i<20; i++){
+		tb->m_core->io_GTP_data_rx_data  = 0;
+		tb->m_core->io_GTP_data_rx_charisk  = 0;
+		tb->tick();
+
+	}
+
+
+	uint16_t ts_data[] = {
+		0x1BC,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F,
+		0x1BC,0x01,0x02,0x03,0x04,0x05,0x45,0x45,0x45,0x45,0x45,0x45,0x45,0x45,0x45,0x45,0x1BC,
+		0x1BC,0x10,0x11,0x12,0x13,0x14,0x4A,0x4A,0x4A,0x4A,0x4A,0x4A,0x4A,0x4A,0x4A,0x4A,
+		0x0BC,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x05,0x00,0x00,0x00,0x00,0x00,0x00,
+		0x0BC,0x01,0x11C,0x03,0x11C,0x11C,0x06,0x1FB,0x1FB,0x05,0x1FB,0x00,0x00,0x00,0x00,0x00, 
+		0x1BC
+	};
+
+	tb->m_core->io_sim_state = 10; // Scrambler Test
+	tb->m_core->io_scramble_enable = 0x1;
+	tb2->m_core->io_scramble_enable = 0x1;
+
+	uint32_t end_train = 0;
+	for(uint32_t i = 0; i<sizeof(ts_data)/2; i=i+2){
+		uint8_t scrambled[2];
+		
+		if(i > end_train && TrainingSequence){
+			TrainingSequence = false;
+			printf("Training End: %i \n", i);
+			printf("Training End: %i \n", i);
+			printf("Char: 0x%X \n", ts_data[i+1]);
+			printf("LFSR: 0x%X \n", lfsr_g);
+		}
+		if(ts_data[i] == 0x1BC && (ts_data[i+15] == 0x45 || ts_data[i+15] == 0x4A) ){
+			TrainingSequence = true;
+			end_train = i+15;
+			printf("End_Train Set: %i, %i \n", i,end_train);
+		}
+		scrambled[0] = scramble_byte(ts_data[i]) & 0xFF;
+
+		if( (i+1) > end_train && TrainingSequence){
+			TrainingSequence = false;
+			printf("Training End: %i \n", i);
+			printf("Char: 0x%X \n", ts_data[i+1]);
+			printf("LFSR: 0x%X \n", lfsr_g);
+		}
+
+		if(ts_data[i+1] == 0x1BC && (ts_data[i+1+15] == 0x45 || ts_data[i+1+15] == 0x4A) ){
+			TrainingSequence = true;
+			end_train = i+1+15;
+			printf("End_Train Set: %i, %i \n", i,end_train);
+		}
+		scrambled[1] = scramble_byte(ts_data[i+1]) & 0xFF;
+
+		tb->m_core->io_GTP_data_rx_data  = scrambled[0] | ((uint16_t)scrambled[1]<<8);
+		tb->m_core->io_GTP_data_rx_charisk  = ((ts_data[i]&0x100)>>8) | ((ts_data[i+1]&0x100)>>7);
+		tb->tick();
+
+	}
+	
+
+	for(uint32_t i = 0; i<20; i++){
+		tb->m_core->io_GTP_data_rx_data  = 0;
+		tb->m_core->io_GTP_data_rx_charisk  = 0;
+		tb->tick();
+
+	}
+	tb->m_core->io_sim_state = 0; // Scrambler Test
+	tb->init();
 	tb2->init();
+
+
+
 	//tb->tick();
 	//tb->tick();
 	//tb->tick();
@@ -69,6 +145,9 @@ int main(int argc, char **argv) {
 								0x0000, 0x0000, 0x0000, 0x0000,0x0000, 0x0000,
 								0x7675, 0x2356,0x00FD
 							};*/
+
+	
+
 	uint8_t x = 0;
 	for(uint32_t i = 0; i<100000; i++){
 		tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
@@ -172,18 +251,19 @@ int main(int argc, char **argv) {
 				0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0000, 0x00, 0x00, 0x01
 		};*/
 
-		/*uint16_t data_tl[] = {
-				0x00FB, 0x4A00, 0x0000, 0x0001, 0x0000, 0x0004, 0x00C0, 0xDE00, 0x2210, 0x5606, 0xCD1A, 0xFD65,0x00,0x00
+		uint16_t data_tl[] = {
+				0x00FB, 0x4A00, 0x0000, 0x0001, 0x0000, 0x0004, 0x00C0, 0xDE00, 0x2210, 0x5606, 0xCD1A, 0xFD65,0x1CBC,0x1C1C
 		};
 		uint8_t data_k[] = {
-				0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0000, 0x00, 0x00, 0x00, 0x02,0x00,0x00
-		};*/
-		uint16_t data_tl[] = {
+				0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0000, 0x00, 0x00, 0x00, 0x02,0x03,0x03
+		};
+
+		/*uint16_t data_tl[] = {
 				0xFB00, 0x0000, 0x004A, 0x0100, 0x0000, 0x0400, 0xC000, 0x0000, 0x10DE, 0x0622, 0x1A56, 0x65CD,0x00FD,0x1CBC, 0x1C1C
 		};
 		uint8_t data_k[] = {
 				0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0000, 0x00, 0x00, 0x00, 0x00,0x01,0x03, 0x03
-		};
+		};*/
 
 		for(uint16_t i = 0; i<sizeof(data_tl); i++){
 			tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
@@ -281,7 +361,7 @@ int main(int argc, char **argv) {
 	tb->m_core->io_sim_state = 8; // TLP Sending
 	send_initTLP_back(tb, tb2, tcp_stack);
 	tb->m_core->io_sim_state = 9; // Wait
-	for(uint16_t i = 0; i<30; i++){
+	for(uint16_t i = 0; i<3000; i++){
 		tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
 		tb2->m_core->io_GTP_data_rx_data  = tb->m_core->io_GTP_data_tx_data;
 
@@ -290,6 +370,8 @@ int main(int argc, char **argv) {
 		tb->tick();
 		tb2->tick();
 	}
+
+
 /*
 	for(uint32_t i = 0; i<500; i++){
 		tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
@@ -448,18 +530,91 @@ int main(int argc, char **argv) {
 	arr[3] = 0xF2; 
 	arr[4] = 0xC3; 
 	printf("CRC: 0x%X \n", CalculateDllpCRC(0x50,arr,6));
+
+	uint8_t arr5[] = {0x80,0x80,0x19,0x0F,0xFF};
+	printf("CRC: 0x%X \n", CalculateDllpCRC(0x80,arr5,sizeof(arr5)+1));
 	//decode_Stream();
-	//printf("TLPCRC: 0x%X \n", CalculateTlpCRC(tlp_arr,21));
+	/*uint8_t crc_tlp[] = {
+		0x00, 0x2d, 0x44, 0x00, 0x00, 0x01, 0x00, 0xc0, 0x00, 0x03, 0x03, 0x00, 0x00, 0x04, 0x00, 0x00, 0xff, 0xff
+	};
+	printf("TLPCRC: 0x%X \n", tcp_stack->CalculateTlpCRC(crc_tlp,sizeof(crc_tlp)));*/
+
 	//printf("TLPCRC: 0x%X \n", CalculateTlpCRC(tlp_arr,22));
 
 	//uint8_t tlp_recv[] = { 0x0a,0x00,0x00,0x00,0x03,0x00,0x00,0x04,0x00,0xc0,0x00,0x00 };
 	//uint8_t tlp_recv[] = { 0x44, 0x00, 0x00, 0x01, 0x00, 0xc0, 0x00, 0x0f, 0x03, 0x00, 0x00, 0x1c };
-	uint8_t tlp_recv[] = { 0x04, 0x00, 0x00, 0x01, 0x00, 0xc0, 0x00, 0x0f, 0x03, 0x00, 0x00, 0x1c };
+	//uint8_t tlp_recv[] = { 0x04, 0x00, 0x00, 0x01, 0x00, 0xc0, 0x00, 0x0f, 0x03, 0x00, 0x00, 0x1c };
 
-	printf("TLP_Recv:\n");
-	decode_TLP(tlp_recv,sizeof(tlp_recv));
-
+	//printf("TLP_Recv:\n");
+	//decode_TLP(tlp_recv,sizeof(tlp_recv));
+	printf("LFSR: 0x%X \n",scramble_byte(0x00));
+	printf("LFSR: 0x%X \n",scramble_byte(0x00));
+	printf("LFSR: 0x%X \n",scramble_byte(0x80));
+	scramble_byte(0x1BC);
+	printf("LFSR: 0x%X \n",scramble_byte(0x50));
+	
 }
+
+int scramble_byte(int inbyte)
+{
+	static int scrambit[16];
+	static int bit[16];
+	static int bit_out[16];
+	static unsigned short lfsr = 0xffff; // 16 bit short for polynomial
+	int i, outbyte;
+	if (inbyte == 0x1BC) // if this is a comma
+	{
+		lfsr = 0xffff; // reset the LFSR
+		lfsr_g = lfsr;
+		return (0x1BC); // and return the same data
+	}
+	if (inbyte == 0x11C) // don't advance or encode on skip
+		return (0x11C);
+	for (i=0; i<16;i++) // convert LFSR to bit array for legibility
+		bit[i] = (lfsr >> i) & 1;
+	for (i=0; i<8; i++) // convert byte to be scrambled for legibility
+		scrambit[i] = (inbyte >> i) & 1;
+	// apply the xor to the data
+	if (! (inbyte & 0x100) && // if not a KCODE, scramble the data
+		! (TrainingSequence == true)) // and if not in the middle of
+	{ // a training sequence
+		scrambit[0] ^= bit[15];
+		scrambit[1] ^= bit[14];
+		scrambit[2] ^= bit[13];
+		scrambit[3] ^= bit[12];
+		scrambit[4] ^= bit[11];
+		scrambit[5] ^= bit[10];
+		scrambit[6] ^= bit[9];
+		scrambit[7] ^= bit[8];
+	}
+	// Now advance the LFSR 8 serial clocks
+	bit_out[ 0] = bit[ 8];
+	bit_out[ 1] = bit[ 9];
+	bit_out[ 2] = bit[10];
+	bit_out[ 3] = bit[11] ^ bit[ 8];
+	bit_out[ 4] = bit[12] ^ bit[ 9] ^ bit[ 8];
+	bit_out[ 5] = bit[13] ^ bit[10] ^ bit[ 9] ^ bit[ 8];
+	bit_out[ 6] = bit[14] ^ bit[11] ^ bit[10] ^ bit[ 9];
+	bit_out[ 7] = bit[15] ^ bit[12] ^ bit[11] ^ bit[10];
+	bit_out[ 8] = bit[ 0] ^ bit[13] ^ bit[12] ^ bit[11];
+	bit_out[ 9] = bit[ 1] ^ bit[14] ^ bit[13] ^ bit[12];
+	bit_out[10] = bit[ 2] ^ bit[15] ^ bit[14] ^ bit[13];
+	bit_out[11] = bit[ 3] ^ bit[15] ^ bit[14];
+	bit_out[12] = bit[ 4] ^ bit[15];
+	bit_out[13] = bit[ 5];
+	bit_out[14] = bit[ 6];
+	bit_out[15] = bit[ 7];
+	lfsr = 0;
+	for (i=0; i <16; i++) // convert the LFSR back to an integer
+		lfsr += (bit_out[i] << i);
+	outbyte = 0;
+	for (i= 0; i<8; i++) // convert data back to an integer
+		outbyte += (scrambit[i] << i);
+	//printf("LFSR_State = 0x%X \n",lfsr);
+	lfsr_g = lfsr;
+	return outbyte;
+}
+
 /* TLP Byte Array
 { 	0xFB, 0x00 ,0x00, 0x74, 0x00,
 	0x00, 0x01, 0x00, 0xC0, 0x00, 0x50,
@@ -738,7 +893,12 @@ void send_initTLP(LTSSM_TB *tb, LTSSM_TB *tb2, TCP_Bus *tcp_stack ){
 	for(uint8_t i = 0; i<200; i++){
 		tcp_seq10[3] = 0x0b+i;
 			//tcp_stack->Send_Data2Pad(0, 0xC0A802D5,0x111213141517, 15000, 0x0, 0x6D1A5638, 0, tcp_seq10, sizeof(tcp_seq10));
-			tcp_stack->Send_Data(0, 0xC0A802D5,0x111213141517, 15000, 0x0, 0x6D1A5638, 0, tcp_seq10, sizeof(tcp_seq10));
+			if(i%2 == 0){
+				tcp_stack->Send_Data(0, 0xC0A802D5,0x111213141517, 15000, 0x0, 0x6D1A5638, 0, tcp_seq10, sizeof(tcp_seq10));
+			}else{
+				tcp_stack->Send_Data(0, 0xC0A802D5,0x111213141517, 15000, 0x0, 0x6D1A5638, 0, tcp_seq10, sizeof(tcp_seq10)-1);
+			}
+			
 			wait_Clock(tb, tb2, 300);
 			/*if(i >= 1){
 				for(uint32_t i = 0; i<300; i++){
