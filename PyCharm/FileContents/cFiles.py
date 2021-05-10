@@ -17,7 +17,7 @@ mod_h = """
 mod_c = """
 #include "MOD.h"
 
-void MOD::init(){
+void MOD_TB::init(){
     reset();
 
         for (uint i = 0; i<32; i++){
