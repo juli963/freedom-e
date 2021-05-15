@@ -1,12 +1,14 @@
 #include "Console_Defines.h"
 #include "TLP_Module.h"
 
+uint32_t CalculateTlpCRC(uint8_t* data, uint8_t len);
+
 int main(int argc, char **argv) {
 
-        TLP_Module_TB *tb = new TLP_Module_TB();
-        TLP_Module_TB *tb2 = new TLP_Module_TB();
+        TLP_Module_TB *tb = new TLP_Module_TB(0);
+        TLP_Module_TB *tb2 = new TLP_Module_TB(1);
 
-        tb->opentrace("trace.vcd");
+        tb2->opentrace("trace.vcd");
         tb->init();
         tb2->init();
 
@@ -66,21 +68,25 @@ int main(int argc, char **argv) {
 	}
 
         for(uint32_t i=0; i<100;i++){
-                tb->queue();
-                tb2->queue(); 
+                tb->queue(tb2);
+                tb2->queue(tb);  
 
                 tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
                 tb2->m_core->io_GTP_data_rx_data  = tb->m_core->io_GTP_data_tx_data;
                 tb->m_core->io_GTP_data_rx_charisk  = tb2->m_core->io_GTP_data_tx_charisk;
                 tb->m_core->io_GTP_data_rx_data  = tb2->m_core->io_GTP_data_tx_data;
         }
-
+                tb2->m_core->io_data_intf_data_intf_rx_ready = 1;
+                tb->m_core->io_data_intf_data_intf_rx_ready = 1;
+        /*uint8_t tlp1_data_wire[] = { 0x00, 0x01, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x20, 0x21 };
+        printf("Checksum= 0x%X\n", CalculateTlpCRC(&tlp1_data_wire[0], sizeof(tlp1_data_wire)));*/
         uint16_t tlp1_data[] = { 0x1211,0x1413,0x1615,0x1817,0x2019,0x2221 };
-        for(uint32_t p= 0; p<10;p++){
-                for(uint32_t i=0; i<(sizeof(tlp1_data)/2);i++){
-
-                        tb->queue();
-                        tb2->queue(); 
+        tb->m_core->io_sim_state = 1; 
+        tb2->m_core->io_sim_state = 1; 
+       /* for(uint32_t p = 0; p<72;p++){
+                for(uint32_t i=0; i< ((sizeof(tlp1_data)/2));){
+                        tb->queue(tb2);
+                        tb2->queue(tb); 
 
                         tb2->m_core->io_data_intf_data_intf_rx_ready = 1;
                         tb->m_core->io_data_intf_data_intf_rx_ready = 1;
@@ -90,8 +96,14 @@ int main(int argc, char **argv) {
                         tb2->m_core->io_data_intf_data_intf_tx_bits_error = 0;
                         tb->m_core->io_data_intf_data_intf_tx_bits_error = 0;
 
-                        tb2->m_core->io_data_intf_data_intf_tx_bits_strb = 3;
-                        tb->m_core->io_data_intf_data_intf_tx_bits_strb = 3;
+                        if(i == (sizeof(tlp1_data)/2)-1){
+                                tb2->m_core->io_data_intf_data_intf_tx_bits_strb = 1;
+                                tb->m_core->io_data_intf_data_intf_tx_bits_strb = 1;
+                        }else{
+                                tb2->m_core->io_data_intf_data_intf_tx_bits_strb = 3;
+                                tb->m_core->io_data_intf_data_intf_tx_bits_strb = 3;
+                        }
+                        
                         tb2->m_core->io_data_intf_data_intf_tx_bits_data = tlp1_data[i];
                         tb->m_core->io_data_intf_data_intf_tx_bits_data = tlp1_data[i];
 
@@ -99,10 +111,14 @@ int main(int argc, char **argv) {
                         tb2->m_core->io_GTP_data_rx_data  = tb->m_core->io_GTP_data_tx_data;
                         tb->m_core->io_GTP_data_rx_charisk  = tb2->m_core->io_GTP_data_tx_charisk;
                         tb->m_core->io_GTP_data_rx_data  = tb2->m_core->io_GTP_data_tx_data;
+
+                        if(tb->m_core->io_data_intf_data_intf_tx_ready > 0){
+                                i++;
+                        }
                 }
 
-                tb->queue();
-                tb2->queue(); 
+                tb->queue(tb2);
+                tb2->queue(tb); 
 
                 tb2->m_core->io_data_intf_data_intf_tx_valid = 0;
                 tb->m_core->io_data_intf_data_intf_tx_valid = 0;
@@ -114,35 +130,64 @@ int main(int argc, char **argv) {
                 tb->m_core->io_GTP_data_rx_charisk  = tb2->m_core->io_GTP_data_tx_charisk;
                 tb->m_core->io_GTP_data_rx_data  = tb2->m_core->io_GTP_data_tx_data;
                 
-                tb->queue();
-                tb2->queue(); 
+                tb->queue(tb2);
+                tb2->queue(tb); 
                 tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
                 tb2->m_core->io_GTP_data_rx_data  = tb->m_core->io_GTP_data_tx_data;
                 tb->m_core->io_GTP_data_rx_charisk  = tb2->m_core->io_GTP_data_tx_charisk;
                 tb->m_core->io_GTP_data_rx_data  = tb2->m_core->io_GTP_data_tx_data;
 
-                tb->queue();
-                tb2->queue(); 
+                tb->queue(tb2);
+                tb2->queue(tb); 
                 tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
                 tb2->m_core->io_GTP_data_rx_data  = tb->m_core->io_GTP_data_tx_data;
                 tb->m_core->io_GTP_data_rx_charisk  = tb2->m_core->io_GTP_data_tx_charisk;
                 tb->m_core->io_GTP_data_rx_data  = tb2->m_core->io_GTP_data_tx_data;
-        }
+        }*/
         
 
-        for(uint32_t i=0; i<10000;i++){
+        for(uint32_t i=0; i<100000;i++){
                 
-                tb->queue();
-                tb2->queue(); 
-
+                tb->queue(tb2);
+                tb2->queue(tb); 
+                if(i==1000){
+                        tb->m_core->io_sim_state = 2; 
+                        tb2->m_core->io_sim_state = 2; 
+                } 
+                if(i>1000){
+                        tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
+                        tb2->m_core->io_GTP_data_rx_data  = tb->m_core->io_GTP_data_tx_data;
+                        tb->m_core->io_GTP_data_rx_charisk  = tb2->m_core->io_GTP_data_tx_charisk;
+                        tb->m_core->io_GTP_data_rx_data  = tb2->m_core->io_GTP_data_tx_data;
+                }
                 tb2->m_core->io_data_intf_data_intf_tx_valid = 0;
                 tb->m_core->io_data_intf_data_intf_tx_valid = 0;
                 tb2->m_core->io_data_intf_data_intf_tx_bits_strb = 0;
                 tb->m_core->io_data_intf_data_intf_tx_bits_strb = 0;
 
-                tb2->m_core->io_GTP_data_rx_charisk  = tb->m_core->io_GTP_data_tx_charisk;
-                tb2->m_core->io_GTP_data_rx_data  = tb->m_core->io_GTP_data_tx_data;
-                tb->m_core->io_GTP_data_rx_charisk  = tb2->m_core->io_GTP_data_tx_charisk;
-                tb->m_core->io_GTP_data_rx_data  = tb2->m_core->io_GTP_data_tx_data;
+                
         }
+}
+
+uint32_t CalculateTlpCRC(uint8_t* data, uint8_t len)
+{
+	uint32_t poly = 0xedb88320;
+
+	uint32_t crc = 0xffffffff;
+	for(size_t n=0; n<len; n++)
+	{
+		uint8_t d = data[n];
+		for(int i=0; i<8; i++)
+		{
+			bool b = ( crc ^ (d >> i) ) & 1;
+			crc >>= 1;
+			if(b)
+				crc ^= poly;
+		}
+	}
+
+	return ~(	((crc & 0x000000ff) << 24) |
+				((crc & 0x0000ff00) << 8) |
+				((crc & 0x00ff0000) >> 8) |
+				 (crc >> 24) );
 }
