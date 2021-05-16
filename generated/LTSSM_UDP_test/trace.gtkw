@@ -1,28 +1,34 @@
 [*]
 [*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
-[*] Wed Mar 10 22:21:14 2021
+[*] Sun Apr 18 21:31:48 2021
 [*]
 [dumpfile] "\\ubuntu\Home\freedom-e\generated\LTSSM_UDP_test\trace.vcd"
-[dumpfile_mtime] "Wed Mar 10 21:40:27 2021"
-[dumpfile_size] 17474474
+[dumpfile_mtime] "Sun Apr 18 21:30:31 2021"
+[dumpfile_size] 225343050
 [savefile] "\\ubuntu\Home\freedom-e\generated\LTSSM_UDP_test\trace.gtkw"
-[timestart] 97443
+[timestart] 89515
 [size] 1920 1018
 [pos] -1 -1
-*-5.841537 97460 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-5.841537 89673 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.LTSSM_UDP_test.
-[treeopen] TOP.LTSSM_UDP_test.m_TLP_FIFO.
+[treeopen] TOP.LTSSM_UDP_test.m_DLLP.m_retransmit.
+[treeopen] TOP.LTSSM_UDP_test.m_GTP_FIFO.
+[treeopen] TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.
+[treeopen] TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.
+[treeopen] TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.
 [treeopen] TOP.LTSSM_UDP_test.m_UDP.
+[treeopen] TOP.LTSSM_UDP_test.m_UDP_ACK.
 [treeopen] TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_RX.
 [treeopen] TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.
 [sst_width] 294
 [signals_width] 430
 [sst_expanded] 1
-[sst_vpaned_height] 300
+[sst_vpaned_height] 634
 @200
 -Status
 @22
+TOP.io_sim_state[7:0]
 TOP.io_Params_IP[31:0]
 TOP.io_Params_MAC[47:0]
 @28
@@ -58,48 +64,66 @@ TOP.io_EthernetBus_tx_run
 TOP.io_EthernetBus_tx_strb
 @200
 -PCIe TX
+@22
+TOP.LTSSM_UDP_test.m_DLLP.state_dlcmsm[3:0]
 @28
-TOP.io_GTP_data_tx_charisk[1:0]
 TOP.io_GTP_data_tx_clock
+TOP.io_GTP_data_tx_charisk[1:0]
 @22
 TOP.io_GTP_data_tx_data[15:0]
+@28
+TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.io_in_charisk[1:0]
+@22
+TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.io_in_data[15:0]
+@28
+TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.delay_fifo_io_deq_data_charisk[1:0]
+TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.io_out_charisk[1:0]
+@22
+TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.io_out_data[15:0]
+TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.lastCOMCounter[3:0]
+@28
+TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.train_set_0
+TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.train_set_1
+TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.io_valid[1:0]
+@22
+TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.TSCounter[3:0]
+TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.ByteCounter[4:0]
+@28
+TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.io_reset_0
+TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.io_reset_1
+@22
+TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.delay_fifo_io_deq_data_data[15:0]
+@800022
+#{TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_newcrc_[15:0]} TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_newcrc_15 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_newcrc_14 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_newcrc_13 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_newcrc_12 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_newcrc_11 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_newcrc_10 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_newcrc_9 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_newcrc_8 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_newcrc_7 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_newcrc_6 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_newcrc_5 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_newcrc_4 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_newcrc_3 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_newcrc_2 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_newcrc_1 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_newcrc_0
+#{TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_c_[15:0]} TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_c_15 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_c_14 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_c_13 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_c_12 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_c_11 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_c_10 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_c_9 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_c_8 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_c_7 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_c_6 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_c_5 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_c_4 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_c_3 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_c_2 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_c_1 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_1d_io_c_0
+@22
+TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.io_dOut[15:0]
+TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.io_data[15:0]
+TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.dIn_vec_1[7:0]
+@800023
+#{TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d_io_c_[15:0]} TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d_io_c_15 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d_io_c_14 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d_io_c_13 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d_io_c_12 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d_io_c_11 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d_io_c_10 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d_io_c_9 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d_io_c_8 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d_io_c_7 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d_io_c_6 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d_io_c_5 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d_io_c_4 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d_io_c_3 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d_io_c_2 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d_io_c_1 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d_io_c_0
+@1001201
+-group_end
+@1001200
+-group_end
+-group_end
+@c00022
+#{TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d.io_newcrc_[15:0]} TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d.io_newcrc_15 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d.io_newcrc_14 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d.io_newcrc_13 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d.io_newcrc_12 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d.io_newcrc_11 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d.io_newcrc_10 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d.io_newcrc_9 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d.io_newcrc_8 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d.io_newcrc_7 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d.io_newcrc_6 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d.io_newcrc_5 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d.io_newcrc_4 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d.io_newcrc_3 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d.io_newcrc_2 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d.io_newcrc_1 TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.TX_Scrambler.mod_scramble.mod_2d.io_newcrc_0
+@1401200
+-group_end
 @200
 -PCIe RX
 @28
-TOP.io_GTP_data_rx_charisk[1:0]
 TOP.io_GTP_data_rx_clock
+TOP.io_GTP_data_rx_charisk[1:0]
 @22
 TOP.io_GTP_data_rx_data[15:0]
 @28
 TOP.io_GTP_data_rx_disperr[1:0]
 TOP.io_GTP_data_rx_notintable[1:0]
-@200
--ACK FIFO TX
-@28
-TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.data_FIFO_io_deq_clock
+TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.RX_Scrambler.io_out_charisk[1:0]
 @22
-TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.data_FIFO_io_deq_data_data[15:0]
-@28
-TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.data_FIFO_io_deq_data_strb[1:0]
-TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.data_FIFO_io_deq_en
-@22
-TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.mgmt_FIFO_io_deq_data_bits_Channel[3:0]
-TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.mgmt_FIFO_io_deq_data_bits_Checksum[15:0]
-TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.mgmt_FIFO_io_deq_data_bits_Length[15:0]
-@28
-TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.mgmt_FIFO_io_deq_data_valid
-TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.mgmt_FIFO_io_deq_empty
-TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.mgmt_FIFO_io_deq_en
-@22
-TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.data_ff_reg_data[15:0]
-TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.io_ack_tx_bits_data[7:0]
-TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.io_ack_tx_bits_info_Channel[3:0]
-TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.io_ack_tx_bits_info_Checksum[15:0]
-TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.io_ack_tx_bits_info_Length[15:0]
-@28
-TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.io_ack_tx_bits_strb
-TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.io_ack_tx_ready
-TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.io_ack_tx_valid
+TOP.LTSSM_UDP_test.m_GTP_FIFO.mod_scrambler.RX_Scrambler.io_out_data[15:0]
 @200
 -TLP RX
 @22
@@ -109,7 +133,7 @@ TOP.LTSSM_UDP_test.m_TLP_FIFO.TLP_RX.io_tlp_rx_bits_strb[1:0]
 TOP.LTSSM_UDP_test.m_TLP_FIFO.TLP_RX.TCPTX_TLP_State[2:0]
 @22
 TOP.LTSSM_UDP_test.m_TLP_FIFO.TLP_RX.io_ack_data_enq_data_data[15:0]
-@29
+@28
 TOP.LTSSM_UDP_test.m_TLP_FIFO.TLP_RX.io_ack_data_enq_data_strb[1:0]
 @22
 TOP.LTSSM_UDP_test.m_TLP_FIFO.TLP_RX.Checksum[26:0]
@@ -123,7 +147,62 @@ TOP.LTSSM_UDP_test.m_TLP_FIFO.TLP_RX.io_ack_mgmt_enq_data_bits_Length[15:0]
 TOP.LTSSM_UDP_test.m_TLP_FIFO.TLP_RX.io_ack_mgmt_enq_data_valid
 TOP.LTSSM_UDP_test.m_TLP_FIFO.TLP_RX.io_ack_mgmt_enq_en
 @200
+-ACK FIFO TX
+@28
+TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.data_FIFO_io_enq_en
+TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.data_FIFO_io_enq_reset
+TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.data_FIFO_io_deq_clock
+TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.state[1:0]
+@22
+TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.data_FIFO_io_deq_data_data[15:0]
+TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.data_ff_reg_data[15:0]
+@28
+TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.data_ff_reg_strb[1:0]
+TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.data_FIFO_io_deq_data_strb[1:0]
+TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.data_FIFO_io_deq_en
+@22
+TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.mgmt_FIFO_io_deq_data_bits_Channel[3:0]
+TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.mgmt_FIFO_io_deq_data_bits_Checksum[15:0]
+TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.mgmt_FIFO_io_deq_data_bits_Length[15:0]
+@28
+TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.mgmt_FIFO_io_deq_data_valid
+TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.mgmt_FIFO_io_deq_empty
+TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.mgmt_FIFO_io_deq_en
+@22
+TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.io_ack_tx_bits_data[7:0]
+TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.io_ack_tx_bits_info_Channel[3:0]
+TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.io_ack_tx_bits_info_Checksum[15:0]
+TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.io_ack_tx_bits_info_Length[15:0]
+@28
+TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.io_ack_tx_bits_strb
+TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.io_ack_tx_ready
+TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_TX.io_ack_tx_valid
+@200
+-UDP_TX
+@22
+TOP.LTSSM_UDP_test.m_UDP_ACK.udp_tx.io_ack_tx_bits_data[7:0]
+TOP.LTSSM_UDP_test.m_UDP_ACK.udp_tx.io_ack_tx_bits_info_Channel[3:0]
+TOP.LTSSM_UDP_test.m_UDP_ACK.udp_tx.io_ack_tx_bits_info_Checksum[15:0]
+TOP.LTSSM_UDP_test.m_UDP_ACK.udp_tx.io_ack_tx_bits_info_Length[15:0]
+@28
+TOP.LTSSM_UDP_test.m_UDP_ACK.udp_tx.io_ack_tx_bits_strb
+TOP.LTSSM_UDP_test.m_UDP_ACK.udp_tx.io_ack_tx_ready
+TOP.LTSSM_UDP_test.m_UDP_ACK.udp_tx.io_ack_tx_valid
+@22
+TOP.LTSSM_UDP_test.m_UDP_ACK.udp_tx.io_udp_tx_bits_data[7:0]
+TOP.LTSSM_UDP_test.m_UDP_ACK.udp_tx.io_udp_tx_bits_info_Checksum[15:0]
+TOP.LTSSM_UDP_test.m_UDP_ACK.udp_tx.io_udp_tx_bits_info_IP[31:0]
+TOP.LTSSM_UDP_test.m_UDP_ACK.udp_tx.io_udp_tx_bits_info_Length[15:0]
+TOP.LTSSM_UDP_test.m_UDP_ACK.udp_tx.io_udp_tx_bits_info_MAC[47:0]
+TOP.LTSSM_UDP_test.m_UDP_ACK.udp_tx.io_udp_tx_bits_info_Port[15:0]
+@28
+TOP.LTSSM_UDP_test.m_UDP_ACK.udp_tx.io_udp_tx_bits_strb
+TOP.LTSSM_UDP_test.m_UDP_ACK.udp_tx.io_udp_tx_ready
+TOP.LTSSM_UDP_test.m_UDP_ACK.udp_tx.io_udp_tx_valid
+@200
 -ACK_FIFO_RX
+@28
+TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_RX.ByteCounter[1:0]
 @22
 TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_RX.data_FIFO_io_enq_data_data[15:0]
 @28
@@ -140,6 +219,8 @@ TOP.LTSSM_UDP_test.m_UDP_ACK_FIFO_RX.io_ack_rx_valid
 @200
 -UDP_RX
 @22
+TOP.LTSSM_UDP_test.m_UDP.udp_rx.UDP_RX_ByteCounter[15:0]
+TOP.LTSSM_UDP_test.m_UDP.udp_rx.UDP_UDP_RX_data_Reg_info_Length[15:0]
 TOP.LTSSM_UDP_test.m_UDP.udp_rx.io_udp_rx_bits_data[7:0]
 TOP.LTSSM_UDP_test.m_UDP.udp_rx.io_udp_rx_bits_info_IP[31:0]
 TOP.LTSSM_UDP_test.m_UDP.udp_rx.io_udp_rx_bits_info_MAC[47:0]
@@ -147,6 +228,7 @@ TOP.LTSSM_UDP_test.m_UDP.udp_rx.io_udp_rx_bits_info_Port[15:0]
 @28
 TOP.LTSSM_UDP_test.m_UDP.udp_rx.io_udp_rx_bits_strb
 TOP.LTSSM_UDP_test.m_UDP.udp_rx.io_udp_rx_valid
+TOP.LTSSM_UDP_test.m_UDP.udp_rx.UDP_RX_State[2:0]
 @200
 -TLP TX
 @22
@@ -157,30 +239,8 @@ TOP.LTSSM_UDP_test.m_TLP_FIFO.TLP_TX.io_ack_data_deq_en
 TOP.LTSSM_UDP_test.m_TLP_FIFO.TLP_TX.io_ack_mgmt_deq_data_valid
 TOP.LTSSM_UDP_test.m_TLP_FIFO.TLP_TX.io_ack_mgmt_deq_empty
 TOP.LTSSM_UDP_test.m_TLP_FIFO.TLP_TX.io_ack_mgmt_deq_en
-@200
--IP RX
-@22
-TOP.LTSSM_UDP_test.m_IP4.Receiver_io_IPRX_bits_ETHinfo_destMAC[47:0]
-TOP.LTSSM_UDP_test.m_IP4.Receiver_io_IPRX_bits_ETHinfo_etype[15:0]
-TOP.LTSSM_UDP_test.m_IP4.Receiver_io_IPRX_bits_ETHinfo_srcMAC[47:0]
-TOP.LTSSM_UDP_test.m_IP4.Receiver_io_IPRX_bits_IPinfo_DestIP[31:0]
-@28
-TOP.LTSSM_UDP_test.m_IP4.Receiver_io_IPRX_bits_IPinfo_Flags[2:0]
-@22
-TOP.LTSSM_UDP_test.m_IP4.Receiver_io_IPRX_bits_IPinfo_Fragment_Offset[12:0]
-TOP.LTSSM_UDP_test.m_IP4.Receiver_io_IPRX_bits_IPinfo_Header_len[3:0]
-TOP.LTSSM_UDP_test.m_IP4.Receiver_io_IPRX_bits_IPinfo_Ident[15:0]
-TOP.LTSSM_UDP_test.m_IP4.Receiver_io_IPRX_bits_IPinfo_Package_len[15:0]
-TOP.LTSSM_UDP_test.m_IP4.Receiver_io_IPRX_bits_IPinfo_Protocol[7:0]
-TOP.LTSSM_UDP_test.m_IP4.Receiver_io_IPRX_bits_IPinfo_SrcIP[31:0]
-TOP.LTSSM_UDP_test.m_IP4.Receiver_io_IPRX_bits_data[7:0]
-@28
-TOP.LTSSM_UDP_test.m_IP4.Receiver_io_IPRX_bits_error
-TOP.LTSSM_UDP_test.m_IP4.Receiver_io_IPRX_bits_strb
-TOP.LTSSM_UDP_test.m_IP4.Receiver_io_IPRX_valid
-@200
--UDP_RX
-@28
-TOP.LTSSM_UDP_test.m_UDP.udp_rx.UDP_RX_State[2:0]
+TOP.LTSSM_UDP_test.m_TLP_FIFO.TLP_TX.mgmt_run
+TOP.LTSSM_UDP_test.m_TLP_FIFO.TLP_TX.io_ack_mgmt_deq_data_valid
+TOP.LTSSM_UDP_test.m_TLP_FIFO.TLP_TX.TCPRX_TLP_State[1:0]
 [pattern_trace] 1
 [pattern_trace] 0

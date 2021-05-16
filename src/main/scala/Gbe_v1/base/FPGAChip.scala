@@ -52,6 +52,7 @@ class GBEv1FPGAChip(implicit override val p: Parameters) extends GBEv1Shell {
   
   val RGMII  = IO(new RGMII_Interface())
   val PHY_nrst = IO(Bool(OUTPUT))
+  val rx_error = IO(Bool(OUTPUT))
   //-----------------------------------------------------------------------
   // DUT
   //-----------------------------------------------------------------------
@@ -71,6 +72,7 @@ class GBEv1FPGAChip(implicit override val p: Parameters) extends GBEv1Shell {
 
     RGMII <> dut.io.RGMII
     PHY_nrst := dut.io.PHY_nrst
+    rx_error := dut.io.rx_error
     dut.io.EthernetClock125 := clock_125MHz
     dut.io.EthernetClock250 := clock_250MHz
 

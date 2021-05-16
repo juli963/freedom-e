@@ -3,7 +3,7 @@ import os.path
 from os import path
 
 package = "TLP"
-mod_object = "LTSSM_UDP_test"
+mod_object = "TLP_Module"
 rootDir = "generated"
 
 
@@ -15,10 +15,14 @@ def write_File(fpath, name, ext, content):
 
 def create_Directory_Tree(rootDir):
     print("Create Directories\n")
-    os.mkdir("..\\"+rootDir)
-    os.mkdir("..\\Build-Skripts")
-    os.mkdir("..\\"+rootDir+"\\"+mod_object)
-    os.mkdir("..\\"+rootDir+"\\"+mod_object+"\\"+"usr")
+    if(not os.path.exists("..\\"+rootDir)):
+        os.mkdir("..\\"+rootDir)
+    if(not os.path.exists("..\\Build-Skripts")):
+        os.mkdir("..\\Build-Skripts")
+    if(not os.path.exists("..\\"+rootDir+"\\"+mod_object)):
+        os.mkdir("..\\"+rootDir+"\\"+mod_object)
+    if(not os.path.exists("..\\"+rootDir+"\\"+mod_object+"\\"+"usr")):
+        os.mkdir("..\\"+rootDir+"\\"+mod_object+"\\"+"usr")
 
 def replace_content(content):
     content = str.replace(content, "MOD", mod_object)

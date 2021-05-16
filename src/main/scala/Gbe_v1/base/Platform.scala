@@ -49,6 +49,7 @@ class GBEv1PlatformIO(implicit val p: Parameters) extends Bundle {
 
   val RGMII = new Ethernet.Interface.Types.RGMII_Interface()
   val PHY_nrst = Bool(OUTPUT)
+  val rx_error = Bool(OUTPUT)
   val EthernetClock125 = Clock(INPUT)
   val EthernetClock250 = Clock(INPUT)
 }
@@ -139,6 +140,7 @@ class GBEv1Platform(implicit val p: Parameters) extends Module {
 
   io.RGMII <> sys.ethctrl_io.get(0).RGMII
   io.PHY_nrst := sys.ethctrl_io.get(0).PHY_nrst
+  io.rx_error := sys.ethctrl_io.get(0).rx_error
   sys.ethctrl_io.get(0).EthernetClock125 := io.EthernetClock125
   sys.ethctrl_io.get(0).EthernetClock250 := io.EthernetClock250
 
