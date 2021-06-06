@@ -2,27 +2,31 @@ import FileContents.cFiles
 import os.path
 from os import path
 
-package = "TLP"
-mod_object = "TLP_Module"
+package = "TLP.Cfg"
+mod_object = "TLP_w_Configuration"
 rootDir = "generated"
 
 
 def write_File(fpath, name, ext, content):
-    if (not path.exists(fpath+"\\"+name+"."+ext)):
-        f = open(fpath+"\\"+name+"."+ext, "w")
+    if (not path.exists(fpath+"//"+name+"."+ext)):
+        f = open(fpath+"//"+name+"."+ext, "w")
         f.write(content)
         f.close()
 
 def create_Directory_Tree(rootDir):
     print("Create Directories\n")
-    if(not os.path.exists("..\\"+rootDir)):
-        os.mkdir("..\\"+rootDir)
-    if(not os.path.exists("..\\Build-Skripts")):
-        os.mkdir("..\\Build-Skripts")
-    if(not os.path.exists("..\\"+rootDir+"\\"+mod_object)):
-        os.mkdir("..\\"+rootDir+"\\"+mod_object)
-    if(not os.path.exists("..\\"+rootDir+"\\"+mod_object+"\\"+"usr")):
-        os.mkdir("..\\"+rootDir+"\\"+mod_object+"\\"+"usr")
+    if(not os.path.exists("..//"+rootDir)):
+        os.mkdir("..//"+rootDir)
+        print("Create 'generated'\n")
+    if(not os.path.exists("..//Build-Skripts")):
+        os.mkdir("..//Build-Skripts")
+        print("Create 'Build-Skripts'\n")
+    if(not os.path.exists("..//"+rootDir+"//"+mod_object)):
+        os.mkdir("..//"+rootDir+"//"+mod_object)
+        print("Create 'generated/Module'\n")
+    if(not os.path.exists("..//"+rootDir+"//"+mod_object+"//"+"usr")):
+        os.mkdir("..//"+rootDir+"//"+mod_object+"//"+"usr")
+        print("Create 'usr'\n")
 
 def replace_content(content):
     content = str.replace(content, "MOD", mod_object)
@@ -30,11 +34,11 @@ def replace_content(content):
 
 def create_C_Files():
     print("Create User CPP Files\n")
-    write_File("..\\"+rootDir+"\\"+mod_object+"\\"+"usr", mod_object, "h", replace_content(FileContents.cFiles.mod_h))
-    write_File("..\\"+rootDir+"\\"+mod_object+"\\"+"usr", mod_object, "cpp", replace_content(FileContents.cFiles.mod_c))
-    write_File("..\\"+rootDir+"\\"+mod_object+"\\"+"usr", "testbench", "h", replace_content(FileContents.cFiles.tb_h))
-    write_File("..\\"+rootDir+"\\"+mod_object+"\\"+"usr", "testbench", "cpp", replace_content(FileContents.cFiles.tb_c))
-    write_File("..\\"+rootDir+"\\"+mod_object+"\\"+"usr", "Console_Defines", "h", replace_content(FileContents.cFiles.console_defs))
+    write_File("..//"+rootDir+"//"+mod_object+"//"+"usr", mod_object, "h", replace_content(FileContents.cFiles.mod_h))
+    write_File("..//"+rootDir+"//"+mod_object+"//"+"usr", mod_object, "cpp", replace_content(FileContents.cFiles.mod_c))
+    write_File("..//"+rootDir+"//"+mod_object+"//"+"usr", "testbench", "h", replace_content(FileContents.cFiles.tb_h))
+    write_File("..//"+rootDir+"//"+mod_object+"//"+"usr", "testbench", "cpp", replace_content(FileContents.cFiles.tb_c))
+    write_File("..//"+rootDir+"//"+mod_object+"//"+"usr", "Console_Defines", "h", replace_content(FileContents.cFiles.console_defs))
 
 def create_Build_Skript():
     print("Create Custom Build Script\n")
@@ -67,7 +71,7 @@ def create_Build_Skript():
         echo "Run CPP Testbench"
         ./usr/testbench.o
     fi"""
-    write_File("..\\Build-Skripts", mod_object,"sh", content)
+    write_File("..//Build-Skripts", mod_object,"sh", content)
 
 create_Directory_Tree(rootDir)
 create_C_Files()
