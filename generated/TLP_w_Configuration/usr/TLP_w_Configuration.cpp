@@ -18,6 +18,40 @@ void TLP_w_Configuration_TB::fill_rx(uint16_t isk, uint16_t data){
     qstrb_rx.push(isk);
 }
 
+void TLP_w_Configuration_TB::Create_Train_Set(){
+    //Start
+    qdata_rx.push(0xBC);
+    qstrb_rx.push(0x01);
+
+    // 1st Byte Lane and Port
+    qdata_rx.push(0xF7);
+    qstrb_rx.push(0x01);
+    // 2nd Byte
+    qdata_rx.push(0xF7);
+    qstrb_rx.push(0x01);
+    // 3rd Byte
+    qdata_rx.push(0x1F);
+    qstrb_rx.push(0x00);
+    // 4th Byte
+    qdata_rx.push(0x02);
+    qstrb_rx.push(0x00);
+    // 5th Byte
+    qdata_rx.push(0x00);
+    qstrb_rx.push(0x00);
+
+    for(uint8_t i = 0; i<10;i++){
+        // TS1 ending
+        qdata_rx.push(~0x45);
+        qstrb_rx.push(0x00);
+    }
+}
+
+// Send one 0 for Shifting FIFO by 1
+void TLP_w_Configuration_TB::Shift_FIFO(){
+    qdata_rx.push(0x00);
+    qstrb_rx.push(0x00);
+}
+
 void TLP_w_Configuration_TB::Create_Configuration_TLP(bool is_read ,bool TD, bool EP, uint16_t Requester, uint8_t Tag, uint16_t Completer, uint16_t Register, uint8_t first_DW_BE, uint32_t data = 0){
     uint8_t len = 0;
     if(is_read){

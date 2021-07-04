@@ -23,6 +23,8 @@
             void init();
             void queue(TLP_w_Configuration_TB* otb);
             void fill_rx(uint16_t isk, uint16_t data);
+            void Create_Train_Set();
+            void Shift_FIFO();
             void Create_Configuration_TLP(bool is_read ,bool TD, bool EP, uint16_t Requester, uint8_t Tag, uint16_t Completer, uint16_t Register, uint8_t first_DW_BE, uint32_t data);
             void Create_ACK_DLLP(bool is_ACK, uint16_t seq_number);
             void Print_Completion_TLP();

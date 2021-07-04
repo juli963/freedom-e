@@ -2,6 +2,8 @@
 #include "Console_Defines.h"
 #include "TLP_w_Configuration.h"
 
+#define TrainSim 1
+
 int main(int argc, char **argv) {
 
         TLP_w_Configuration_TB *tb = new TLP_w_Configuration_TB(0);
@@ -25,7 +27,7 @@ int main(int argc, char **argv) {
 	tb->m_core->io_pRootPort = f_root;
 
         tb->m_core->io_sim_state = 0; 
-        tb->m_core->io_scramble_enable = 0x0;
+        tb->m_core->io_scramble_enable = 0x1;
 	tb2->m_core->io_scramble_enable = 0x0;
 
         for(uint32_t i = 0; i<20; i++){
@@ -33,7 +35,20 @@ int main(int argc, char **argv) {
                 tb->m_core->io_GTP_data_rx_charisk  = 0;
                 tb->tick();
 	}
-
+#if TrainSim == 1
+        for(uint8_t i = 0; i< 255; i++){
+                tb->Create_Train_Set();
+        }
+        tb->Shift_FIFO();
+        for(uint8_t i = 0; i< 255; i++){
+                tb->Create_Train_Set();
+        }
+        for(uint32_t i=0; i<10000;i++){
+                tb->queue(tb2);
+                tb2->queue(tb);  
+        }
+#endif
+#if TrainSim == 0
         uint8_t x = 0;
         uint32_t state_ff = 0;
 	uint32_t substate_ff = 0;
@@ -201,5 +216,6 @@ int main(int argc, char **argv) {
                 tb->m_core->io_GTP_data_rx_charisk  = tb2->m_core->io_GTP_data_tx_charisk;
                 tb->m_core->io_GTP_data_rx_data  = tb2->m_core->io_GTP_data_tx_data;*/
         }
+#endif
 }
 
