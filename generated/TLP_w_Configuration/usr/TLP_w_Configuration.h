@@ -26,12 +26,18 @@
             void Create_Train_Set();
             void Shift_FIFO();
             void Create_Configuration_TLP(bool is_read ,bool TD, bool EP, uint16_t Requester, uint8_t Tag, uint16_t Completer, uint16_t Register, uint8_t first_DW_BE, uint32_t data);
+            void Create_Custom_TLP(uint8_t* data, uint16_t len);
             void Create_ACK_DLLP(bool is_ACK, uint16_t seq_number);
             void Print_Completion_TLP();
             uint32_t CalculateTlpCRC(uint8_t* data, uint8_t len);
             uint16_t CalculateDllpCRC(uint8_t type, uint8_t* data, uint8_t len);
+
+
+            void decode_TLP(uint8_t* data, uint8_t len);
         private:
 
-
+            void decode_type(uint8_t format, uint8_t type);
+            uint8_t tlp_data_format(uint8_t format, uint8_t type);
+            void decode_Message_Code(uint8_t code, uint8_t r);
     };
 #endif

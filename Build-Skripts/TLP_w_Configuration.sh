@@ -10,16 +10,39 @@
     else
         echo "Switch Directory to Root"
         cd ..
-        echo "Generate Verilog ..."
-        java -jar rocket-chip/sbt-launch.jar ++2.12.4 "runMain TLP.Cfg.TLP_w_Configuration "
+        
+        echo "Generate Verilog EP..."
+        java -jar rocket-chip/sbt-launch.jar ++2.12.4 "runMain TLP.Cfg.TLP_w_Configuration"
         echo "Switch Directory to generated/TLP_w_Configuration "
         cd generated/TLP_w_Configuration
-        echo "Run Verilator ..."
+        
+        echo "Run Verilator EP..."
         verilator -Wall --trace -cc TLP_w_Configuration.v
-        echo "Switch Directory to obj_dir"
+      
+: '
+        cd ../..  
+        echo "Generate Verilog Root..."
+        java -jar rocket-chip/sbt-launch.jar ++2.12.4 "runMain TLP.Cfg.TLP_w_Configuration_root"
+        echo "Switch Directory to generated/TLP_w_Configuration "
+        cd generated/TLP_w_Configuration
+        
+        echo "Run Verilator EP..."
+        verilator -Wall --trace --Mdir "obj_root" -cc TLP_w_Configuration.v
+'
+        
+      	echo "Switch Directory to obj_dir"        
         cd obj_dir
         echo "Make Library ..."
         make -f VTLP_w_Configuration.mk
+     	
+: ' 
+        cd .. 
+        echo "Switch Directory to obj_root"        
+        cd obj_root
+        echo "Make Library ..."
+        make -f VTLP_w_Configuration.mk
+' 
+
         echo "Switch Directory to generated/TLP_w_Configuration "
         cd ..
         echo "Compile CPP Program ..."

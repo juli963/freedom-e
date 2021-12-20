@@ -26,6 +26,10 @@ void I2C_Host::tick(){
                     if(!tb->m_core->io_master_sda_in){
                         tb->m_core->io_master_scl_in = 0;
                         state = slave_address;
+
+                        printf("\nI2C Package to Send\n");
+                        printf("\tTo Slave Address: 0x%02X\n", fifo_header.front().slave_address);
+                        printf("\tRead: 0x%01X, Data Length: 0x%04X\n", fifo_header.front().rw, fifo_header.front().length);
                     }
                     
                     stop_done = false;
@@ -55,6 +59,7 @@ void I2C_Host::tick(){
                     }
                     break;
                 case address_ack:
+                tb->m_core->reset = 1;
                     tb->m_core->io_master_scl_in = ~tb->m_core->io_master_scl_in;
                     if(tb->m_core->io_master_scl_in && !tb->m_core->io_master_sda_tri){   // check if ACK = 0 -> Valid Address and data
                         fail = false;
@@ -66,6 +71,8 @@ void I2C_Host::tick(){
                         
                         if(fail){
                             state = stop;
+                            printf("\tNo Slave Acknowledgement -> Send Stop\n");
+                            
                         }else{
                             if(data_count >= fifo_header.front().length){
                                 state = stop;

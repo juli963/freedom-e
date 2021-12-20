@@ -15,6 +15,8 @@ import sifive.blocks.devices.spi._
 import sifive.blocks.devices.uart._
 import sifive.blocks.devices.i2c._
 
+import juli.blocks.devices.ESP_FIFO._
+import juli.blocks.devices.LiteDRAM_Ctrl._
 //-------------------------------------------------------------------------
 // E300ArtyDevKitSystem
 //-------------------------------------------------------------------------
@@ -26,6 +28,8 @@ class HSSnifferv1System(implicit p: Parameters) extends RocketSubsystem
     with HasPeripherySPIFlash
     with HasPeripheryGPIO
     with HasPeripheryI2C
+    with CanHavePeripheryESP_FIFOList
+    with CanHavePeripheryLiteDRAM_CtrlList
    {
   override lazy val module = new HSSnifferv1SystemModule(this)
 }
@@ -37,6 +41,8 @@ class HSSnifferv1SystemModule[+L <: HSSnifferv1System](_outer: L)
     with HasPeripheryGPIOModuleImp
     with HasPeripherySPIFlashModuleImp
     with HasPeripheryI2CModuleImp
+    with CanHavePeripheryESP_FIFOListModuleImp
+    with CanHavePeripheryLiteDRAM_CtrlListModuleImp
    {
   // Reset vector is set to the location of the mask rom
   val maskROMParams = p(PeripheryMaskROMKey)
