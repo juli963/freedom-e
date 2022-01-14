@@ -1,0 +1,111 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Fri Jan 14 23:10:42 2022
+[*]
+[dumpfile] "/home/julian/Projekte/FPGA/RISC-V/juli963/freedom-e/generated/Sniffer_8b10b_40/trace.vcd"
+[dumpfile_mtime] "Fri Jan 14 23:03:18 2022"
+[dumpfile_size] 257064
+[savefile] "/home/julian/Projekte/FPGA/RISC-V/juli963/freedom-e/generated/Sniffer_8b10b_40/trace.gtkw"
+[timestart] 1678
+[size] 1848 1016
+[pos] -1 -1
+*-5.000000 1718 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.Sniffer_8b10b_40.
+[sst_width] 398
+[signals_width] 366
+[sst_expanded] 1
+[sst_vpaned_height] 577
+@28
+TOP.clock
+TOP.io_mem_clock
+TOP.reset
+@200
+-Register
+@28
+TOP.io_regs_trigger_mode_0[1:0]
+TOP.io_regs_trigger_start_0_charisk
+@22
+TOP.io_regs_trigger_start_0_data[7:0]
+@28
+TOP.io_regs_trigger_stop_0_charisk
+@22
+TOP.io_regs_trigger_stop_0_data[7:0]
+@28
+TOP.io_regs_gtp_sel[1:0]
+TOP.Sniffer_8b10b_40.TrigStart_0_0
+TOP.Sniffer_8b10b_40.TrigStart_0_1
+TOP.Sniffer_8b10b_40.TrigStart_0_2
+TOP.Sniffer_8b10b_40.TrigStart_0_3
+TOP.Sniffer_8b10b_40.TrigStop_0_0
+TOP.Sniffer_8b10b_40.TrigStop_0_1
+TOP.Sniffer_8b10b_40.TrigStop_0_2
+TOP.Sniffer_8b10b_40.TrigStop_0_3
+@200
+-Data
+@22
+TOP.io_data_in_0_bits_charisk[3:0]
+TOP.io_data_in_0_bits_data[31:0]
+@28
+TOP.io_data_in_0_valid
+@22
+TOP.Sniffer_8b10b_40.gtp_data_bits_charisk[3:0]
+TOP.Sniffer_8b10b_40.gtp_data_bits_data[31:0]
+@28
+TOP.Sniffer_8b10b_40.gtp_data_valid
+@200
+-Data FIFO
+@22
+TOP.io_modulo8_is0_0[3:0]
+@28
+TOP.Sniffer_8b10b_40.Modulo_8_is0_0_0
+TOP.Sniffer_8b10b_40.Modulo_8_is0_0_1
+TOP.Sniffer_8b10b_40.Modulo_8_is0_0_2
+TOP.Sniffer_8b10b_40.Modulo_8_is0_0_3
+@22
+TOP.Sniffer_8b10b_40.data_fifos_0.io_queue_enq_bits_data_0[7:0]
+TOP.Sniffer_8b10b_40.data_fifos_0.io_queue_enq_bits_data_1[7:0]
+TOP.Sniffer_8b10b_40.data_fifos_0.io_queue_enq_bits_data_2[7:0]
+TOP.Sniffer_8b10b_40.data_fifos_0.io_queue_enq_bits_data_3[7:0]
+TOP.Sniffer_8b10b_40.data_fifos_0.io_queue_enq_bits_data_4[7:0]
+TOP.Sniffer_8b10b_40.data_fifos_0.io_queue_enq_bits_data_5[7:0]
+TOP.Sniffer_8b10b_40.data_fifos_0.io_queue_enq_bits_data_6[7:0]
+@23
+TOP.Sniffer_8b10b_40.data_fifos_0_io_queue_enq_bits_data_7[7:0]
+@28
+TOP.Sniffer_8b10b_40.data_fifos_0.io_queue_enq_bits_isk_0
+TOP.Sniffer_8b10b_40.data_fifos_0.io_queue_enq_bits_isk_1
+TOP.Sniffer_8b10b_40.data_fifos_0.io_queue_enq_bits_isk_2
+TOP.Sniffer_8b10b_40.data_fifos_0.io_queue_enq_bits_isk_3
+TOP.Sniffer_8b10b_40.data_fifos_0.io_queue_enq_bits_isk_4
+TOP.Sniffer_8b10b_40.data_fifos_0.io_queue_enq_bits_isk_5
+TOP.Sniffer_8b10b_40.data_fifos_0.io_queue_enq_bits_isk_6
+TOP.Sniffer_8b10b_40.data_fifos_0.io_queue_enq_bits_isk_7
+TOP.Sniffer_8b10b_40.data_fifos_0_io_queue_enq_valid
+@200
+-MGMT
+@28
+TOP.Sniffer_8b10b_40.mgmt_fifos_0_io_full
+@22
+TOP.Sniffer_8b10b_40.mgmt_fifos_0.io_queue_enq_bits_data_0[7:0]
+TOP.Sniffer_8b10b_40.mgmt_fifos_0.io_queue_enq_bits_data_1[7:0]
+TOP.Sniffer_8b10b_40.mgmt_fifos_0.io_queue_enq_bits_data_2[7:0]
+@28
+TOP.Sniffer_8b10b_40.mgmt_fifos_0.io_queue_enq_bits_hasData
+TOP.Sniffer_8b10b_40.mgmt_fifos_0.io_queue_enq_bits_isk_0
+TOP.Sniffer_8b10b_40.mgmt_fifos_0.io_queue_enq_bits_isk_1
+TOP.Sniffer_8b10b_40.mgmt_fifos_0.io_queue_enq_bits_isk_2
+@24
+TOP.Sniffer_8b10b_40.mgmt_fifos_0.io_queue_enq_bits_length[11:0]
+@28
+TOP.Sniffer_8b10b_40.mgmt_fifos_0.io_queue_enq_valid
+TOP.Sniffer_8b10b_40.state_i[1:0]
+@200
+-Buffer
+@28
+TOP.Sniffer_8b10b_40.reg_valid_0_0
+TOP.Sniffer_8b10b_40.reg_valid_0_1
+TOP.Sniffer_8b10b_40.reg_valid_0_2
+TOP.Sniffer_8b10b_40.reg_valid_0_3
+[pattern_trace] 1
+[pattern_trace] 0
