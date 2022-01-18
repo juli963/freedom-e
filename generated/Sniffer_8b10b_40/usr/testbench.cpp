@@ -106,15 +106,15 @@ int main(int argc, char **argv) {
             }
         }
     }
-/*
+
     printf("Trigger at Start Symbol and Length \n");
     myfile << "Trigger at Start Symbol and Length" << std::endl;
-    for(uint8_t len = 1; len < 20; len+=8){ 
-        uint8_t arrdat[len+3] = {0};
-        uint8_t arrk[len+3] = {0};
+    for(uint8_t len = 1; len < 20; len+=1){ 
+        uint8_t arrdat[len+8] = {0};
+        uint8_t arrk[len+8] = {0};
         arrdat[0] = 0xBC;
         arrk[0] = 0x01;
-        for(uint8_t n = 1; n<len+3; n++){
+        for(uint8_t n = 1; n<len+8; n++){
             arrdat[n] = n + 0x10;
             arrk[n] = 0x00;
         }
@@ -124,11 +124,11 @@ int main(int argc, char **argv) {
             tb->m_core->io_first = first;
             for(uint8_t second = 0; second < 5; second++){
                 tb->m_core->io_second = second;
-                for(uint8_t jump = 0; jump < 4; jump++){
-                    tb->m_core->io_jump = jump;
-                    printf("Do Test, len = %i, first = %i second = %i jump = %i \n", len, first, second, jump);
-                    myfile << "Test State: Len= "<< std::to_string(len) << ", First=" << std::to_string(first) << ", Second=" << std::to_string(second) << ", Jump=" << std::to_string(jump) << std::endl;
-                    create_testdata(first ,second ,jump ,arrdat ,arrk ,sizeof(arrdat) ,tb );
+                //for(uint8_t jump = 0; jump < 4; jump++){
+                    tb->m_core->io_jump = len;
+                    printf("Do Test, len = %i, first = %i second = %i \n", len, first, second);
+                    myfile << "Test State: Len= "<< std::to_string(len) << ", First=" << std::to_string(first) << ", Second=" << std::to_string(second) << std::endl;
+                    create_testdata(first ,second ,0 ,arrdat ,arrk ,sizeof(arrdat) ,tb );
                     for(uint8_t i = 0; i < 128; i++){
                         if(i > 100 && tb->rx_fifo.empty()){
                             break;
@@ -155,11 +155,11 @@ int main(int argc, char **argv) {
                     for(uint16_t i = 0; i < 25; i++){
                         tb->tick();
                     }
-                }
+                //}
             }
         }
     }
-*/
+
 
     //myfile << "Writing this to a file2.\n";
     myfile.close();
