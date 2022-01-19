@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
     };
     uint8_t isk[]= {
         0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
     };
 
@@ -118,6 +118,9 @@ int main(int argc, char **argv) {
             arrdat[n] = n + 0x10;
             arrk[n] = 0x00;
         }
+
+        arrdat[4] = 0xBC;
+        arrk[4] = 0x01;
 
         tb->enable_trigger_length(temp[0], len, Sniffer_8b10b_40_TB::elength, 0);
         for(uint8_t first = 0; first < 4; first++){
@@ -213,10 +216,12 @@ void check_testdata(uint8_t* data, uint8_t* isk, uint8_t length, Sniffer_8b10b_4
                 waitvalid = true;
                 while(true){    // DATA LOOP
                     if( tb->m_core->io_data_empty_0 == 1 && tb->m_core->io_data_deq_0_valid == 0 && !(templength < 4 && tb->m_core->io_mgmt_deq_0_bits_hasData > 0) ){
-                        CRED
-                        printf("Data Fifo empty\n");
-                        error = true;
-                        CDEFAULT
+                        if(templength != 0){
+                            CRED
+                            printf("Data Fifo empty\n");
+                            error = true;
+                            CDEFAULT
+                        }
                         break;
                     }else{
                         if(waitvalid){
@@ -258,8 +263,10 @@ void check_testdata(uint8_t* data, uint8_t* isk, uint8_t length, Sniffer_8b10b_4
                                 }
                                 idx++;
                                 break;
+                            }else{
+                                tb->m_core->io_data_deq_0_ready = 1;
                             }
-                            tb->m_core->io_data_deq_0_ready = 1;
+                            
                         }else{
                             char hex_string[3];
                             tb->m_core->io_data_deq_0_ready = 0;
@@ -362,7 +369,9 @@ void check_testdata(uint8_t* data, uint8_t* isk, uint8_t length, Sniffer_8b10b_4
                                 }else{
                                     break;
                                 }
-
+                                if(templength == 0){
+                                    break;
+                                }
                                 
                             }
                         }

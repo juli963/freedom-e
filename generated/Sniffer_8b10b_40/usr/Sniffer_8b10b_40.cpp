@@ -100,14 +100,14 @@ void Sniffer_8b10b_40_TB::enable_trigger_length(s8b10b start, uint16_t length, e
             m_core->io_regs_trigger_mode_0 = mode;
             m_core->io_regs_trigger_start_0_data = start.data;
             m_core->io_regs_trigger_start_0_charisk = start.isk;
-            m_core->io_regs_trigger_stop_0_data = length;
+            m_core->io_regs_trigger_stop_0_data = length&0xFF;
             m_core->io_regs_trigger_stop_0_charisk = 0;
             break;
         case 1:
             m_core->io_regs_trigger_mode_1 = mode;
             m_core->io_regs_trigger_start_1_data = start.data;
             m_core->io_regs_trigger_start_1_data = start.isk;
-            m_core->io_regs_trigger_stop_1_data = length;
+            m_core->io_regs_trigger_stop_1_data = length&0xFF;
             m_core->io_regs_trigger_stop_1_charisk = 0;
             break; 
     }
