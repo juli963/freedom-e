@@ -25,6 +25,8 @@ int main(int argc, char **argv) {
     temp[1].data = 0xFB;
     temp[1].isk = 1;
 
+    tb->m_core->io_regs_enable = 1;
+
     tb->enable_trigger_code(temp[0], temp[1], Sniffer_8b10b_40_TB::estart_stop, 0);
     tb->sel_gtp(0);
     /*
@@ -163,6 +165,93 @@ int main(int argc, char **argv) {
         }
     }
 
+    printf("Overfill MGMT FIFO \n");
+    myfile << "Overfill MGMT FIFO" << std::endl;
+    tb->enable_trigger_code(temp[0], temp[1], Sniffer_8b10b_40_TB::estart_stop, 0);
+    for(uint16_t x = 0; x<20; x++){
+        create_testdata(0 ,1 ,0 ,data ,isk ,sizeof(data) ,tb );
+        for(uint8_t i = 0; i < 200; i++){
+            if(i > 100 && tb->rx_fifo.empty()){
+                break;
+            }
+            tb->tick();
+        }
+
+        for(uint16_t i = 0; i < 25; i++){
+            tb->tick();
+        }
+    }
+    for(uint16_t x = 0; x<20; x++)    {
+        for(uint16_t i = 0; i < 2000; i++){
+            tb->deq_rx_fifo();
+            if(i > 100 && tb->rx_fifo.empty()){
+                break;
+            }
+            tb->tick();
+        }
+        for(uint16_t i = 0; i < 25; i++){
+            tb->tick();
+        }
+        check_testdata(data, isk, sizeof(data) ,tb, &myfile);
+        for(uint16_t i = 0; i < 25; i++){
+            tb->tick();
+        }
+    }
+
+
+    printf("Overfill Data FIFO \n");
+    myfile << "Overfill Data FIFO" << std::endl;
+    uint16_t longdat = 3*(2048/sizeof(data));
+    printf("Len %i\n", longdat);
+    isk[sizeof(data)-1] = 0;
+    for(uint16_t x = 0; x< longdat; x++){
+        
+        create_testdata(0 ,1 ,0 ,data ,isk ,sizeof(data) ,tb );
+        for(uint8_t i = 0; i < 128; i++){
+            if(i > 100 && tb->rx_fifo.empty()){
+                break;
+            }
+            tb->tick();
+        }
+
+        for(uint16_t i = 0; i < 25; i++){
+            tb->tick();
+        }
+
+    }
+    isk[sizeof(data)-1] = 0x01;
+
+    create_testdata(0 ,1 ,0 ,data ,isk ,sizeof(data) ,tb );
+    for(uint8_t i = 0; i < 128; i++){
+        if(i > 100 && tb->rx_fifo.empty()){
+            break;
+        }
+        tb->tick();
+    }
+
+    for(uint16_t i = 0; i < 25; i++){
+        tb->tick();
+    }
+
+
+    for(uint16_t x = 0; x<20; x++)    {
+        for(uint16_t i = 0; i < 2048; i++){
+            tb->deq_rx_fifo();
+            if(i > 100 && tb->rx_fifo.empty()){
+                break;
+            }
+            tb->tick();
+        }
+
+    }
+
+    for(uint16_t i = 0; i < 25; i++){
+        tb->tick();
+    }
+    check_testdata(data, isk, sizeof(data) ,tb, &myfile);
+    for(uint16_t i = 0; i < 25; i++){
+        tb->tick();
+    }
 
     //myfile << "Writing this to a file2.\n";
     myfile.close();
