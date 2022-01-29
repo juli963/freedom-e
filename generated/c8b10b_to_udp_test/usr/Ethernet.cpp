@@ -114,6 +114,7 @@ void Ethernet::printEthernet(uint8_t* data, uint16_t length){
     uint8_t* next_data = &data[14];
     uint16_t next_length = length-14;
 
+    if(print_output){
     printf("------- RX Ethernet Frame ---------\n");
     printf("\t Destination MAC: ");//0x%012lX \n", destMAC);
     for(uint8_t i = 0; i<6;i++){
@@ -133,7 +134,7 @@ void Ethernet::printEthernet(uint8_t* data, uint16_t length){
         }
     }
     printf("\n\t EtherType: 0x%04X \n", ethType);
-
+    }
     switch(ethType){
         case 0x0800:    // IP Package
             printIP(next_data, next_length);
@@ -142,6 +143,7 @@ void Ethernet::printEthernet(uint8_t* data, uint16_t length){
             printARP(next_data, next_length);
             break;
         default: 
+            if(print_output){
             printf("\t ------Unimplemented Ethertype-----\n \t Data:");
             for(uint16_t i = 0; i<next_length; i++){
                 if(i%8 == 0){
@@ -150,6 +152,7 @@ void Ethernet::printEthernet(uint8_t* data, uint16_t length){
                 printf("0x%02X ", next_data[i]);
             }
             printf("\n");
+            }
             break;
     }
 }
@@ -193,7 +196,8 @@ void Ethernet::printIP(uint8_t* data, uint16_t length){
         memcpy(check_data, data, IHL*4);
         check_data[10] = 0;
         check_data[11] = 0;
-
+        
+        if(print_output){
         printf("\t IPv4\n");
         printf("\t\t IHL: 0x%01X\n", IHL);
         printf("\t\t TOS: 0x%02X\n", TOS);
@@ -227,9 +231,12 @@ void Ethernet::printIP(uint8_t* data, uint16_t length){
                 printf("\t\t\t %X %X %X %X\n", data[20+i], data[21+i], data[22+i], data[23+i] );
             }
         }
+        }
 
     }else{  // IPv6
+        if(print_output){
         printf("\t\t IPv6\n");
+        }
     }
 
     switch(protocol){
@@ -240,6 +247,7 @@ void Ethernet::printIP(uint8_t* data, uint16_t length){
             printUDP(next_data, next_length, pseudo_header);
             break;
         default: 
+            if(print_output){
             printf("\t\t ------Unimplemented IP Type-----\n \t\t Data:");
             for(uint16_t i = 0; i<next_length; i++){
                 if(i%8 == 0){
@@ -248,6 +256,7 @@ void Ethernet::printIP(uint8_t* data, uint16_t length){
                 printf("0x%02X ", next_data[i]);
             }
             printf("\n");
+            }
             break;
     }
 }
@@ -274,31 +283,92 @@ void Ethernet::printUDP(uint8_t* data, uint16_t length, uint8_t* pseudo_header =
         check_data[11] = data[5];
         check_data[18] = 0;
         check_data[19] = 0;
-
+        if(print_output){
         printf("\t\t UDP\n");
         printf("\t\t\t Source Port: %i\n", src_Port);
         printf("\t\t\t Destination Port: %i\n", dest_Port);
         printf("\t\t\t Length: %i\n", frame_length);
         printf("\t\t\t Data Length: %i\n", (frame_length-8));
         printf("\t\t\t Checksum: 0x%04X, Valid:%s\n", checksum, checkIPChecksum(check_data, length+12, checksum)?"true":"false");
-
+        }
         switch(dest_Port){
             /*case 15000: // ESP
                 printESP(next_data, next_length);
                 break;*/
             default: 
-                printf("\t\t ------Unimplemented UDP Port-----\n \t\t\t Data:");
-                for(uint16_t i = 0; i<next_length; i++){
-                    if(i%8 == 0){
-                        printf("\n\t\t\t ");
+                if(print_output){
+                    printf("\t\t ------Unimplemented UDP Port-----\n \t\t\t Data:");
+                    for(uint16_t i = 0; i<next_length; i++){
+                        if(i%8 == 0){
+                            printf("\n\t\t\t ");
+                        }
+                        printf("0x%02X ", next_data[i]);
                     }
-                    printf("0x%02X ", next_data[i]);
+                    printf("\n");
                 }
-                printf("\n");
+                if (next_length > 24){
+                    for(uint16_t i = 24; i<next_length; i++){
+                        if(i%8 == 0){
+                            //printf("\n\t\t ");
+                        }
+                        //printf("0x%02X ", next_data[i]);
+                    }
+                    //printf("\n");
+                    
+
+
+                    uint16_t index = 24;
+                    s8b10b temp;
+                    //printf("\n"/*\t\t\t "*/);
+                    uint8_t mask = 0x01;
+                    uint8_t shift = 0x00;
+                    uint16_t data_len = 0;
+                    for(uint16_t i = 0; i<next_length-24; i++){
+                        if( shift < 7 ){
+                            temp.data = next_data[index];
+                            //printf("ISK Index %i\n", ((i/8)*8)+7);
+                            if( ((i/8)*8)+7 < next_length-25 ){
+                                //printf("Mask 0x%02X ", mask);
+                                //printf("ISK 0x%02X ", next_data[((i/8)*8)+7+24]);
+                                //printf("Shift 0x%02X ", shift);
+                                //printf("ISK 0x%02X \n", next_data[((i/7)*7)+8+24]);
+                                // printf("SPECIAL %i %i \n", ((i/7)*7)+shift, next_length-26 );
+                                temp.isk = (next_data[((i/8)*8)+7+24] & mask) >> shift;
+                                //temp.isk = (next_data[((i/7)*7)+7+24] & mask) << shift;
+                            }else{
+                                //printf("SPECIAL \n");
+                                temp.isk = (next_data[next_length-1] & mask) >> shift;
+                                //temp.isk = (next_data[next_length-1] & mask) << shift;
+                            }
+                            mask <<= 1;
+                            shift++;
+                            // next line
+                            //printf("\n\t\t\t ");
+                            if(i < next_length-25){
+                                //printf("Data: 0x%02X %i\n", temp.data, temp.isk);
+                                fifo_data.push(temp);
+                                data_len++;
+                            }
+                            
+                        }else{
+                            mask = 0x01;
+                            shift = 0;
+                            //printf("\n");
+                            //printf("\n\t\t\t ");
+                        }
+
+                        index++;
+                        
+                    }
+                    fifo_mgmt.push(data_len);
+                    //printf("\n");
+                }
                 break;
         }
     }else{
+        if(print_output){
         printf("\t\t Error: UDP Frame too short.\n");
+        }
     }
 }
 
@@ -328,7 +398,7 @@ void Ethernet::printARP(uint8_t* data, uint16_t length){
         data[24], data[25],data[26], data[27]
     };
 
-
+    if(print_output){
     printf("\t ARP\n");
     printf("\t\t Hardware Type: 0x%04X\n", HW_Type);
     printf("\t\t Protocol Type: 0x%04X\n", Protocol_Type);
@@ -371,6 +441,7 @@ void Ethernet::printARP(uint8_t* data, uint16_t length){
         }
     }
     printf("\n");
+    }
 }
 
 void Ethernet::printESP(uint8_t* data, uint16_t length){
@@ -379,14 +450,14 @@ void Ethernet::printESP(uint8_t* data, uint16_t length){
     uint8_t cmd = data[2];
     uint8_t address = data[3];
     uint32_t regdata = (data[7]<<24) | (data[6]<<16) | (data[5]<<8) | data[4];
-
+    if(print_output){
     printf("\t\t\t\t ESP FIFO Potocol\n");
     printf("\t\t\t\t\t Type: 0x%02X\n", type);
     printf("\t\t\t\t\t Ident: 0x%02X\n", ident);
     printf("\t\t\t\t\t Command: 0x%02X\n", cmd);
     printf("\t\t\t\t\t Address: 0x%02X\n", address);
     printf("\t\t\t\t\t Data: 0x%08X\n", regdata);
-    
+    }
     //tb->add_tx_fifo(type, ident, cmd, address, regdata);
 }
 

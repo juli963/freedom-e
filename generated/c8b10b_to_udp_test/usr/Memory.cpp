@@ -74,7 +74,7 @@ void Memory::tick_fifo(){
         tb->m_core->io_fifo_in_ready = 1;
         if (tb->m_core->io_fifo_in_valid > 0){
             tx_fifo_data.push(tb->m_core->io_fifo_in_bits[0] | ((uint64_t)tb->m_core->io_fifo_in_bits[1]<<32));  
-            tx_fifo_data.push(tb->m_core->io_fifo_in_bits[1] | ((uint64_t)tb->m_core->io_fifo_in_bits[2]<<32));  
+            tx_fifo_data.push(tb->m_core->io_fifo_in_bits[2] | ((uint64_t)tb->m_core->io_fifo_in_bits[3]<<32));  
         }
 
         if( (fifo_ready_ff > 0 || triggered) && !tx_fifo_data.empty()){

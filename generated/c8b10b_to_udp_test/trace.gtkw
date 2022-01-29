@@ -1,22 +1,22 @@
 [*]
 [*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Tue Jan 25 22:04:29 2022
+[*] Fri Jan 28 22:42:41 2022
 [*]
 [dumpfile] "/home/julian/Projekte/FPGA/RISC-V/juli963/freedom-e/generated/c8b10b_to_udp_test/trace.vcd"
-[dumpfile_mtime] "Tue Jan 25 21:41:38 2022"
-[dumpfile_size] 2563645
+[dumpfile_mtime] "Fri Jan 28 22:41:34 2022"
+[dumpfile_size] 12427984
 [savefile] "/home/julian/Projekte/FPGA/RISC-V/juli963/freedom-e/generated/c8b10b_to_udp_test/trace.gtkw"
-[timestart] 573
+[timestart] 8
 [size] 1848 1016
 [pos] -1 -1
-*-3.000000 600 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-16.000000 161620 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.c8b10b_to_udp_test.
 [treeopen] TOP.c8b10b_to_udp_test.dram_udp.mod.
 [sst_width] 233
 [signals_width] 318
 [sst_expanded] 1
-[sst_vpaned_height] 310
+[sst_vpaned_height] 410
 @28
 TOP.clock
 TOP.io_EthernetBus_busclock
@@ -67,21 +67,27 @@ TOP.io_native_wdata_we[15:0]
 @200
 -DRAM FIFO
 @28
+TOP.c8b10b_to_udp_test.dram_arbit.state[1:0]
+TOP.c8b10b_to_udp_test.dram_arbit.locked_fall
+@29
+TOP.c8b10b_to_udp_test.dram_arbit.do_increase
+@28
+TOP.c8b10b_to_udp_test.dram_arbit.locked
 TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.arbit_fifo
 @22
 TOP.io_fifo_in_bits[127:0]
 @28
 TOP.io_fifo_in_ready
 TOP.io_fifo_in_valid
+@22
+TOP.io_data_in_0_bits_data[31:0]
+TOP.io_data_in_0_bits_charisk[3:0]
 @200
 -To_dram
-@25
+@24
 TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.count_valid[11:0]
-@24
 TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.temp[11:0]
-@28
 TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.cSymbols[2:0]
-@24
 TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.io_mgmt_deq_bits_length[11:0]
 @28
 TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.State_DRAM_FIFO[2:0]
@@ -92,6 +98,11 @@ TOP.clock
 TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.deq_data
 TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.io_data_deq_valid
 TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.deq_mgmt
+@22
+TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.reg_data_0[7:0]
+TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.reg_data_1[7:0]
+TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.reg_data_2[7:0]
+TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.reg_data_3[7:0]
 @800200
 -DataFIFO
 @22
@@ -130,5 +141,20 @@ TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.io_mgmt_deq_bits_isk_2
 TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.io_mgmt_deq_bits_length[11:0]
 @1000200
 -MGMTFIFO
+@28
+TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.wdram_k_0
+TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.wdram_k_1
+TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.wdram_k_2
+TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.wdram_k_3
+TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.wdram_k_4
+TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.wdram_k_5
+TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.wdram_k_6
+TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.wdram_k_7
+TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.wdram_k_8
+TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.wdram_k_9
+TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.wdram_k_10
+TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.wdram_k_11
+TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.wdram_k_12
+TOP.c8b10b_to_udp_test.mod_8b10b_fifos_0.wdram_k_13
 [pattern_trace] 1
 [pattern_trace] 0

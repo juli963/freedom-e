@@ -28,12 +28,23 @@
             uint8_t last_strb = 0;
             uint16_t rx_act_length = 0;
 
+            bool print_output = true;
+
             uint8_t srcMAC[6] = {
                 0x09,0x08,0x07,0x06,0x05,0x04
             };
             uint8_t srcIP[4] = {
                 0xC0,0xA8,0x07,0x06
             };
+
+            struct s8b10b {   
+                uint8_t data;
+                uint8_t isk;
+            };
+            
+            std::queue <s8b10b> fifo_data;
+            std::queue <uint16_t> fifo_mgmt;
+
             void createEthernetFrame(uint8_t* destMAC, uint16_t etherType, uint8_t* data, uint16_t length);
             void createARPFrame(uint8_t* searchIP);
             void createIP4Frame(uint8_t* data, uint16_t length, uint8_t* destIP, uint8_t* destMAC, uint8_t protocol);
