@@ -41,7 +41,7 @@ void Memory::tick_native(){
         tb->m_core->io_native_wdata_ready = 1;
         if(idx < mem_data.size()){
             mem_data[idx] = tb->m_core->io_native_wdata_data[0] | ((uint64_t)tb->m_core->io_native_wdata_data[1]<<32);
-            printf("Data at %i is written: 0x%lX \n", idx, mem_data[idx]);
+            //printf("Data at %i is written: 0x%lX \n", idx, mem_data[idx]);
         }
     }else{
         tb->m_core->io_native_wdata_ready = 0;

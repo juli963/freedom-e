@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
     };
     uint8_t isk[]= {
         0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
     };
 
@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
         tb->m_core->io_first = first;
         for(uint8_t second = 0; second < 5; second++){
             tb->m_core->io_second = second;
-            for(uint8_t jump = 0; jump < 4; jump++){
+            for(uint8_t jump = 0; jump < 20; jump++){
                 tb->m_core->io_jump = jump;
                 printf("Do Test, first = %i second = %i jump = %i \n", first, second, jump);
                 myfile << "Test State: First=" << std::to_string(first) << ", Second=" << std::to_string(second) << ", Jump=" << std::to_string(jump) << std::endl;

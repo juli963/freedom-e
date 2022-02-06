@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
     };
     uint8_t isk[]= {
         0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
     };
 
@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
         tb->m_core->io_first = first;
         for(uint8_t second = 0; second < 5; second++){
             tb->m_core->io_second = second;
-            for(uint8_t jump = 0; jump < 8; jump++){
+            for(uint8_t jump = 0; jump < 20; jump++){
                 tb->m_core->io_jump = jump;
                 countmgmt = 0;
                 printf("Do Test, first = %i second = %i jump = %i \n", first, second, jump);
