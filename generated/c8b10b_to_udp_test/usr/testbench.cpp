@@ -134,22 +134,18 @@ int main(int argc, char **argv) {
         0xAB, 0xAA, 0x55, 0x66, 0x88, 0x71, 0x72, 0x73, 
         0x41, 0x42, 0x43, 0x77, 0x44, 0x48, 0x71, 0x25, 
         0x91, 0x90, 0x89, 0x65, 0x89, 0x15, 0x27, 0x46, 
-        0xAB, 0xAA, 0x55, 0x66, 0x88, 0x71, 0x72, 0x73, 
-        0x17, 0xC1, 0xC2, 0xC3, 0xC4, 0xC7, 0xC8, 0xCA, 
         0xBC, 0x02, 0x10, 0x21, 0x22, 0xAB, 0xCD, 0xFB
     };
     uint8_t isk2[]= {
         0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
     };
 
-    printf("\n Trigger at Start and Stop Symbol \n");
+    printf("\n Trigger at Start and Stop Symbol 2 \n");
     myfile << std::endl;
     myfile << "Trigger at Start and Stop Symbol" << std::endl;
     countmgmt = 0;
@@ -194,6 +190,80 @@ int main(int argc, char **argv) {
                             check_testdata(&data2[1], &isk2[1], sizeof(data2)-2, &eth_intf, &myfile);
                         }else{
                             check_testdata(&data2[1], &isk2[1], sizeof(data2)-2-jump, &eth_intf, &myfile);
+                        }
+                        countmgmt++;
+                    }
+                }
+            }
+        }
+    }
+
+    uint8_t data3[] = {
+        0xBC, 0x02, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 
+        0xBC, 0x32, 0x11, 0x12, 0x02, 0x03, 0x04, 0x05, 
+        0xAB, 0xAA, 0x55, 0x66, 0x88, 0x71, 0x72, 0x73, 
+        0x41, 0x42, 0x43, 0x77, 0x44, 0x48, 0x71, 0x25, 
+        0x91, 0x90, 0x89, 0x65, 0x89, 0x15, 0x27, 0x46, 
+        0xAB, 0xAA, 0x55, 0x66, 0x88, 0x71, 0x72, 0x73, 
+        0x17, 0xC1, 0xC2, 0xC3, 0xC4, 0xC7, 0xC8, 0xCA, 
+        0xBC, 0x02, 0x10, 0x21, 0x22, 0xAB, 0xCD, 0xFB
+    };
+    uint8_t isk3[]= {
+        0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
+    };
+
+    printf("\n Trigger at Start and Stop Symbol 3\n");
+    myfile << std::endl;
+    myfile << "Trigger at Start and Stop Symbol" << std::endl;
+    countmgmt = 0;
+    for(uint8_t first = 0; first < 4; first++){
+        tb->m_core->io_first = first;
+        for(uint8_t second = 0; second < 5; second++){
+            tb->m_core->io_second = second;
+            for(uint8_t jump = 0; jump < 20; jump++){
+                tb->m_core->io_jump = jump;
+                countmgmt = 0;
+                printf("Do Test, first = %i second = %i jump = %i \n", first, second, jump);
+                myfile << "Test State: First=" << std::to_string(first) << ", Second=" << std::to_string(second) << ", Jump=" << std::to_string(jump) << std::endl;
+                create_testdata(first ,second ,jump ,data3 ,isk3 ,sizeof(data3) ,&c8b10b_intf );
+                for(uint16_t i = 0; i < 350; i++){
+                    /*if(i > 700){
+                        break;
+                    }*/
+                    eth_intf.tick();
+                    mem_intf.tick();
+                    c8b10b_intf.deq_rx_fifo();
+                    eth_intf.clear_rx_fifo();
+                    tb->tick();
+                    if(!eth_intf.fifo_mgmt.empty()){
+                        if(countmgmt >= 2){
+                            check_testdata(&data3[1], &isk3[1], sizeof(data3)-2, &eth_intf, &myfile);
+                        }else{
+                            check_testdata(&data3[1], &isk3[1], sizeof(data3)-2-jump, &eth_intf, &myfile);
+                        }
+                        countmgmt++;
+                    }
+                }
+
+
+                for(uint16_t i = 0; i < 350; i++){
+                    eth_intf.tick();
+                    mem_intf.tick();
+                    c8b10b_intf.deq_rx_fifo();
+                    eth_intf.clear_rx_fifo();
+                    tb->tick();
+                    if(!eth_intf.fifo_mgmt.empty()){
+                        if(countmgmt >= 2){
+                            check_testdata(&data3[1], &isk3[1], sizeof(data3)-2, &eth_intf, &myfile);
+                        }else{
+                            check_testdata(&data3[1], &isk3[1], sizeof(data3)-2-jump, &eth_intf, &myfile);
                         }
                         countmgmt++;
                     }
@@ -267,9 +337,10 @@ void check_testdata(uint8_t* data, uint8_t* isk, uint8_t length, Ethernet* eth, 
 
     *myfile << "{" << " ";
 
-    uint8_t temp = 0;
+    uint8_t temp, tempk = 0;
     for(uint16_t i = 0; i< mgmtlen; i++){
         temp = eth->fifo_data.front().data;
+        tempk = eth->fifo_data.front().isk;
         eth->fifo_data.pop();
 
         sprintf(hex_string, "%02X", temp); 
@@ -281,6 +352,12 @@ void check_testdata(uint8_t* data, uint8_t* isk, uint8_t length, Ethernet* eth, 
             error = true;
             CDEFAULT
         }
+        if( tempk != isk[i]){
+            CRED
+            printf("IsK FIFO idx %i wrong\n", i);
+            error = true;
+            CDEFAULT
+        }
         /*if(i%8 == 0 && i > 0){
             *myfile << std::endl;
         }*/
@@ -289,12 +366,16 @@ void check_testdata(uint8_t* data, uint8_t* isk, uint8_t length, Ethernet* eth, 
 
     if(error){
         *myfile << " Data Error" ;
-        printf(" Data Error ");
+        CRED
+        printf("Data Error ");
+        CDEFAULT
     }
 
     if( mgmtlen != length ){
         *myfile << " MGMT Len neq Data Len" ;
-        printf(" Data Length != MGMT Length ");
+        CRED
+        printf("Data Length != MGMT Length ");
+        CDEFAULT
         error = true;
     }
 
