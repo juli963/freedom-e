@@ -10,8 +10,8 @@
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>       /* time */
 
-void create_testdata(uint8_t first, uint8_t second, uint8_t jump, uint8_t* data, uint8_t* isk, uint8_t length, Sniffer_8b10b_40_TB* tb );
-void check_testdata(uint8_t* data, uint8_t* isk, uint8_t length, Ethernet* eth, std::ofstream* myfile);
+void create_testdata(uint8_t first, uint8_t second, uint8_t jump, uint8_t* data, uint8_t* isk, uint16_t length, Sniffer_8b10b_40_TB* tb );
+void check_testdata(uint8_t* data, uint8_t* isk, uint16_t length, Ethernet* eth, std::ofstream* myfile);
 
 int main(int argc, char **argv) {
     bool test_en[] = {
@@ -23,6 +23,15 @@ int main(int argc, char **argv) {
         false,   // MGMT Overfill
         false    // Data Overfill
     };
+    /*bool test_en[] = {
+        true,   // Pre Test
+        true,   // Jump to 16 short data
+        true,   // Jump to 16 long data
+        true,   // Jump to 16 more long data
+        true,   // Go wild
+        true,   // MGMT Overfill
+        true    // Data Overfill
+    };*/
 
     srand( time( NULL ) );
 
@@ -317,9 +326,9 @@ int main(int argc, char **argv) {
         for(uint16_t second = 0; second < 500; second++){
             tb->m_core->io_len = second;
             countmgmt = 0;
-            length = rand() % 100 + 3;
-            printf("Go wild, with len = %i, second = %i \n", length, second);
-            myfile << "Go wild, with len = " << std::to_string(length) << ", second = " << std::to_string(second) << std::endl;
+            length = rand() % 4090 + 3;
+            printf("Go Wild, with len = %i, second = %i \n", length, second);
+            myfile << "Go Wild, with len = " << std::to_string(length) << ", second = " << std::to_string(second) << std::endl;
             myfile << "{ ";
             for(uint16_t i = 0; i<length; i++){
                 data4[i] = rand() % 255;
@@ -335,7 +344,7 @@ int main(int argc, char **argv) {
             data4[0] = 0xBC;
             isk4[0] = 0x01;
             create_testdata(0 ,1 ,0 ,data4 ,isk4 ,length ,&c8b10b_intf ); // Data, 1 Fill Byte, Data, Data
-            for(uint16_t i = 0; i < (length+200)*3; i++){
+            for(uint16_t i = 0; i < (length+200)*8*3; i++){
                 eth_intf.tick();
                 mem_intf.tick();
                 c8b10b_intf.deq_rx_fifo();
@@ -349,10 +358,13 @@ int main(int argc, char **argv) {
                     }
                     countmgmt++;
                 }
+                if (countmgmt > 2){
+                    break;
+                }
             }
 
 
-            for(uint16_t i = 0; i < length * 2; i++){
+            for(uint32_t i = 0; i < (length+200)*16*3; i++){
                 eth_intf.tick();
                 mem_intf.tick();
                 c8b10b_intf.deq_rx_fifo();
@@ -365,6 +377,9 @@ int main(int argc, char **argv) {
                         check_testdata(&data4[1], &isk4[1], length-2, &eth_intf, &myfile);
                     }
                     countmgmt++;
+                }
+                if (countmgmt > 2){
+                    break;
                 }
             }
         }
@@ -458,7 +473,7 @@ int main(int argc, char **argv) {
 
 }
 
-void create_testdata(uint8_t first, uint8_t second, uint8_t jump, uint8_t* data, uint8_t* isk, uint8_t length, Sniffer_8b10b_40_TB* tb ){
+void create_testdata(uint8_t first, uint8_t second, uint8_t jump, uint8_t* data, uint8_t* isk, uint16_t length, Sniffer_8b10b_40_TB* tb ){
     /*
         Valid Values for first [0..3]
         Valid Values for second[0..4]
@@ -467,13 +482,13 @@ void create_testdata(uint8_t first, uint8_t second, uint8_t jump, uint8_t* data,
 
     uint8_t arrdat_f[first] = {0};
     uint8_t arrk_f[first] = {0};
-    for(uint8_t i = 0; i<first; i++){
+    for(uint16_t i = 0; i<first; i++){
         arrdat_f[i] = 0x50 + i;
     }
 
     uint8_t arrdat_s[second] = {0};
     uint8_t arrk_s[second] = {0};
-    for(uint8_t i = 0; i<second; i++){
+    for(uint16_t i = 0; i<second; i++){
         arrdat_s[i] = 0x60 + i;
     }
 
@@ -499,7 +514,7 @@ void create_testdata(uint8_t first, uint8_t second, uint8_t jump, uint8_t* data,
 
 
 
-void check_testdata(uint8_t* data, uint8_t* isk, uint8_t length, Ethernet* eth, std::ofstream* myfile){
+void check_testdata(uint8_t* data, uint8_t* isk, uint16_t length, Ethernet* eth, std::ofstream* myfile){
     uint16_t templength = 0;
     bool error = false;
     char hex_string[3];

@@ -4,10 +4,10 @@ void Sniffer_8b10b_40_TB::init(){
     printf("8b10b Module loaded.\n");
 }
 
-void Sniffer_8b10b_40_TB::enq_rx_fifo(uint8_t* data, uint8_t* isk, uint8_t length){
+void Sniffer_8b10b_40_TB::enq_rx_fifo(uint8_t* data, uint8_t* isk, uint16_t length){
     //printf("Data to Fifo added. Length: %i \n", length);
     s8b10b v8b10b;
-    for(uint8_t i = 0; i<length; i++){
+    for(uint16_t i = 0; i<length; i++){
         v8b10b.data = data[i];
         v8b10b.isk = isk[i];
         rx_fifo.push( v8b10b );

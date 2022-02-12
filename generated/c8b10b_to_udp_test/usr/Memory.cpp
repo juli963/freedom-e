@@ -68,7 +68,7 @@ void Memory::tick_fifo(){
    /* io_fifo_ready
     io_fifo_valid
     io_fifo_bits*/
-    if((uint16_t)tx_fifo_data.size() > (uint16_t)0xFFF){
+    if((uint16_t)tx_fifo_data.size() > (uint16_t)0x3FFF){
         printf("Memory Problem, FIFO Size too much. \n");
     }else{
         tb->m_core->io_fifo_in_ready = 1;

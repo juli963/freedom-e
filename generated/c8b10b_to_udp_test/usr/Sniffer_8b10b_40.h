@@ -30,7 +30,7 @@
 
             void init();
             void deq_rx_fifo();
-            void enq_rx_fifo(uint8_t* data, uint8_t* isk, uint8_t length);
+            void enq_rx_fifo(uint8_t* data, uint8_t* isk, uint16_t length);
 
             void enable_trigger_length(s8b10b start, uint16_t length, eTriggerMode mode, uint8_t num_trigger);
             void enable_trigger_code(s8b10b start, s8b10b stop, eTriggerMode mode, uint8_t num_trigger);
