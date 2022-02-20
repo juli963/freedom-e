@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Sun Feb 20 00:56:42 2022
+[*] Sun Feb 20 17:54:18 2022
 [*]
 [dumpfile] "/home/julian/Projekte/FPGA/RISC-V/juli963/freedom-e/generated/PCIe_RX_Scrambler_32/trace.vcd"
-[dumpfile_mtime] "Sun Feb 20 00:48:31 2022"
-[dumpfile_size] 52356
+[dumpfile_mtime] "Sun Feb 20 17:49:33 2022"
+[dumpfile_size] 79885
 [savefile] "/home/julian/Projekte/FPGA/RISC-V/juli963/freedom-e/generated/PCIe_RX_Scrambler_32/trace.gtkw"
-[timestart] 393
+[timestart] 621
 [size] 1848 1016
 [pos] -1 -1
-*-4.725063 378 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-4.725063 720 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.PCIe_RX_Scrambler_32.
 [treeopen] TOP.PCIe_RX_Scrambler_32.RX_Scrambler.
@@ -17,20 +17,21 @@
 [sst_width] 417
 [signals_width] 206
 [sst_expanded] 1
-[sst_vpaned_height] 288
+[sst_vpaned_height] 577
 @28
 TOP.clock
+TOP.io_dOut_charisk[1:0]
+@22
+TOP.io_dOut_data[15:0]
+@200
+-HW New
 @22
 TOP.io_PHY_charisk[3:0]
 TOP.io_PHY_data[31:0]
 TOP.io_Buffer_data[31:0]
 TOP.io_Buffer_charisk[3:0]
 @28
-TOP.io_dOut_charisk[1:0]
-@22
-TOP.io_dOut_data[15:0]
 TOP.PCIe_RX_Scrambler_32.RX_Scrambler.mod_scramble.io_valid[3:0]
-@28
 TOP.PCIe_RX_Scrambler_32.RX_Scrambler.mod_scramble.io_reset_0
 TOP.PCIe_RX_Scrambler_32.RX_Scrambler.mod_scramble.io_reset_1
 TOP.PCIe_RX_Scrambler_32.RX_Scrambler.mod_scramble.io_reset_2
@@ -41,5 +42,7 @@ TOP.PCIe_RX_Scrambler_32.RX_Scrambler.mod_scramble.io_data[31:0]
 TOP.PCIe_RX_Scrambler_32.RX_Scrambler.delay_fifo.io_deq_data_data[31:0]
 @28
 TOP.PCIe_RX_Scrambler_32.RX_Scrambler.delay_fifo.io_deq_en
+@22
+TOP.PCIe_RX_Scrambler_32.RX_Scrambler.lastCOMCounter[3:0]
 [pattern_trace] 1
 [pattern_trace] 0
