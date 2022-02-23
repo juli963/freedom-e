@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Mon Feb 21 01:15:47 2022
+[*] Tue Feb 22 00:41:16 2022
 [*]
 [dumpfile] "/home/julian/Projekte/FPGA/RISC-V/juli963/freedom-e/generated/PCIe_RX_Scrambler_32/trace.vcd"
-[dumpfile_mtime] "Sun Feb 20 22:11:34 2022"
-[dumpfile_size] 87475
+[dumpfile_mtime] "Tue Feb 22 00:40:21 2022"
+[dumpfile_size] 6790491
 [savefile] "/home/julian/Projekte/FPGA/RISC-V/juli963/freedom-e/generated/PCIe_RX_Scrambler_32/trace.gtkw"
-[timestart] 393
+[timestart] 436
 [size] 1848 1016
 [pos] -1 -1
-*-4.725063 435 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-4.725063 524 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.PCIe_RX_Scrambler_32.
 [treeopen] TOP.PCIe_RX_Scrambler_32.RX_Scrambler.
@@ -17,7 +17,7 @@
 [sst_width] 417
 [signals_width] 300
 [sst_expanded] 1
-[sst_vpaned_height] 577
+[sst_vpaned_height] 611
 @200
 -HW New
 @28
@@ -31,7 +31,7 @@ TOP.PCIe_RX_Scrambler_32.RX_Scrambler.delay_fifo.io_deq_en
 TOP.io_PHY_charisk[3:0]
 TOP.io_PHY_data[31:0]
 TOP.PCIe_RX_Scrambler_32.RX_Scrambler.delay_fifo.io_deq_data_data[31:0]
-@25
+@24
 TOP.PCIe_RX_Scrambler_32.RX_Scrambler.lastCOMCounter[3:0]
 @28
 TOP.PCIe_RX_Scrambler_32.RX_Scrambler.train_sets_0
@@ -48,5 +48,11 @@ TOP.PCIe_RX_Scrambler_32.RX_Scrambler.wTS_3
 TOP.PCIe_RX_Scrambler_32.RX_Scrambler.wmask_ts[3:0]
 @22
 TOP.PCIe_RX_Scrambler_32.RX_Scrambler.ts_counter[3:0]
+@28
+TOP.PCIe_RX_Scrambler_32.RX_Scrambler.transferCounter
+@22
+TOP.PCIe_RX_Scrambler_32.RX_Scrambler.mod_scramble.io_valid[3:0]
+@29
+TOP.PCIe_RX_Scrambler_32.RX_Scrambler.io_enable
 [pattern_trace] 1
 [pattern_trace] 0

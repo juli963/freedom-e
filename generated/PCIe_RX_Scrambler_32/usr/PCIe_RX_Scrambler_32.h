@@ -16,7 +16,7 @@
 
             uint16_t scrambler_val = 0xFFFF;
             uint8_t scramxor = 0xFF;
-            bool change_dat = false;
+            bool change_dat = true;
 
             void deq_tx_fifo();
             void enq_tx_fifo(uint8_t* data, uint8_t* isk, uint16_t length);
@@ -29,7 +29,7 @@
             */
             uint8_t RunScrambler();
             void Scramblertick();
-            void soft_scramble(uint8_t* data, uint8_t* isk, uint16_t length, std::ofstream* myfile);
+            void soft_scramble(uint8_t* data, uint8_t* isk, uint16_t length, std::ofstream* myfile, uint8_t* data_scrambled, uint8_t* isk_scrambled);
             bool sync_rx_fifo();
             uint16_t rx_length(); 
             std::queue <s8b10b> tx_fifo;
