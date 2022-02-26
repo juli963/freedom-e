@@ -19,6 +19,11 @@ import sifive.blocks.devices.uart._
 import sifive.blocks.devices.i2c._
 import sifive.blocks.devices.pinctrl._
 
+import device.hssniffer.{hssniffer}
+import Ethernet.Protocol.ApplUDP.{UDP_Base_noCrossbar}
+import chisel3.core.{ Input, Output}
+import chisel3.experimental.{ Analog}
+
 //-------------------------------------------------------------------------
 // PinGen
 //-------------------------------------------------------------------------
@@ -48,6 +53,51 @@ class HSSnifferv1PlatformIO(implicit val p: Parameters) extends Bundle {
 	val i2c_scl_tx	= Vec(2,Bool(OUTPUT))
 	val i2c_scl_tx_en	= Vec(2,Bool(OUTPUT))
 	val i2c_scl_rx	= Vec(2,Bool(INPUT))
+
+  // RGMII MAC
+    val clk_125 = Clock(INPUT)
+    val clk_250 = Clock(INPUT)
+
+    val RGMII = new Ethernet.Interface.Types.RGMII_Interface()
+    val PHY_nrst = (Bool(OUTPUT))
+
+  // HSSniffer Interface
+
+    val refclkp = (Vec(2, Clock(INPUT)))
+    val refclkn = (Vec(2, Clock(INPUT)))
+
+    val txp = (Vec(4, Bool(OUTPUT)))
+    val txn = (Vec(4, Bool(OUTPUT)))
+    val rxp = (Vec(4, Bool(INPUT)))
+    val rxn = (Vec(4, Bool(INPUT)))
+
+    // DRAM
+    val dram_intf = new Bundle{
+        val clk = (Clock(INPUT))    // 100MHz
+        val rst = (Bool(INPUT))
+        val pll_locked = (Bool(OUTPUT))
+        val init_done = (Bool(OUTPUT))
+        val init_error = (Bool(OUTPUT))
+
+        // DRAM Interface
+        val ddram_a = Output(UInt(14.W))
+        val ddram_ba = Output(UInt(3.W))
+        val ddram_ras_n = (Bool(OUTPUT))
+        val ddram_cas_n = (Bool(OUTPUT))
+        val ddram_we_n = (Bool(OUTPUT))
+        val ddram_cs_n = Output(UInt(1.W))
+        val ddram_dm = Output(UInt(2.W))
+        val ddram_dq = Analog((2*8).W)
+        val ddram_dqs_p = Analog(2.W)
+        val ddram_dqs_n = Analog(2.W)
+        val ddram_clk_p = Output(UInt(1.W))
+        val ddram_clk_n = Output(UInt(1.W))
+        val ddram_cke = Output(UInt(1.W))
+        val ddram_odt = Output(UInt(1.W))
+        val ddram_reset_n = Output(Bool())
+    }
+
+
 }
 
 //-------------------------------------------------------------------------
@@ -76,6 +126,80 @@ class HSSnifferv1Platform(implicit val p: Parameters) extends Module {
   //-----------------------------------------------------------------------
 
   require (p(NExtTopInterrupts) == 0, "No Top-level interrupts supported");
+
+  /* RGMII MAC Interface */
+    val mod_udp = Module(new UDP_Base_noCrossbar(true, 2))
+    mod_udp.io.clk_125 := io.clk_125
+    mod_udp.io.clk_250 := io.clk_250
+
+    io.RGMII <> mod_udp.io.RGMII
+    io.PHY_nrst := mod_udp.io.PHY_nrst
+    mod_udp.io.PHY_Stats.get.Speed := 2.U   // GBit 
+    mod_udp.io.Params.MAC := "h111213141516".U
+    mod_udp.io.Params.IP := "hC0A802D4".U
+
+
+  /* HSSniffer Module */
+    val mod_hssniffer = Module(new hssniffer(num_channels = 4, num_refclk = 2, PipeWidth = 32,  num_triggers = 2, num_protocols = 1, DRAM_DW = 128) )
+    
+    mod_hssniffer.io.refclkp := io.refclkp
+    mod_hssniffer.io.refclkn := io.refclkn
+
+    io.txp := mod_hssniffer.io.txp 
+    io.txn := mod_hssniffer.io.txn 
+    mod_hssniffer.io.rxp := io.rxp
+    mod_hssniffer.io.rxn := io.rxn
+
+    //mod_hssniffer.io.DRP <> io.dram_intf
+    mod_hssniffer.io.DRP.ADDR := 0.U
+    mod_hssniffer.io.DRP.CLK := io.clk_125
+    mod_hssniffer.io.DRP.EN := false.B
+    mod_hssniffer.io.DRP.DI := 0.U
+    mod_hssniffer.io.DRP.WE := false.B
+
+    //sys.HSControl_io.get(0).gtp_regs <> mod_hssniffer.io.gtp_regs
+    mod_hssniffer.io.gtp_regs.gtp_sel := sys.HSControl_io.get(0).gtp_regs.gtp_sel
+
+  //  sys.HSControl_io.get(0).gtp_regs.pll_ctrl(0).REFCLKLOST := mod_hssniffer.io.gtp_regs.pll_ctrl(0).REFCLKLOST
+  //  sys.HSControl_io.get(0).gtp_regs.pll_ctrl(0).LOCK := mod_hssniffer.io.gtp_regs.pll_ctrl(0).LOCK
+  //  mod_hssniffer.io.gtp_regs.pll_ctrl(0).REFCLKSEL := sys.HSControl_io.get(0).gtp_regs.pll_ctrl(0).REFCLKSEL
+
+  //  sys.HSControl_io.get(0).gtp_regs.pll_ctrl(1).REFCLKLOST := mod_hssniffer.io.gtp_regs.pll_ctrl(1).REFCLKLOST
+  //  sys.HSControl_io.get(0).gtp_regs.pll_ctrl(1).LOCK := mod_hssniffer.io.gtp_regs.pll_ctrl(1).LOCK
+  //  mod_hssniffer.io.gtp_regs.pll_ctrl(1).REFCLKSEL := sys.HSControl_io.get(0).gtp_regs.pll_ctrl(1).REFCLKSEL
+
+  //  sys.HSControl_io.get(0).gtp_regs.plls_ctrl(0).REFCLKLOST := false.B
+  //  sys.HSControl_io.get(0).gtp_regs.plls_ctrl(0).LOCK := false.B
+  //  mod_hssniffer.io.gtp_regs.pll_ctrl(0).REFCLKSEL := 0.U
+
+  //  sys.HSControl_io.get(0).gtp_regs.plls_ctrl(1).REFCLKLOST := false.B
+  //  sys.HSControl_io.get(0).gtp_regs.plls_ctrl(1).LOCK := false.B
+  //  mod_hssniffer.io.gtp_regs.pll_ctrl(1).REFCLKSEL := 0.U
+
+
+    mod_hssniffer.io.gtp_regs.rx_selclk := sys.HSControl_io.get(0).gtp_regs.rx_selclk
+    mod_hssniffer.io.gtp_regs.tx_selclk := sys.HSControl_io.get(0).gtp_regs.tx_selclk
+	  sys.HSControl_io.get(0).gtp_regs.gtp_running := mod_hssniffer.io.gtp_regs.gtp_running
+    mod_hssniffer.io.gtp_regs.protocol_sel := sys.HSControl_io.get(0).gtp_regs.protocol_sel
+
+    sys.HSControl_io.get(0).c8b10b_regs <> mod_hssniffer.io.c8b10b_regs
+    sys.HSControl_io.get(0).gtp_clock := clock
+
+    io.dram_intf <> mod_hssniffer.io.dram_intf
+    
+    mod_udp.io.Params.MAC := "h111213141517".U
+    mod_udp.io.Params.IP := "hC0A802D5".U
+
+    mod_udp.io.udp_slaves(0) <> mod_hssniffer.io.UDPBus
+    mod_hssniffer.io.clkUDP := io.clk_125
+
+  /* ESP FIFO Interface */
+    mod_udp.io.udp_slaves(1) <> sys.ESP_FIFO_io.get(0).UDPBus
+	  sys.ESP_FIFO_io.get(0).clkUDP := io.clk_125
+
+  /* Wishbone Interface */
+    mod_hssniffer.io.dram_wb_ctrl <> sys.LiteDRAM_Ctrl_io.get(0).wbus
+    sys.LiteDRAM_Ctrl_io.get(0).dram_clock := io.dram_intf.clk
 
   //-----------------------------------------------------------------------
   // Build GPIO Pin Mux

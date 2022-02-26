@@ -163,6 +163,29 @@ class HSSnifferv1FPGAChip(implicit override val p: Parameters) extends HSSniffer
 	  dut.io.i2c_scl_rx(1) := Mux(dut.io.pins.gpio.pins(24).o.oval, host_cc2_rx, true.B)
 	  
     //---------------------------------------------------------------------
+    // GTP RGMII DRAM
+    //---------------------------------------------------------------------
+    dut.io.clk_125 := clock_125MHz
+    dut.io.clk_250 := clock_250MHz
+
+    RGMII <> dut.io.RGMII
+    PHY_nrst := dut.io.PHY_nrst
+
+    dut.io.refclkp := refclkp
+    dut.io.refclkn := refclkn
+
+    txp := dut.io.txp
+    txn := dut.io.txn
+
+    dut.io.rxp := rxp
+    dut.io.rxn := rxn
+
+    dram_intf <> dut.io.dram_intf
+
+
+
+
+    //---------------------------------------------------------------------
     // Unconnected inputs
     //---------------------------------------------------------------------
   }
@@ -242,6 +265,48 @@ abstract class HSSnifferv1Shell(implicit val p: Parameters) extends RawModule {
   val jtag_srst         = IO(Analog(1.W))  // SRST_n
 
 
+  // DRAM RGMII and Transceiver Data
+    // RGMII MAC
+      val RGMII = IO(new Ethernet.Interface.Types.RGMII_Interface())
+      val PHY_nrst = IO(Output(Bool()))
+
+    // HSSniffer Interface
+
+      val refclkp = IO(Input(Vec(2, Clock())))
+      val refclkn = IO(Input(Vec(2, Clock())))
+
+      val txp = IO(Output(Vec(4, Bool())))
+      val txn = IO(Output(Vec(4, Bool())))
+      val rxp = IO(Input(Vec(4, Bool())))
+      val rxn = IO(Input(Vec(4, Bool())))
+
+      // DRAM
+      val dram_intf = IO(new Bundle{
+          val clk = Input(Clock())    // 100MHz
+          val rst = Input(Bool())
+          val pll_locked = Output(Bool())
+          val init_done = Output(Bool())
+          val init_error = Output(Bool())
+
+          // DRAM Interface
+          val ddram_a = Output(UInt(14.W))
+          val ddram_ba = Output(UInt(3.W))
+          val ddram_ras_n = Output(Bool())
+          val ddram_cas_n = Output(Bool())
+          val ddram_we_n = Output(Bool())
+          val ddram_cs_n = Output(UInt(1.W))
+          val ddram_dm = Output(UInt(2.W))
+          val ddram_dq = Analog((2*8).W)
+          val ddram_dqs_p = Analog(2.W)
+          val ddram_dqs_n = Analog(2.W)
+          val ddram_clk_p = Output(UInt(1.W))
+          val ddram_clk_n = Output(UInt(1.W))
+          val ddram_cke = Output(UInt(1.W))
+          val ddram_odt = Output(UInt(1.W))
+          val ddram_reset_n = Output(Bool())
+      })
+
+
   //-----------------------------------------------------------------------
   // Wire declrations
   //-----------------------------------------------------------------------
@@ -277,14 +342,14 @@ abstract class HSSnifferv1Shell(implicit val p: Parameters) extends RawModule {
   //-----------------------------------------------------------------------
   // Mixed-mode clock generator
 
-  val ip_mmcm = Module(new m_mmcm(3, ResetActiveLow = true))
+  val ip_mmcm = Module(new m_mmcm(5, ResetActiveLow = true))
 
   ip_mmcm.io.clk_in1 := CLK100MHZ
   clock_8MHz         := ip_mmcm.io.clk_out1.get  // 8.388 MHz = 32.768 kHz * 256
   clock_65MHz        := ip_mmcm.io.clk_out2.get  // 65 Mhz
   clock_32MHz        := ip_mmcm.io.clk_out3.get  // 65/2 Mhz
-  //clock_125MHz        := ip_mmcm.io.clk_out4.get  // 65/2 Mhz
-  //clock_250MHz        := ip_mmcm.io.clk_out5.get  // 65/2 Mhz
+  clock_125MHz        := ip_mmcm.io.clk_out4.get  // 65/2 Mhz
+  clock_250MHz        := ip_mmcm.io.clk_out5.get  // 65/2 Mhz
   ip_mmcm.io.resetn.get  := true.B
   mmcm_locked        := ip_mmcm.io.locked
 

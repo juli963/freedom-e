@@ -17,6 +17,7 @@ import sifive.blocks.devices.i2c._
 
 import juli.blocks.devices.ESP_FIFO._
 import juli.blocks.devices.LiteDRAM_Ctrl._
+import juli.blocks.HSControl._
 
 // Default HSSnifferv1 v1 Config
 class DefaultHSSnifferv1Config extends Config (
@@ -46,6 +47,9 @@ class HSSnifferv1Peripherals extends Config((site, here, up) => {
     MaskROMParams(address = 0x10000, name = "BootROM"))
   case ESP_FIFOListKey => Some(List(
     ESP_FIFOParams(reg_slave_0_address = 0x10020000)
+    ))
+  case HSControlListKey => Some(List(
+    HSControlParams(reg_slave_0_address = 0x10080000)
     ))
   case LiteDRAM_CtrlListKey => Some(List(
     LiteDRAM_CtrlParams(mem_slave_0_address = 0x10040000, mem_slave_0_sizeBytes = 0x0000FFFF )
