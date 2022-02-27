@@ -72,12 +72,14 @@ class HSSnifferv1PlatformIO(implicit val p: Parameters) extends Bundle {
     val rxn = (Vec(4, Bool(INPUT)))
 
     // DRAM
+    val dram_clk = (Clock(INPUT))    // 100MHz
+    val dram_rst = (Bool(INPUT))
+    val dram_pll_locked = (Bool(OUTPUT))
+    val dram_init_done = (Bool(OUTPUT))
+    val dram_init_error = (Bool(OUTPUT))
+
     val dram_intf = new Bundle{
-        val clk = (Clock(INPUT))    // 100MHz
-        val rst = (Bool(INPUT))
-        val pll_locked = (Bool(OUTPUT))
-        val init_done = (Bool(OUTPUT))
-        val init_error = (Bool(OUTPUT))
+
 
         // DRAM Interface
         val ddram_a = Output(UInt(14.W))
@@ -151,11 +153,15 @@ class HSSnifferv1Platform(implicit val p: Parameters) extends Module {
     mod_hssniffer.io.rxn := io.rxn
 
     //mod_hssniffer.io.DRP <> io.dram_intf
-    mod_hssniffer.io.DRP.ADDR := 0.U
-    mod_hssniffer.io.DRP.CLK := io.clk_125
-    mod_hssniffer.io.DRP.EN := false.B
-    mod_hssniffer.io.DRP.DI := 0.U
-    mod_hssniffer.io.DRP.WE := false.B
+    mod_hssniffer.io.DRP.ADDR := sys.drp_mem_io.get(0).ADDR 
+    mod_hssniffer.io.DRP.CLK := sys.drp_mem_io.get(0).CLK 
+    mod_hssniffer.io.DRP.EN := sys.drp_mem_io.get(0).EN
+    mod_hssniffer.io.DRP.DI := sys.drp_mem_io.get(0).DI 
+    mod_hssniffer.io.DRP.WE := sys.drp_mem_io.get(0).WE
+    sys.drp_mem_io.get(0).RDY := mod_hssniffer.io.DRP.RDY
+    sys.drp_mem_io.get(0).DO := mod_hssniffer.io.DRP.DO
+
+    //mod_hssniffer.io.DRP <> sys.drp_mem_io.get(0)
 
     //sys.HSControl_io.get(0).gtp_regs <> mod_hssniffer.io.gtp_regs
     mod_hssniffer.io.gtp_regs.gtp_sel := sys.HSControl_io.get(0).gtp_regs.gtp_sel
@@ -186,6 +192,14 @@ class HSSnifferv1Platform(implicit val p: Parameters) extends Module {
     sys.HSControl_io.get(0).gtp_clock := clock
 
     io.dram_intf <> mod_hssniffer.io.dram_intf
+        
+    mod_hssniffer.io.dram_clk := io.dram_clk
+    mod_hssniffer.io.dram_rst := io.dram_rst
+
+    io.dram_pll_locked := mod_hssniffer.io.dram_pll_locked
+    io.dram_init_done := mod_hssniffer.io.dram_init_done
+    io.dram_init_error := mod_hssniffer.io.dram_init_error
+
     
     mod_udp.io.Params.MAC := "h111213141517".U
     mod_udp.io.Params.IP := "hC0A802D5".U
@@ -199,7 +213,7 @@ class HSSnifferv1Platform(implicit val p: Parameters) extends Module {
 
   /* Wishbone Interface */
     mod_hssniffer.io.dram_wb_ctrl <> sys.LiteDRAM_Ctrl_io.get(0).wbus
-    sys.LiteDRAM_Ctrl_io.get(0).dram_clock := io.dram_intf.clk
+    sys.LiteDRAM_Ctrl_io.get(0).dram_clock := io.dram_clk
 
   //-----------------------------------------------------------------------
   // Build GPIO Pin Mux

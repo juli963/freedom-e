@@ -181,8 +181,29 @@ class HSSnifferv1FPGAChip(implicit override val p: Parameters) extends HSSniffer
     dut.io.rxn := rxn
 
     dram_intf <> dut.io.dram_intf
+    dut.io.dram_clk := CLK100MHZ
+    dut.io.dram_rst := wNextReset
 
+    /*dram_intf.ddram_a := dut.io.dram_intf.ddram_a
+    dram_intf.ddram_ba := dut.io.dram_intf.ddram_ba
+    dram_intf.ddram_ras_n := dut.io.dram_intf.ddram_ras_n
+    dram_intf.ddram_cas_n := dut.io.dram_intf.ddram_cas_n
+    dram_intf.ddram_we_n := dut.io.dram_intf.ddram_we_n
+    dram_intf.ddram_cs_n := dut.io.dram_intf.ddram_cs_n
+    dram_intf.ddram_dm := dut.io.dram_intf.ddram_dm
 
+    //dut.io.dram_intf.ddram_dq <> dram_intf.ddram_dq 
+    //dut.io.dram_intf.ddram_dqs_p <> dram_intf.ddram_dqs_p
+    //dut.io.dram_intf.ddram_dqs_n <> dram_intf.ddram_dqs_n
+    dut.io.dram_intf.ddram_dq <> ddram_dq 
+    dut.io.dram_intf.ddram_dqs_p <> ddram_dqs_p
+    dut.io.dram_intf.ddram_dqs_n <> ddram_dqs_n
+
+    dram_intf.ddram_clk_p := dut.io.dram_intf.ddram_clk_p
+    dram_intf.ddram_clk_n := dut.io.dram_intf.ddram_clk_n
+    dram_intf.ddram_cke := dut.io.dram_intf.ddram_cke
+    dram_intf.ddram_odt := dut.io.dram_intf.ddram_odt
+    dram_intf.ddram_reset_n := dut.io.dram_intf.ddram_reset_n*/
 
 
     //---------------------------------------------------------------------
@@ -282,13 +303,14 @@ abstract class HSSnifferv1Shell(implicit val p: Parameters) extends RawModule {
 
       // DRAM
       val dram_intf = IO(new Bundle{
-          val clk = Input(Clock())    // 100MHz
-          val rst = Input(Bool())
-          val pll_locked = Output(Bool())
-          val init_done = Output(Bool())
-          val init_error = Output(Bool())
+          //val clk = Input(Clock())    // 100MHz
+          //val rst = Input(Bool())
+          //val pll_locked = Output(Bool())
+          //val init_done = Output(Bool())
+          //val init_error = Output(Bool())
 
           // DRAM Interface
+
           val ddram_a = Output(UInt(14.W))
           val ddram_ba = Output(UInt(3.W))
           val ddram_ras_n = Output(Bool())
@@ -305,6 +327,7 @@ abstract class HSSnifferv1Shell(implicit val p: Parameters) extends RawModule {
           val ddram_odt = Output(UInt(1.W))
           val ddram_reset_n = Output(Bool())
       })
+     
 
 
   //-----------------------------------------------------------------------
