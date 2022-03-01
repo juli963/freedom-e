@@ -22,7 +22,8 @@ import sifive.blocks.devices.pinctrl._
 import device.hssniffer.{hssniffer}
 import Ethernet.Protocol.ApplUDP.{UDP_Base_noCrossbar}
 import chisel3.core.{ Input, Output}
-import chisel3.experimental.{ Analog}
+import chisel3.experimental.{ Analog, withClockAndReset, withClock}
+
 
 //-------------------------------------------------------------------------
 // PinGen
@@ -131,6 +132,14 @@ class HSSnifferv1Platform(implicit val p: Parameters) extends Module {
 
   /* RGMII MAC Interface */
     val mod_udp = Module(new UDP_Base_noCrossbar(true, 2))
+
+    val wReset = Wire(Bool())
+    withClock(io.clk_125){
+      val reg_reset = RegNext(RegNext(RegNext(sys.reset)))
+          wReset := reg_reset
+    }
+    mod_udp.reset := wReset    
+
     mod_udp.io.clk_125 := io.clk_125
     mod_udp.io.clk_250 := io.clk_250
 
@@ -144,6 +153,8 @@ class HSSnifferv1Platform(implicit val p: Parameters) extends Module {
   /* HSSniffer Module */
     val mod_hssniffer = Module(new hssniffer(num_channels = 4, num_refclk = 2, PipeWidth = 32,  num_triggers = 2, num_protocols = 1, DRAM_DW = 128) )
     
+    //mod_hssniffer.reset := ResetCatchAndSync(clock, outreg, 20)
+
     mod_hssniffer.io.refclkp := io.refclkp
     mod_hssniffer.io.refclkn := io.refclkn
 

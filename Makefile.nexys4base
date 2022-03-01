@@ -1,12 +1,12 @@
 # See LICENSE for license details.
 base_dir := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
-BUILD_DIR := $(base_dir)/builds/HSSnifferv1-base
+BUILD_DIR := $(base_dir)/builds/Nexys4-base
 FPGA_DIR := $(base_dir)/fpga-shells/xilinx
-MODEL := HSSnifferv1FPGAChip
-PROJECT := juli.HSSnifferv1.base
-export CONFIG_PROJECT := juli.HSSnifferv1.base
-export CONFIG := HSSnifferv1Config
-export BOARD := arty
+MODEL := Nexys4FPGAChip
+PROJECT := sifive.freedom.Nexys4
+export CONFIG_PROJECT := sifive.freedom.Nexys4
+export CONFIG := Nexys4Config
+export BOARD := nexys
 export BOOTROM_DIR := $(base_dir)/bootrom/xip
 
 rocketchip_dir := $(base_dir)/rocket-chip
@@ -16,7 +16,7 @@ VSRCS := \
 	$(rocketchip_dir)/src/main/resources/vsrc/AsyncResetReg.v \
 	$(rocketchip_dir)/src/main/resources/vsrc/plusarg_reader.v \
 	$(sifiveblocks_dir)/vsrc/SRLatch.v \
-	$(juliblocks_dir)/Chisel_Lib/src/main/resources/vsrc/litedram_core_hssniffer.v \
+	$(juliblocks_dir)/Chisel_Lib/src/main/resources/vsrc/litedram_core_nexys4.v \
 	$(juliblocks_dir)/Chisel_Lib/src/main/resources/vsrc/vTrueDualPortBRAM.v \
 	$(FPGA_DIR)/common/vsrc/PowerOnResetFPGAOnly.v \
 	$(BUILD_DIR)/$(CONFIG_PROJECT).$(CONFIG).rom.v \
