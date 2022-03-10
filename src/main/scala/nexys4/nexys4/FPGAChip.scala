@@ -121,37 +121,22 @@ class Nexys4FPGAChip(implicit override val p: Parameters) extends Nexys4Shell {
     IOBUF(led1_r, dut.io.pins.gpio.pins(19))
     IOBUF(led1_g, dut.io.pins.gpio.pins(21))
     IOBUF(led1_b, dut.io.pins.gpio.pins(22))
-
+  
+  
+    dram_init_done := dut.io.dram_init_done
+    dram_init_error := dut.io.dram_init_error
 
     dram_intf <> dut.io.dram_intf
-     /*
-    ddram_dq <> dut.io.ddram_dq
-    ddram_dqs_p <> dut.io.ddram_dqs_p
-    ddram_dqs_n <> dut.io.ddram_dqs_n
 
-		dram_intf.ddram_clk_p  := dut.io.dram_intf.ddram_clk_p
-		dram_intf.ddram_clk_n  := dut.io.dram_intf.ddram_clk_n
-		dram_intf.ddram_cke    := dut.io.dram_intf.ddram_cke
-		dram_intf.ddram_odt    := dut.io.dram_intf.ddram_odt
-		dram_intf.ddram_reset_n := dut.io.dram_intf.ddram_reset_n
-    dram_intf.ddram_a      := dut.io.dram_intf.ddram_a
-		dram_intf.ddram_ba     := dut.io.dram_intf.ddram_ba
-		dram_intf.ddram_ras_n  := dut.io.dram_intf.ddram_ras_n
-		dram_intf.ddram_cas_n  := dut.io.dram_intf.ddram_cas_n
-		dram_intf.ddram_we_n   := dut.io.dram_intf.ddram_we_n
-		dram_intf.ddram_cs_n   := dut.io.dram_intf.ddram_cs_n
-		dram_intf.ddram_dm     := dut.io.dram_intf.ddram_dm*/
+    ip_mmcm.io.ADDR.get :=  dut.io.drp.ADDR 
+    ip_mmcm.io.CLK.get :=  dut.io.drp.CLK 
+    ip_mmcm.io.EN.get :=  dut.io.drp.EN 
+    ip_mmcm.io.DI.get :=  dut.io.drp.DI 
+    ip_mmcm.io.WE.get :=  dut.io.drp.WE 
+    dut.io.drp.RDY := ip_mmcm.io.RDY.get
+    dut.io.drp.DO := ip_mmcm.io.DO.get 
 
-
-  ip_mmcm.io.ADDR.get :=  dut.io.drp.ADDR 
-  ip_mmcm.io.CLK.get :=  dut.io.drp.CLK 
-  ip_mmcm.io.EN.get :=  dut.io.drp.EN 
-  ip_mmcm.io.DI.get :=  dut.io.drp.DI 
-  ip_mmcm.io.WE.get :=  dut.io.drp.WE 
-  dut.io.drp.RDY := ip_mmcm.io.RDY.get
-  dut.io.drp.DO := ip_mmcm.io.DO.get 
-
-    dut.io.dram_clk := CLK100MHZ
+    dut.io.dram_clk := clk_100
     dut.io.dram_rst := ck_rst//wNextReset
 
 
@@ -175,6 +160,8 @@ abstract class Nexys4Shell(implicit val p: Parameters) extends RawModule {
   // Clock & Reset
   val CLK100MHZ    = IO(Input(Clock()))
   val proc_rst = IO(Input(Bool()))
+  val clk_100 = Wire(Clock())
+  clk_100 := IBUFG(CLK100MHZ)
   val ck_rst = Wire(Bool())
   ck_rst := ~proc_rst
 
@@ -209,17 +196,12 @@ abstract class Nexys4Shell(implicit val p: Parameters) extends RawModule {
   val led1_g = IO(Analog(1.W))
   val led1_b = IO(Analog(1.W))
 
-
+  val dram_init_done = IO(Output(Bool()))
+  val dram_init_error = IO(Output(Bool()))
   // DRAM RGMII and Transceiver Data
 
       // DRAM
       val dram_intf = IO(new Bundle{
-          //val clk = Input(Clock())    // 100MHz
-          //val rst = Input(Bool())
-          //val pll_locked = Output(Bool())
-          //val init_done = Output(Bool())
-          //val init_error = Output(Bool())
-
           // DRAM Interface
 
           val ddram_a = Output(UInt(13.W))
@@ -236,7 +218,6 @@ abstract class Nexys4Shell(implicit val p: Parameters) extends RawModule {
           val ddram_clk_n = Output(UInt(1.W))
           val ddram_cke = Output(UInt(1.W))
           val ddram_odt = Output(UInt(1.W))
-         // val ddram_reset_n = Output(Bool())
       })
      
 
@@ -278,7 +259,7 @@ abstract class Nexys4Shell(implicit val p: Parameters) extends RawModule {
 
   val ip_mmcm = Module(new m_mmcm(3, ResetActiveLow = true, hasDRP = true))
 
-  ip_mmcm.io.clk_in1 := CLK100MHZ
+  ip_mmcm.io.clk_in1 := clk_100
   clock_8MHz         := ip_mmcm.io.clk_out1.get  // 8.388 MHz = 32.768 kHz * 256
   clock_65MHz        := ip_mmcm.io.clk_out2.get  // 65 Mhz
   clock_32MHz        := ip_mmcm.io.clk_out3.get  // 65/2 Mhz

@@ -224,7 +224,7 @@ class HSSnifferv1Platform(implicit val p: Parameters) extends Module {
 
   /* Wishbone Interface */
     mod_hssniffer.io.dram_wb_ctrl <> sys.LiteDRAM_Ctrl_io.get(0).wbus
-    sys.LiteDRAM_Ctrl_io.get(0).dram_clock := io.dram_clk
+    sys.LiteDRAM_Ctrl_io.get(0).dram_clock := mod_hssniffer.io.dram_user_clk//io.dram_clk
 
   //-----------------------------------------------------------------------
   // Build GPIO Pin Mux

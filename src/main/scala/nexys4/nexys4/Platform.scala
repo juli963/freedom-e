@@ -23,11 +23,16 @@ import sifive.blocks.devices.i2c._
 import sifive.blocks.devices.pinctrl._
 import Memory.DRAM.{litedram_wrapper}
 import Xilinx.{DRP_Bundle}
-
+import sifive_copy.fpgashells.ip.xilinx.{BUFG}
 
 // export RISCV=../../../../../../Firmware/RISC-V/freedom-e-sdk/work/build/riscv-gnu-toolchain/riscv64-unknown-elf/prefix 
 // make -f Makefile.nexys4base verilog
 // make -f Makefile.nexys4base romgen
+// Important constraints:
+// set_clock_groups -asynchronous -group [get_clocks main_clkout1] -group [get_clocks clk_out3_m_mmcm]
+// set_false_path -to [get_pins -filter {REF_PIN_NAME == PRE} -of_objects [get_cells -hierarchical -filter {ars_ff1 == TRUE || ars_ff2 == TRUE}]] -quiet
+// set_max_delay -from [get_pins -filter {REF_PIN_NAME == C} -of_objects [get_cells -hierarchical -filter {ars_ff1 == TRUE}]] -to [get_pins -filter {REF_PIN_NAME == D} -of_objects [get_cells -hierarchical -filter {ars_ff2 == TRUE}]] 2.000 -quiet
+
 
 //-------------------------------------------------------------------------
 // PinGen
@@ -49,17 +54,7 @@ class Nexys4PlatformIO(implicit val p: Parameters) extends Bundle {
     val jtag = new JTAGPins(() => PinGen(), false)
     val gpio = new GPIOPins(() => PinGen(), p(PeripheryGPIOKey)(0))
     val qspi = new SPIPins(() => PinGen(), p(PeripherySPIFlashKey)(0))
-   // val aon = new MockAONWrapperPins()
-  }/*
-  val jtag_reset = Bool(INPUT)
-  val ndreset    = Bool(OUTPUT)
-
-  // DRAM
-  val dram_clk = (Clock(INPUT))    // 100MHz
-  val dram_rst = (Bool(INPUT))
-  val dram_pll_locked = (Bool(OUTPUT))
-  val dram_init_done = (Bool(OUTPUT))
-  val dram_init_error = (Bool(OUTPUT))*/
+  }
 
   val jtag_reset = Input(Bool())
   val ndreset    = Output(Bool())
@@ -74,7 +69,7 @@ class Nexys4PlatformIO(implicit val p: Parameters) extends Bundle {
 
   val dram_intf = new Bundle{
       // DRAM Interface
-      val ddram_a = Output(UInt(14.W))
+      val ddram_a = Output(UInt(13.W))
       val ddram_ba = Output(UInt(3.W))
       val ddram_ras_n = Output(Bool())
       val ddram_cas_n = Output(Bool())
@@ -144,7 +139,8 @@ class Nexys4Platform(implicit val p: Parameters) extends Module {
     mod_dram.io.rst := io.dram_rst
 
     mod_dram.io.wb_ctrl <> sys.LiteDRAM_Ctrl_io.get(0).wbus
-    sys.LiteDRAM_Ctrl_io.get(0).dram_clock := io.dram_clk
+    sys.LiteDRAM_Ctrl_io.get(0).dram_clock := mod_dram.io.user_clk.get
+    //sys.LiteDRAM_Ctrl_io.get(0).dram_clock := io.dram_clk
 
     mod_dram.io.native.get.cmd_valid := false.B
     mod_dram.io.native.get.cmd_we := false.B
@@ -254,23 +250,6 @@ class Nexys4Platform(implicit val p: Parameters) extends Module {
   BasePinToIOF(pwm_pins(2).pwm(2), iof_1(12))
   BasePinToIOF(pwm_pins(2).pwm(3), iof_1(13))
 
-  // Watchdog
- /* if (p(PeripheryMockAONKey).Dogs > 1){
-    val wd = Wire(Vec(p(PeripheryMockAONKey).Dogs-1,PinGen()))
-    for (i <- 0 until p(PeripheryMockAONKey).Dogs-1){
-      wd(i).outputPin(sys.aon.wd_ext_reset.get(i))
-    }
-    BasePinToIOF(wd(0),iof_0(19))
-  }
-*/
-
- // io.wd_rst(1) := periphery_wd(1)(1).o.oval
-  //io.wd_rst(2) := periphery_wd(0)(2).o.oval
-  //BasePinToIOF(periphery_wd(0)(0),iof_0(21))
-  //BasePinToIOF(periphery_wd(1)(0),iof_0(22))
-  //BasePinToIOF(periphery_wd(2)(0),iof_0(19))*/
-
-
   //-----------------------------------------------------------------------
   // Drive actual Pads
   //-----------------------------------------------------------------------
@@ -289,8 +268,4 @@ class Nexys4Platform(implicit val p: Parameters) extends Module {
 
   io.ndreset := sys.debug.ndreset
 
-  // AON Pads -- direct connection is OK because
-  // EnhancedPin is hard-coded in MockAONPads
-  // and thus there is no .fromPort method.
-  //io.pins.aon <> sys.aon.pins
 }
