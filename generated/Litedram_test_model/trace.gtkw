@@ -1,0 +1,61 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Sun Mar 27 20:54:51 2022
+[*]
+[dumpfile] "/home/julian/Projekte/FPGA/RISC-V/juli963/freedom-e/generated/Litedram_test_model/trace.vcd"
+[dumpfile_mtime] "Sun Mar 27 20:53:41 2022"
+[dumpfile_size] 207574
+[savefile] "/home/julian/Projekte/FPGA/RISC-V/juli963/freedom-e/generated/Litedram_test_model/trace.gtkw"
+[timestart] 1429
+[size] 1848 1016
+[pos] -1 -1
+*-9.000000 2090 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.Litedram_test_model.
+[treeopen] TOP.Litedram_test_model.mod.
+[treeopen] TOP.Litedram_test_model.mod.Async_FIFO_new.
+[sst_width] 233
+[signals_width] 332
+[sst_expanded] 1
+[sst_vpaned_height] 232
+@28
+TOP.clock
+TOP.io_error
+TOP.io_do_deq
+TOP.io_do_enq
+@200
+-FIFO
+@22
+TOP.Litedram_test_model.mod_io_fifo_deq_bits[63:0]
+@28
+TOP.Litedram_test_model.mod_io_fifo_deq_ready
+TOP.Litedram_test_model.mod_io_fifo_deq_valid
+@22
+TOP.Litedram_test_model.mod_io_fifo_enq_bits[63:0]
+@28
+TOP.Litedram_test_model.mod_io_fifo_enq_ready
+TOP.Litedram_test_model.mod_io_fifo_enq_valid
+TOP.Litedram_test_model.mod.LiteDRAM_Model.State[1:0]
+@22
+TOP.Litedram_test_model.mod.LiteDRAM_Model.rdptr[7:0]
+TOP.Litedram_test_model.mod.LiteDRAM_Model.wrptr[7:0]
+@200
+-Buffer
+@22
+TOP.Litedram_test_model.mod.Async_FIFO_new.io_queue_deq_bits[31:0]
+@28
+TOP.Litedram_test_model.mod.Async_FIFO_new.io_queue_deq_ready
+TOP.Litedram_test_model.mod.Async_FIFO_new.io_queue_deq_valid
+@22
+TOP.Litedram_test_model.mod.Async_FIFO_new.io_queue_enq_bits[31:0]
+@28
+TOP.Litedram_test_model.mod.Async_FIFO_new.io_queue_enq_ready
+TOP.Litedram_test_model.mod.Async_FIFO_new.io_queue_enq_valid
+TOP.Litedram_test_model.mod.Async_FIFO_new.FIFO_dequeueBuffer.count[2:0]
+@22
+TOP.Litedram_test_model.mod.Async_FIFO_new.FIFO_dequeueBuffer.io_fifo_deq_bits[31:0]
+@28
+TOP.Litedram_test_model.mod.Async_FIFO_new.FIFO_dequeueBuffer.io_fifo_deq_ready
+TOP.Litedram_test_model.mod.Async_FIFO_new.FIFO_dequeueBuffer.io_fifo_deq_valid
+[pattern_trace] 1
+[pattern_trace] 0

@@ -1,9 +1,10 @@
 // See LICENSE for license details.
 package sifive.freedom.Nexys4
 import chisel3._
+import chisel3.util._
 //import Chisel._
 import chisel3.core.{attach, Input, Output}
-import chisel3.experimental.{Analog}
+import chisel3.experimental.{Analog, withClock, withClockAndReset}
 
 import freechips.rocketchip.config._
 import freechips.rocketchip.subsystem._
@@ -21,7 +22,7 @@ import sifive.blocks.devices.spi._
 import sifive.blocks.devices.uart._
 import sifive.blocks.devices.i2c._
 import sifive.blocks.devices.pinctrl._
-import Memory.DRAM.{litedram_wrapper}
+import Memory.DRAM.{litedram_wrapper, Litedram_test}
 import Xilinx.{DRP_Bundle}
 import sifive_copy.fpgashells.ip.xilinx.{BUFG}
 
@@ -86,6 +87,12 @@ class Nexys4PlatformIO(implicit val p: Parameters) extends Bundle {
      // val ddram_reset_n = Output(Bool())
   }
   val drp = Flipped(new DRP_Bundle(Address_Width = 5))
+
+  val native_error = Output(Bool())
+  val native_do_check = Input(Bool())
+  val fifo_error = Output(Bool())
+  val fifo_deq = Input(Bool())
+  val fifo_enq = Input(Bool())
 }
 
 //-------------------------------------------------------------------------
@@ -112,8 +119,33 @@ class Nexys4Platform(implicit val p: Parameters) extends Module {
   // DRAM Interface
   //-----------------------------------------------------------------------
   lazy val mod_dram = Module(new litedram_wrapper( ResourceName = "litedram_core_nexys4.v", Addrwidth = 13, Bytegroups = 2, Ranks = 1, 
-    withAXI = false, withWishbone = false, withNative = true, withFifo = false, Native_DW = 64, Native_AW = 24
+    withAXI = false, withWishbone = false, withNative = true, withFifo = true, Native_DW = 64, Native_AW = 24
   ) )
+
+    val wResetDRAM = Wire(Bool())
+    withClock(mod_dram.io.user_clk.get){
+      val reg_reset = ShiftRegister((reset), 3)
+          wResetDRAM := reg_reset
+    }
+
+
+  withClockAndReset( mod_dram.io.user_clk.get, wResetDRAM ){
+    lazy val mod_dram_native_test = Module( new Litedram_test( Native_DW = 64, Native_AW = 24, withNative = true, withFifo = false) )
+    lazy val mod_dram_fifo_test = Module( new Litedram_test( Native_DW = 64, Native_AW = 24, withNative = false, withFifo = true, withBuffer = true) )
+ 
+    mod_dram.io.native.get <> mod_dram_native_test.io.native.get
+    mod_dram.io.fifo.get <> mod_dram_fifo_test.io.fifo.get
+
+    mod_dram_native_test.io.do_check.get := RegNext(RegNext(io.native_do_check))
+    mod_dram_fifo_test.io.do_enq.get := RegNext(RegNext(io.fifo_enq))
+    mod_dram_fifo_test.io.do_deq.get := RegNext(RegNext(io.fifo_deq))
+    io.native_error  := mod_dram_native_test.io.error_found
+    io.fifo_error  := mod_dram_fifo_test.io.error_found
+ 
+  }
+
+
+
 
     io.dram_intf.ddram_a      := mod_dram.io.ddram_a
 		io.dram_intf.ddram_ba     := mod_dram.io.ddram_ba
@@ -142,13 +174,6 @@ class Nexys4Platform(implicit val p: Parameters) extends Module {
     sys.LiteDRAM_Ctrl_io.get(0).dram_clock := mod_dram.io.user_clk.get
     //sys.LiteDRAM_Ctrl_io.get(0).dram_clock := io.dram_clk
 
-    mod_dram.io.native.get.cmd_valid := false.B
-    mod_dram.io.native.get.cmd_we := false.B
-    mod_dram.io.native.get.cmd_addr := 0.U
-    mod_dram.io.native.get.wdata_valid := false.B
-    mod_dram.io.native.get.wdata_we := 0.U
-    mod_dram.io.native.get.wdata_data := 0.U
-    mod_dram.io.native.get.rdata_ready := false.B
 
     io.dram_pll_locked := mod_dram.io.pll_locked
     io.dram_init_done := mod_dram.io.init_done

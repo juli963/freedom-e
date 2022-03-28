@@ -112,9 +112,9 @@ class Nexys4FPGAChip(implicit override val p: Parameters) extends Nexys4Shell {
 
     // Mirror outputs of GPIOs with PWM peripherals to RGB LEDs on Arty
     // assign RGB LED0 R,G,B inputs = PWM0(1,2,3) when iof_1 is active
-    IOBUF(led0_r, dut.io.pins.gpio.pins(1))
-    IOBUF(led0_g, dut.io.pins.gpio.pins(2))
-    IOBUF(led0_b, dut.io.pins.gpio.pins(3))
+    IOBUF(led0_r, dut.io.pins.gpio.pins(23))
+    IOBUF(led0_g, dut.io.pins.gpio.pins(24))
+    IOBUF(led0_b, dut.io.pins.gpio.pins(25))
 
     // Note that this is the one which is actually connected on the HiFive/Crazy88
     // Board. Same with RGB LED1 R,G,B inputs = PWM1(1,2,3) when iof_1 is active
@@ -123,6 +123,14 @@ class Nexys4FPGAChip(implicit override val p: Parameters) extends Nexys4Shell {
     IOBUF(led1_b, dut.io.pins.gpio.pins(22))
   
   
+    native_error := dut.io.native_error
+    fifo_error := dut.io.fifo_error
+
+    dut.io.native_do_check := dut.io.pins.gpio.pins(26).o.oval
+    dut.io.fifo_deq := dut.io.pins.gpio.pins(27).o.oval
+    dut.io.fifo_enq := dut.io.pins.gpio.pins(28).o.oval
+
+
     dram_init_done := dut.io.dram_init_done
     dram_init_error := dut.io.dram_init_error
 
@@ -195,6 +203,9 @@ abstract class Nexys4Shell(implicit val p: Parameters) extends RawModule {
   val led1_r = IO(Analog(1.W))
   val led1_g = IO(Analog(1.W))
   val led1_b = IO(Analog(1.W))
+
+  val native_error = IO(Output(Bool()))
+  val fifo_error = IO(Output(Bool()))
 
   val dram_init_done = IO(Output(Bool()))
   val dram_init_error = IO(Output(Bool()))
