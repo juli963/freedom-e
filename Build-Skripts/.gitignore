@@ -1,0 +1,8 @@
+#ignore Pycache
+**/__pycache__/
+#ignore assets
+**/assets/
+#ignore html
+*.html
+#ignore vcd
+*.vcd

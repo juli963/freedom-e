@@ -1,0 +1,15 @@
+#ignore .o
+**/*.o
+#ignore .vcd
+**/*.vcd
+#ignore .fir
+**/*.fir
+#ignore .json
+**/*.json
+#ignore .v
+**/*.v
+#ignore .v
+**/*.f
+#ignore .obj_dir
+**/obj_dir/
+

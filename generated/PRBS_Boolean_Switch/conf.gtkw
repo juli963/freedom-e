@@ -1,0 +1,27 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Fri Oct 21 21:05:57 2022
+[*]
+[dumpfile] "/home/julian/Projekte/FPGA/RISC-V/juli963/freedom-e/generated/PRBS_Boolean_Switch/trace.vcd"
+[dumpfile_mtime] "Fri Oct 21 21:03:46 2022"
+[dumpfile_size] 829909
+[savefile] "/home/julian/Projekte/FPGA/RISC-V/juli963/freedom-e/generated/PRBS_Boolean_Switch/conf.gtkw"
+[timestart] 99875
+[size] 1848 1016
+[pos] -1 -1
+*-8.725063 4094 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.PRBS_Boolean_Switch.
+[sst_width] 233
+[signals_width] 126
+[sst_expanded] 1
+[sst_vpaned_height] 288
+@28
+TOP.clock
+TOP.io_out
+TOP.io_trigger
+TOP.PRBS_Boolean_Switch.en
+@23
+TOP.PRBS_Boolean_Switch.lfsr.io_out[15:0]
+[pattern_trace] 1
+[pattern_trace] 0
