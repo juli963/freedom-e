@@ -147,7 +147,19 @@ class Nexys4FPGAChip(implicit override val p: Parameters) extends Nexys4Shell {
     dut.io.dram_clk := clk_100
     dut.io.dram_rst := ck_rst//wNextReset
 
+    val mdio_buf = Module(new IOBUF())
+    mdio_buf.io.T := dut.io.mdio.MDIO.tri
+    mdio_buf.io.I := dut.io.mdio.MDIO.out
+    dut.io.mdio.MDIO.in := mdio_buf.io.O
 
+    val phy_rst_buf = Module(new IOBUF())
+    phy_rst_buf.io.T := ~dut.io.phy_rst
+    phy_rst_buf.io.I := false.B
+    
+    attach(mdio, mdio_buf.io.IO)
+    attach(phy_rst, phy_rst_buf.io.IO)
+
+    mclk := dut.io.mdio.MDC
     //---------------------------------------------------------------------
     // Unconnected inputs
     //---------------------------------------------------------------------
@@ -231,7 +243,10 @@ abstract class Nexys4Shell(implicit val p: Parameters) extends RawModule {
           val ddram_odt = Output(UInt(1.W))
       })
      
-
+  val mdio = IO(Analog(1.W))
+  val mclk = IO(Output(Bool()))
+  val phy_clk = IO(Output(Bool()))
+  val phy_rst = IO(Analog(1.W))
 
   //-----------------------------------------------------------------------
   // Wire declrations
@@ -272,12 +287,17 @@ abstract class Nexys4Shell(implicit val p: Parameters) extends RawModule {
 
   ip_mmcm.io.clk_in1 := clk_100
   clock_8MHz         := ip_mmcm.io.clk_out1.get  // 8.388 MHz = 32.768 kHz * 256
-  clock_65MHz        := ip_mmcm.io.clk_out2.get  // 65 Mhz
-  clock_32MHz        := ip_mmcm.io.clk_out3.get  // 65/2 Mhz
+  clock_65MHz        := ip_mmcm.io.clk_out2.get  // 50 Mhz
+  clock_32MHz        := ip_mmcm.io.clk_out3.get  // 50 Mhz
   ip_mmcm.io.resetn.get  := proc_rst
   mmcm_locked        := ip_mmcm.io.locked
 
 
+  withClockAndReset(clock_32MHz, ck_rst){
+    val clk_phy_out = RegInit(false.B)
+    clk_phy_out := ~clk_phy_out
+    phy_clk := clk_phy_out
+  }
   //-----------------------------------------------------------------------
   // System Reset
   //-----------------------------------------------------------------------

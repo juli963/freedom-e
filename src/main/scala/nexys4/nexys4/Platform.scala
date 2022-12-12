@@ -5,6 +5,7 @@ import chisel3.util._
 //import Chisel._
 import chisel3.core.{attach, Input, Output}
 import chisel3.experimental.{Analog, withClock, withClockAndReset}
+import chisel3.util.Reverse
 
 import freechips.rocketchip.config._
 import freechips.rocketchip.subsystem._
@@ -22,9 +23,12 @@ import sifive.blocks.devices.spi._
 import sifive.blocks.devices.uart._
 import sifive.blocks.devices.i2c._
 import sifive.blocks.devices.pinctrl._
-import Memory.DRAM.{litedram_wrapper, Litedram_test}
+import Memory.DRAM.{litedram_wrapper, Litedram_test_trigger, Litedram_test}
 import Xilinx.{DRP_Bundle}
 import sifive_copy.fpgashells.ip.xilinx.{BUFG}
+
+import Ethernet.Interface.MDIO.{MDIO}
+import Ethernet.Interface.Types.{MDIO_Interface}
 
 // export RISCV=../../../../../../Firmware/RISC-V/freedom-e-sdk/work/build/riscv-gnu-toolchain/riscv64-unknown-elf/prefix 
 // make -f Makefile.nexys4base verilog
@@ -93,6 +97,9 @@ class Nexys4PlatformIO(implicit val p: Parameters) extends Bundle {
   val fifo_error = Output(Bool())
   val fifo_deq = Input(Bool())
   val fifo_enq = Input(Bool())
+
+  val mdio = new MDIO_Interface() 
+  val phy_rst = Output(Bool())
 }
 
 //-------------------------------------------------------------------------
@@ -114,6 +121,55 @@ class Nexys4Platform(implicit val p: Parameters) extends Module {
 
   require (p(NExtTopInterrupts) == 0, "No Top-level interrupts supported");
 
+  //-----------------------------------------------------------------------
+  // MDIO Interface
+  //----------------------------------------------------------------------- 
+  lazy val mod_mdio = Module(new MDIO(clkDiv = 50))
+
+  io.mdio <> mod_mdio.io.intf
+  
+
+  mod_mdio.io.signals.start := sys.gpio(1).pins(0).o.oval
+  sys.gpio(1).pins(0).i.ival := false.B
+  sys.gpio(1).pins(1).i.ival := mod_mdio.io.signals.busy
+  sys.gpio(1).pins(2).i.ival := mod_mdio.io.signals.error
+  sys.gpio(1).pins(3).i.ival := false.B
+  io.phy_rst := sys.gpio(1).pins(3).o.oval
+  // GPIO 4:5 -> opcode
+  val wtemp1 = Wire(Vec(2, Bool()))
+  for(i<-0 until 2){ 
+    sys.gpio(1).pins(4+i).i.ival := false.B
+
+    wtemp1(i) := sys.gpio(1).pins(4+i).o.oval
+    mod_mdio.io.signals.opcode := (wtemp1.asUInt)
+  }
+  // GPIO 6:10 -> phyadress
+  val wtemp2 = Wire(Vec(5, Bool()))
+  for(i<-0 until 5){  
+    sys.gpio(1).pins(6+i).i.ival := false.B
+    
+    wtemp2(i) := sys.gpio(1).pins(6+i).o.oval
+    mod_mdio.io.signals.phyad := (wtemp2.asUInt)
+  }
+  // GPIO 11:15 -> regadress
+  val wtemp3 = Wire(Vec(5, Bool()))
+  for(i<-0 until 5){
+    sys.gpio(1).pins(11+i).i.ival := false.B
+
+    wtemp3(i) := sys.gpio(1).pins(11+i).o.oval
+    mod_mdio.io.signals.regad := (wtemp3.asUInt)
+  }
+
+  // GPIO 16:31 -> Read or write
+  val wtemp4 = Wire(Vec(16, Bool()))
+  for(i<-0 until 16){
+    sys.gpio(1).pins(16+i).i.ival := mod_mdio.io.signals.data_rd(i)
+
+    wtemp4(i) := sys.gpio(1).pins(16+i).o.oval
+    mod_mdio.io.signals.data_wr := (wtemp4.asUInt)
+  }
+  
+  
 
   //-----------------------------------------------------------------------
   // DRAM Interface
@@ -131,7 +187,7 @@ class Nexys4Platform(implicit val p: Parameters) extends Module {
 
   withClockAndReset( mod_dram.io.user_clk.get, wResetDRAM ){
     lazy val mod_dram_native_test = Module( new Litedram_test( Native_DW = 64, Native_AW = 24, withNative = true, withFifo = false) )
-    lazy val mod_dram_fifo_test = Module( new Litedram_test( Native_DW = 64, Native_AW = 24, withNative = false, withFifo = true, withBuffer = true) )
+    lazy val mod_dram_fifo_test = Module( new Litedram_test_trigger( Native_DW = 64, Native_AW = 24, withNative = false, withFifo = true, withBuffer = true) )
  
     mod_dram.io.native.get <> mod_dram_native_test.io.native.get
     mod_dram.io.fifo.get <> mod_dram_fifo_test.io.fifo.get

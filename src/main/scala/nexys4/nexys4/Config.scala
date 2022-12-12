@@ -33,7 +33,8 @@ class DefaultFreedomEConfig extends Config (
 // Freedom E300 Arty Dev Kit Peripherals
 class Nexys4Peripherals extends Config((site, here, up) => {
   case PeripheryGPIOKey => List(
-    GPIOParams(address = 0x10012000, width = 32, includeIOF = true))
+    GPIOParams(address = 0x10012000, width = 32, includeIOF = true),
+    GPIOParams(address = 0x10022000, width = 32, includeIOF = false))
   case PeripheryPWMKey => List(
     PWMParams(address = 0x10015000, cmpWidth = 8),
     PWMParams(address = 0x10025000, cmpWidth = 16),

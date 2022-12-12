@@ -7,10 +7,10 @@
 #include <string.h>
 
 void create_testdata(uint8_t first, uint8_t second, uint8_t jump, uint8_t* data, uint8_t* isk, uint8_t length, Sniffer_8b10b_40_TB* tb );
-void check_testdata(uint8_t* data, uint8_t* isk, uint8_t length, Sniffer_8b10b_40_TB* tb, std::ofstream* myfile);
+void check_testdata(uint8_t* data, uint8_t* isk, uint8_t length, Sniffer_8b10b_40_TB* tb, std::ofstream* myfile, bool* berror);
 
 int main(int argc, char **argv) {
-
+    bool berror = false;
     Sniffer_8b10b_40_TB *tb = new Sniffer_8b10b_40_TB();
 
     std::ofstream myfile;
@@ -101,7 +101,7 @@ int main(int argc, char **argv) {
                 for(uint16_t i = 0; i < 25; i++){
                     tb->tick();
                 }
-                check_testdata(data, isk, sizeof(data) ,tb, &myfile);
+                check_testdata(data, isk, sizeof(data) ,tb, &myfile, &berror);
                 for(uint16_t i = 0; i < 25; i++){
                     tb->tick();
                 }
@@ -156,7 +156,7 @@ int main(int argc, char **argv) {
                     for(uint16_t i = 0; i < 25; i++){
                         tb->tick();
                     }
-                    check_testdata(arrdat, arrk, sizeof(arrdat) ,tb, &myfile);
+                    check_testdata(arrdat, arrk, sizeof(arrdat) ,tb, &myfile, &berror);
                     for(uint16_t i = 0; i < 25; i++){
                         tb->tick();
                     }
@@ -192,7 +192,7 @@ int main(int argc, char **argv) {
         for(uint16_t i = 0; i < 25; i++){
             tb->tick();
         }
-        check_testdata(data, isk, sizeof(data) ,tb, &myfile);
+        check_testdata(data, isk, sizeof(data) ,tb, &myfile, &berror);
         for(uint16_t i = 0; i < 25; i++){
             tb->tick();
         }
@@ -248,7 +248,10 @@ int main(int argc, char **argv) {
     for(uint16_t i = 0; i < 25; i++){
         tb->tick();
     }
-    check_testdata(data, isk, sizeof(data) ,tb, &myfile);
+    bool nowhere;
+    printf("Following error is not important\n");
+    check_testdata(data, isk, sizeof(data) ,tb, &myfile, &nowhere);
+    printf("Error before here is not important\n");
     for(uint16_t i = 0; i < 25; i++){
         tb->tick();
     }
@@ -265,10 +268,16 @@ int main(int argc, char **argv) {
     for(uint16_t i = 0; i < 5000; i++){
         tb->tick();
     }*/
+    if (berror){
+        return false;
+    }else{
+        return true;
+    }
+    
 
 }
 
-void check_testdata(uint8_t* data, uint8_t* isk, uint8_t length, Sniffer_8b10b_40_TB* tb, std::ofstream* myfile){
+void check_testdata(uint8_t* data, uint8_t* isk, uint8_t length, Sniffer_8b10b_40_TB* tb, std::ofstream* myfile, bool* berror){
     uint16_t templength = 0;
     uint8_t idx = 1;
     bool dodeq = true;
@@ -492,7 +501,9 @@ void check_testdata(uint8_t* data, uint8_t* isk, uint8_t length, Sniffer_8b10b_4
     //printf("Error Found:");
     //printf("%s", error ? "true" : "false");
     //printf("\n");
-    
+    if (error == true){
+        *berror = true;
+    }
 }
 
 void create_testdata(uint8_t first, uint8_t second, uint8_t jump, uint8_t* data, uint8_t* isk, uint8_t length, Sniffer_8b10b_40_TB* tb ){
