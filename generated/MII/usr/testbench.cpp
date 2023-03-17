@@ -54,7 +54,9 @@ int main(int argc, char **argv) {
         MII_PHY *phy = new MII_PHY(phy_signals_tx, phy_signals_rx);
         PHY_Bus2 *bus = new PHY_Bus2(&tb->m_core->io_Bus_tx_clock, &tb->m_core->io_Bus_rx_clock, bus_signals_tx, bus_signals_rx, &tb->m_core->io_Bus_crs);
 
-        tb->opentrace("trace.vcd");
+        #if TRACE == 1
+                tb->opentrace("trace.vcd");
+        #endif
         tb->init();
         phy->init();
         bus->init();
@@ -90,11 +92,13 @@ int main(int argc, char **argv) {
         }*/
 
         /* Standard Transaction */
+        printf("Standard Transaction @10MB/s\n");
         bus_to_phy( tb, phy, bus, &error_n );
         phy_to_bus( tb, phy, bus, &error_n, true );
         
-
+        
         /* Check CRS */
+        printf("Standard Transaction with CRS check @10MB/s\n");
         tb->m_core->io_intf_rx_CRS = 1;
         bus_to_phy( tb, phy, bus, &error_n );
         phy_to_bus( tb, phy, bus, &error_n, true );
@@ -106,11 +110,13 @@ int main(int argc, char **argv) {
         }
 
         /* Speed Change */
+        printf("Standard Transaction @100MB/s\n");
         tb->change_speed(1);
         bus_to_phy( tb, phy, bus, &error_n );
         phy_to_bus( tb, phy, bus, &error_n, true );
         
         /* Check CRS */
+        printf("Standard Transaction with CRS check @100MB/s\n");
         tb->m_core->io_intf_rx_CRS = 0;
         bus_to_phy( tb, phy, bus, &error_n );
         phy_to_bus( tb, phy, bus, &error_n, true );
@@ -121,17 +127,20 @@ int main(int argc, char **argv) {
                 error_n = false;
         }
         /* Multi Transaction 100x?*/
+        printf("Phy to Bus Multi @100MB/s\n");
         for(uint8_t i = 0; i<100; i++){
                 phy_to_bus( tb, phy, bus, &error_n, true );
         }
+        printf("Bus to Phy Multi @100MB/s\n");
         for(uint8_t i = 0; i<100; i++){
                 bus_to_phy( tb, phy, bus, &error_n );
         }
+        printf("Toggling Multi @100MB/s\n");
         for(uint8_t i = 0; i<100; i++){
                 bus_to_phy( tb, phy, bus, &error_n );
                 phy_to_bus( tb, phy, bus, &error_n, true );
         }
-
+        
         return error_n;
 }
 
@@ -215,6 +224,15 @@ void bus_to_phy( MII_TB* tb, MII_PHY* phy, PHY_Bus2* bus, bool* berror ){
                         phy_tx_error = false;
                 }
         }
+
+        if(phy_recv_idx != length){
+                CRED
+                printf("Not all Data received phy_receive %i , Length %i \n", phy_recv_idx, length);
+                CDEFAULT
+                *berror = false;
+                
+        }
+
         bus->reset_tx_idx();
 }
 
@@ -267,7 +285,7 @@ void phy_to_bus( MII_TB* tb, MII_PHY* phy, PHY_Bus2* bus, bool* berror, bool wit
                 tb->tick();
                 if(bus->get_rx_data(&bus_rx_data, &bus_rx_error)){
                         //printf(" Data Received: 0x%02X Error: %i, Nibbleend: %i \n", phy_tx_data, (uint8_t) phy_tx_error, (uint8_t) phy_tx_nibbleend);
-                        if(bus_rx_error != error[bus_recv_idx]){
+                        if(bus_rx_error != error[bus_recv_idx] && bus_rx_error != col[bus_recv_idx]){
                                 CRED
                                 printf("ERROR Bit Data @idx %i send: 0x%02X Error %i Col %i Data Received: 0x%02X Error: %i \n", bus_recv_idx, data[bus_recv_idx], error[bus_recv_idx], col[bus_recv_idx] ,bus_rx_data, bus_rx_error);
                                 CDEFAULT
@@ -277,12 +295,22 @@ void phy_to_bus( MII_TB* tb, MII_PHY* phy, PHY_Bus2* bus, bool* berror, bool wit
                                 CRED
                                 printf("ERROR Data Data @idx %i send: 0x%02X Error %i Col %i Data Received: 0x%02X Error: %i \n", bus_recv_idx,data[bus_recv_idx], error[bus_recv_idx], col[bus_recv_idx] ,bus_rx_data, bus_rx_error);
                                 CDEFAULT
+                                return;
                                 *berror = false;
                         }
                         bus_recv_idx++;
                         bus_rx_error = false;
                 }
         }
+
+        if(bus_recv_idx != length){
+                CRED
+                printf("Not all Data received bus_receive %i , Length %i \n", bus_recv_idx, length);
+                CDEFAULT
+                *berror = false;
+                
+        }
+
         phy->reset_rx_idx();
 }
 

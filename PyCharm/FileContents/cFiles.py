@@ -124,8 +124,9 @@ tb_c = """
 int main(int argc, char **argv) {
 
         MOD_TB *tb = new MOD_TB();
-
-        tb->opentrace("trace.vcd");
+        #if TRACE==1
+                tb->opentrace("trace.vcd");
+        #endif
         tb->init();
 }
 """

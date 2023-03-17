@@ -59,6 +59,9 @@ bool MII_PHY::send_rx_data(uint8_t* data, bool* error, bool* col, uint16_t len){
 
     if(*rxd.RXCLK != rx_clock_ff && *rxd.RXCLK == 0){    // Falling Edge TXClk
         if(rx_idx < len){
+            *rxd.COL = col[rx_idx];
+            *rxd.RXER = error[rx_idx];
+            *rxd.RXDV = 1;
             if(rx_it == 0){
                 *rxd.RXD = data[rx_idx] & 0x0F;
                 rx_it++;
@@ -67,11 +70,8 @@ bool MII_PHY::send_rx_data(uint8_t* data, bool* error, bool* col, uint16_t len){
                 rx_it = 0;
                 rx_idx++;
             }
-            *rxd.COL = col[rx_idx];
-            *rxd.RXER = error[rx_idx];
-            *rxd.RXDV = 1;       
             //*rxd.CRS = true;
-            rx_idx++;
+            //rx_idx++;
         }else{
             //*rxd.CRS = false;
             rx_idx++;

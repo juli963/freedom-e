@@ -38,9 +38,9 @@ bool RMII_PHY::get_tx_data(uint8_t* data, bool* error, bool* nibbleend){     // 
                 oversampling_counter_tx = 0;
             }
         }else{
+            oversampling_counter_tx = 0;
             //*rxd.CRS = false;
             if(tx_it > 0){
-                oversampling_counter_tx = 0;
                 tx_it = 0;
                 *nibbleend = true;
                 *data = tx_buffer;

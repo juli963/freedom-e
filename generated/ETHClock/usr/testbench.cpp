@@ -27,7 +27,9 @@ int main(int argc, char **argv) {
 
         ETHClock_TB *tb = new ETHClock_TB();
 
-        tb->opentrace("trace.vcd");
+        #if TRACE == 1
+                tb->opentrace("trace.vcd");
+        #endif
         tb->m_core->io_PhyStat_Speed = 0;
         tb->init();
 

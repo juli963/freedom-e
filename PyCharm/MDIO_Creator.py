@@ -50,6 +50,7 @@ def create_Build_Skript():
         g++ -Iobj_dir -Iusr -I/usr/share/verilator/include obj_dir/V""" + mod_object + """__Syms.cpp obj_dir/V""" + mod_object + """__Trace__Slow.cpp obj_dir/V""" + mod_object + """__Trace.cpp obj_dir/V""" + mod_object + """.cpp usr/testbench.cpp usr/""" + mod_object + """.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
         echo "Run CPP Testbench"
         ./usr/testbench.o
+        status=$?
     else
         echo "Switch Directory to Root"
         cd ..
@@ -69,6 +70,7 @@ def create_Build_Skript():
         g++ -Iobj_dir -Iusr -I/usr/share/verilator/include obj_dir/V""" + mod_object + """__Syms.cpp obj_dir/V""" + mod_object + """__Trace__Slow.cpp obj_dir/V""" + mod_object + """__Trace.cpp obj_dir/V""" + mod_object + """.cpp usr/testbench.cpp usr/""" + mod_object + """.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
         echo "Run CPP Testbench"
         ./usr/testbench.o
+        status=$?
     fi"""
     write_File("..//Build-Skripts", mod_object,"sh", content)
 

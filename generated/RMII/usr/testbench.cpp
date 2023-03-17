@@ -67,11 +67,13 @@ class RMII_Interface() extends Bundle { // 50 MHz
         RMII_PHY *phy = new RMII_PHY(phy_signals_tx, phy_signals_rx, &tb->speed);
         PHY_Bus2 *bus = new PHY_Bus2(&tb->m_core->io_Bus_tx_clock, &tb->m_core->io_Bus_rx_clock, bus_signals_tx, bus_signals_rx, &tb->m_core->io_Bus_crs);
 
-        tb->opentrace("trace.vcd");
+        #if TRACE == 1
+                tb->opentrace("trace.vcd");
+        #endif
         tb->init();
         phy->init();
         bus->init();
-        tb->change_speed(1);
+        tb->change_speed(0);
 /*
         bus->reset_tx_idx();
         phy->reset_rx_idx();
@@ -123,7 +125,7 @@ class RMII_Interface() extends Bundle { // 50 MHz
                         CDEFAULT
                         error_n = false;
                 }
-                printf("Bus to Phy 2\n");
+              printf("Bus to Phy 2\n");
                 bus_to_phy( tb, phy, bus, &error_n );
                 printf("Phy to Bus 2\n");
                 phy_to_bus( tb, phy, bus, &error_n, true, true );
@@ -173,6 +175,7 @@ class RMII_Interface() extends Bundle { // 50 MHz
                         bus_to_phy( tb, phy, bus, &error_n );
                         phy_to_bus( tb, phy, bus, &error_n, true, false );
                 }
+        
 
         return error_n;       
 }
@@ -196,15 +199,19 @@ void bus_to_phy( RMII_TB* tb, RMII_PHY* phy, PHY_Bus2* bus, bool* berror ){
         for(uint16_t i = 0; i<length;i++){
                 data[i] = create_rand(0, 256);
                 error[i] = create_rand(0, 2) > 0;
+                //printf("Data 0x%02X \n", data[i]);
         }
         while(error[phy_recv_idx]){
                 phy_recv_idx++;   
         }
+
+
         //bus->send_tx_data(data,error,length);
         while( bus->send_tx_data(data,error,length) ){
                 tb->tick();
                 if(phy->get_tx_data(&phy_tx_data, &phy_tx_error, &phy_tx_nibbleend)){
-                        //printf(" Data Received: 0x%02X Error: %i, Nibbleend: %i \n", phy_tx_data, (uint8_t) phy_tx_error, (uint8_t) phy_tx_nibbleend);
+                        //printf("@idx %i Data send: 0x%02X Error %i Data Received: 0x%02X Error: %i, Nibbleend: %i \n", phy_recv_idx,data[phy_recv_idx], error[phy_recv_idx] ,phy_tx_data, phy_tx_error, phy_tx_nibbleend);
+
                         if(phy_tx_error != error[phy_recv_idx]){
                                 CRED
                                 printf("ERROR Bit @idx %i Data send: 0x%02X Error %i Data Received: 0x%02X Error: %i, Nibbleend: %i \n", phy_recv_idx,data[phy_recv_idx], error[phy_recv_idx] ,phy_tx_data, phy_tx_error, phy_tx_nibbleend);
@@ -225,7 +232,7 @@ void bus_to_phy( RMII_TB* tb, RMII_PHY* phy, PHY_Bus2* bus, bool* berror ){
                         }
                         
                         phy_recv_idx++;
-                        while(error[phy_recv_idx]){
+                        while(error[phy_recv_idx] && phy_recv_idx < length){
                              phy_recv_idx++;   
                         }
                         phy_tx_error = false;
@@ -260,12 +267,23 @@ void bus_to_phy( RMII_TB* tb, RMII_PHY* phy, PHY_Bus2* bus, bool* berror ){
                                 *berror = false;
                         }
                         phy_recv_idx++;
-                        while(error[phy_recv_idx]){
+                        while(error[phy_recv_idx] && phy_recv_idx < length){
                              phy_recv_idx++;   
                         }
                         phy_tx_error = false;
                 }
         }
+
+
+
+        if(phy_recv_idx != length){
+                CRED
+                printf("Not all Data received phy_receive %i , Length %i \n", phy_recv_idx, length);
+                CDEFAULT
+                *berror = false;
+                
+        }
+
         bus->reset_tx_idx();
 }
 
@@ -337,5 +355,21 @@ void phy_to_bus( RMII_TB* tb, RMII_PHY* phy, PHY_Bus2* bus, bool* berror, bool w
                         bus_rx_error = false;
                 }
         }
+
+        /*uint16_t count = 0;
+        for(uint16_t i = 0; i<length; i++){
+                if(!error[i] && !col[i]){
+                      count++;  
+                }
+        }*/
+
+        if(bus_recv_idx != length){
+                CRED
+                printf("Not all Data received bus_receive %i , Length %i \n", bus_recv_idx, length);
+                CDEFAULT
+                *berror = false;
+                
+        }
+
         phy->reset_rx_idx();
 }

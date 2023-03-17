@@ -1,5 +1,10 @@
 #!/bin/bash
 
+trace=1
+if [ $1 = "t" ]; then
+    trace=0
+fi
+
 create_verilog()
 {
     echo "Generate Verilog ..."
@@ -19,7 +24,7 @@ create_verilog()
 compile_c()
 {
     echo "Compile CPP Program ..."
-    g++ -DCLK=$1 -DInterface=$2 -Iobj_dir -Iusr -I/usr/share/verilator/include obj_dir/VETHClock__Syms.cpp obj_dir/VETHClock__Trace__Slow.cpp obj_dir/VETHClock__Trace.cpp obj_dir/VETHClock.cpp usr/testbench.cpp usr/ETHClock.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
+    g++ -DTRACE=$trace -DCLK=$1 -DInterface=$2 -Iobj_dir -Iusr -I/usr/share/verilator/include obj_dir/VETHClock__Syms.cpp obj_dir/VETHClock__Trace__Slow.cpp obj_dir/VETHClock__Trace.cpp obj_dir/VETHClock.cpp usr/testbench.cpp usr/ETHClock.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
 }
 
 run_prog(){
@@ -49,6 +54,7 @@ status=1
 #cd generated/ETHClock
 #compile_c 250 3
 #run_prog
+
 
 
 for i in 25 50 100 125 250  # Frequencys

@@ -29,8 +29,9 @@ int main(int argc, char **argv) {
                 link = create_rand(0,2);
                 duplex = create_rand(0,2);
                 tb->setStats(speed, (bool) link, (bool) duplex);
+
                 tb->resetValid();
-                for(uint8_t x = 0; x<create_rand(3,255);x++){
+                for(uint8_t x = 0; x<create_rand(4,255);x++){
                         tb->tick();
                         tb->setValid();
                         tb->setStats(speed+1, (bool)(link+1), (bool)(duplex+1));
@@ -55,6 +56,44 @@ int main(int argc, char **argv) {
                         error_n = false;
                 }
 
+        }
+
+        tb->tick();
+        tb->resetValid();
+        tb->m_core->io_RX_CTL_Falling = 1;
+        // tb->m_core->io_RX_Data_Falling_0 = 0x0F;
+        // tb->m_core->io_RX_Data_Rising_0 = 0x0F;
+
+        tb->m_core->io_RX_Data_Rising_0 = 1;
+        tb->m_core->io_RX_Data_Rising_1 = 1;
+        tb->m_core->io_RX_Data_Rising_2 = 1;
+        tb->m_core->io_RX_Data_Rising_3 = 1;
+
+        tb->m_core->io_RX_Data_Falling_0 = 1;
+        tb->m_core->io_RX_Data_Falling_1 = 1;
+        tb->m_core->io_RX_Data_Falling_2 = 1;
+        tb->m_core->io_RX_Data_Falling_3 = 1;
+
+        tb->tick();
+        tb->tick();
+        tb->tick();
+        tb->tick();
+        if(tb->m_core->io_CRS == 0){
+                CRED
+                printf("CRS not going high\n");
+                CDEFAULT
+                error_n = false;
+        }
+        tb->m_core->io_RX_Data_Falling_0 = 0;
+        tb->tick();
+        tb->tick();
+        tb->tick();
+        tb->tick();
+        if(tb->m_core->io_CRS != 0){
+                CRED
+                printf("CRS not going down\n");
+                CDEFAULT
+                error_n = false;
         }
 
         return 1; // Test passed

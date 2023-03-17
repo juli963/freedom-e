@@ -21,7 +21,9 @@ int main(int argc, char **argv) {
         MDIO_TB *tb = new MDIO_TB();
         MDIO_PHY_sim *phy_sim = new MDIO_PHY_sim(&tb->m_core->io_intf_MDIO_tri, &tb->m_core->io_intf_MDIO_in, &tb->m_core->io_intf_MDC, phyad, &error);
 
-        tb->opentrace("trace.vcd");
+        #if TRACE == 1
+                tb->opentrace("trace.vcd");
+        #endif
         phy_sim->init();
         tb->init();
 

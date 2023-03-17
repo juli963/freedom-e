@@ -24,7 +24,7 @@ void RMII_TB::change_speed(uint8_t speed){
     this->speed = speed;
     m_core->io_stats_Speed = speed;
 
-    for(uint16_t i = 0; i<2; i++){
+    for(uint16_t i = 0; i<200; i++){
         tick();
     }
 
