@@ -4,7 +4,7 @@
         echo "Switch Directory to generated/Litedram_test_model "
         cd ../generated/Litedram_test_model
         echo "Compile CPP Program ..."
-        g++ -Iobj_dir -Iusr -I/usr/share/verilator/include obj_dir/VLitedram_test_model__Syms.cpp obj_dir/VLitedram_test_model__Trace__Slow.cpp obj_dir/VLitedram_test_model__Trace.cpp obj_dir/VLitedram_test_model.cpp usr/testbench.cpp usr/Litedram_test_model.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
+        g++ -Iobj_dir -I../include -Iusr -I/usr/share/verilator/include obj_dir/VLitedram_test_model__Syms.cpp obj_dir/VLitedram_test_model__Trace__Slow.cpp obj_dir/VLitedram_test_model__Trace.cpp obj_dir/VLitedram_test_model.cpp usr/testbench.cpp usr/Litedram_test_model.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
         echo "Run CPP Testbench"
         ./usr/testbench.o
         status=$?
@@ -24,7 +24,7 @@
         echo "Switch Directory to generated/Litedram_test_model "
         cd ..
         echo "Compile CPP Program ..."
-        g++ -Iobj_dir -Iusr -I/usr/share/verilator/include obj_dir/VLitedram_test_model__Syms.cpp obj_dir/VLitedram_test_model__Trace__Slow.cpp obj_dir/VLitedram_test_model__Trace.cpp obj_dir/VLitedram_test_model.cpp usr/testbench.cpp usr/Litedram_test_model.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
+        g++ -Iobj_dir -I../include -Iusr -I/usr/share/verilator/include obj_dir/VLitedram_test_model__Syms.cpp obj_dir/VLitedram_test_model__Trace__Slow.cpp obj_dir/VLitedram_test_model__Trace.cpp obj_dir/VLitedram_test_model.cpp usr/testbench.cpp usr/Litedram_test_model.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
         echo "Run CPP Testbench"
         ./usr/testbench.o
         status=$?

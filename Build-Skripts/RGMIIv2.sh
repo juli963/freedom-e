@@ -8,7 +8,7 @@
         echo "Switch Directory to generated/RGMIIv2 "
         cd ../generated/RGMIIv2
         echo "Compile CPP Program ..."
-        g++ -DTRACE=$trace -Iobj_dir -Iusr -I/usr/share/verilator/include obj_dir/VRGMIIv2__Syms.cpp obj_dir/VRGMIIv2__Trace__Slow.cpp obj_dir/VRGMIIv2__Trace.cpp obj_dir/VRGMIIv2.cpp usr/RGMII_PHY.cpp usr/PHY_Bus2.cpp usr/MII_PHY.cpp usr/testbench.cpp usr/RGMIIv2.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
+        g++ -DTRACE=$trace -Iobj_dir -I../include -Iusr -I/usr/share/verilator/include obj_dir/VRGMIIv2__Syms.cpp obj_dir/VRGMIIv2__Trace__Slow.cpp obj_dir/VRGMIIv2__Trace.cpp obj_dir/VRGMIIv2.cpp usr/RGMII_PHY.cpp usr/PHY_Bus2.cpp usr/MII_PHY.cpp usr/testbench.cpp usr/RGMIIv2.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
         echo "Run CPP Testbench"
         ./usr/testbench.o
         status=$?
@@ -28,7 +28,7 @@
         echo "Switch Directory to generated/RGMIIv2 "
         cd ..
         echo "Compile CPP Program ..."
-        g++ -DTRACE=$trace -Iobj_dir -Iusr -I/usr/share/verilator/include obj_dir/VRGMIIv2__Syms.cpp obj_dir/VRGMIIv2__Trace__Slow.cpp obj_dir/VRGMIIv2__Trace.cpp obj_dir/VRGMIIv2.cpp usr/RGMII_PHY.cpp usr/PHY_Bus2.cpp usr/MII_PHY.cpp usr/testbench.cpp usr/RGMIIv2.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
+        g++ -DTRACE=$trace -Iobj_dir -I../include -Iusr -I/usr/share/verilator/include obj_dir/VRGMIIv2__Syms.cpp obj_dir/VRGMIIv2__Trace__Slow.cpp obj_dir/VRGMIIv2__Trace.cpp obj_dir/VRGMIIv2.cpp usr/RGMII_PHY.cpp usr/PHY_Bus2.cpp usr/MII_PHY.cpp usr/testbench.cpp usr/RGMIIv2.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
         echo "Run CPP Testbench"
         ./usr/testbench.o
         status=$?

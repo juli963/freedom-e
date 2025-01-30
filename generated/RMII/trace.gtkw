@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Sun Dec 11 00:57:53 2022
+[*] Sun Dec 18 21:52:01 2022
 [*]
 [dumpfile] "/home/julian/Projekte/FPGA/RISC-V/juli963/freedom-e/generated/RMII/trace.vcd"
-[dumpfile_mtime] "Sun Dec 11 00:57:15 2022"
-[dumpfile_size] 54032
+[dumpfile_mtime] "Sun Dec 18 21:50:57 2022"
+[dumpfile_size] 23294297
 [savefile] "/home/julian/Projekte/FPGA/RISC-V/juli963/freedom-e/generated/RMII/trace.gtkw"
-[timestart] 8
-[size] 1920 1043
+[timestart] 30930
+[size] 1848 1016
 [pos] -1 -1
-*-10.000000 1390 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-13.000000 60051 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.RMII.
 [sst_width] 233
@@ -19,20 +19,7 @@
 @28
 TOP.clock
 TOP.io_Bus_crs
-@22
-TOP.io_Bus_rx_bits_bits[7:0]
-@28
-TOP.io_Bus_rx_bits_err
-TOP.io_Bus_rx_bits_strb
-TOP.io_Bus_rx_clock
-TOP.io_Bus_rx_valid
-TOP.io_intf_rx_COL
-TOP.io_intf_rx_CRS_DV
-TOP.io_intf_rx_RXD[1:0]
-TOP.io_intf_rx_RXER
-TOP.io_intf_REF_CLK
 TOP.RMII.mod_receive.reset
-TOP.RMII.mod_receive.io_REFCLK
 @22
 TOP.RMII.mod_receive.oversampling_counter[3:0]
 @28
@@ -43,5 +30,38 @@ TOP.RMII.mod_receive.locked
 TOP.RMII.mod_receive.temp[7:0]
 @28
 TOP.RMII.mod_receive.valid
+@200
+-Bus_RX
+@22
+TOP.io_Bus_rx_bits_bits[7:0]
+@28
+TOP.io_Bus_rx_bits_err
+TOP.io_Bus_rx_bits_strb
+TOP.io_Bus_rx_clock
+TOP.io_Bus_rx_valid
+@200
+-Phy_RX
+@28
+TOP.io_intf_rx_COL
+TOP.io_intf_rx_CRS_DV
+TOP.io_intf_rx_RXD[1:0]
+TOP.io_intf_rx_RXER
+TOP.io_intf_REF_CLK
+@200
+-Bus_TX
+@22
+TOP.io_Bus_tx_bits_bits[7:0]
+@28
+TOP.io_Bus_tx_bits_err
+TOP.io_Bus_tx_bits_strb
+TOP.io_Bus_tx_clock
+TOP.io_Bus_tx_valid
+@200
+-Phy_TX
+@28
+TOP.RMII.mod_receive.io_REFCLK
+@29
+TOP.io_intf_tx_TXD[1:0]
+TOP.io_intf_tx_TXEN
 [pattern_trace] 1
 [pattern_trace] 0

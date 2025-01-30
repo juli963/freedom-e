@@ -1,10 +1,10 @@
 
 #include "Console_Defines.h"
 #include "GMII.h"
-#include "MII_PHY.h"
-#include "GMII_PHY.h"
-#include "PHY_Bus2.h"
-#include "PHY.h"
+#include "net/phy/MII_PHY.h"
+#include "net/phy/GMII_PHY.h"
+#include "net/phy/PHY.h"
+#include "net/bus/PHY_Bus2.h"
 
 #include <ctime>
 

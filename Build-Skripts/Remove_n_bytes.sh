@@ -24,7 +24,7 @@ create_verilog()
 compile_c()
 {
     echo "Compile CPP Program ..."
-    g++ -g -DDEF_Width=$1 -DDEF_N=$2 -DTRACE=$trace -Iobj_dir -Iusr -I/usr/share/verilator/include obj_dir/VRemove_n_bytes__Syms.cpp obj_dir/VRemove_n_bytes__Trace__Slow.cpp obj_dir/VRemove_n_bytes__Trace.cpp obj_dir/VRemove_n_bytes.cpp usr/testbench.cpp usr/Remove_n_bytes.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
+    g++ -g -DDEF_Width=$1 -DDEF_N=$2 -DTRACE=$trace -Iobj_dir -I../include -Iusr -I/usr/share/verilator/include obj_dir/VRemove_n_bytes__Syms.cpp obj_dir/VRemove_n_bytes__Trace__Slow.cpp obj_dir/VRemove_n_bytes__Trace.cpp obj_dir/VRemove_n_bytes.cpp usr/testbench.cpp usr/Remove_n_bytes.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
 }
 
 run_prog(){

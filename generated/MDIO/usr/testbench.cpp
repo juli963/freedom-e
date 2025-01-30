@@ -1,7 +1,7 @@
 
 #include "Console_Defines.h"
 #include "MDIO.h"
-#include "MDIO_PHY_sim.h"
+#include "/net/phy/MDIO_PHY_sim.h"
 
 #include <ctime>
 

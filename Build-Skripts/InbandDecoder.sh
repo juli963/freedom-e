@@ -4,7 +4,7 @@
         echo "Switch Directory to generated/InbandDecoder "
         cd ../generated/InbandDecoder
         echo "Compile CPP Program ..."
-        g++ -Iobj_dir -Iusr -I/usr/share/verilator/include obj_dir/VInbandDecoder__Syms.cpp obj_dir/VInbandDecoder__Trace__Slow.cpp obj_dir/VInbandDecoder__Trace.cpp obj_dir/VInbandDecoder.cpp usr/testbench.cpp usr/InbandDecoder.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
+        g++ -Iobj_dir -I../include -Iusr -I/usr/share/verilator/include obj_dir/VInbandDecoder__Syms.cpp obj_dir/VInbandDecoder__Trace__Slow.cpp obj_dir/VInbandDecoder__Trace.cpp obj_dir/VInbandDecoder.cpp usr/testbench.cpp usr/InbandDecoder.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
         echo "Run CPP Testbench"
         ./usr/testbench.o
         status=$?
@@ -24,7 +24,7 @@
         echo "Switch Directory to generated/InbandDecoder "
         cd ..
         echo "Compile CPP Program ..."
-        g++ -Iobj_dir -Iusr -I/usr/share/verilator/include obj_dir/VInbandDecoder__Syms.cpp obj_dir/VInbandDecoder__Trace__Slow.cpp obj_dir/VInbandDecoder__Trace.cpp obj_dir/VInbandDecoder.cpp usr/testbench.cpp usr/InbandDecoder.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
+        g++ -Iobj_dir -I../include -Iusr -I/usr/share/verilator/include obj_dir/VInbandDecoder__Syms.cpp obj_dir/VInbandDecoder__Trace__Slow.cpp obj_dir/VInbandDecoder__Trace.cpp obj_dir/VInbandDecoder.cpp usr/testbench.cpp usr/InbandDecoder.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
         echo "Run CPP Testbench"
         ./usr/testbench.o
         status=$?

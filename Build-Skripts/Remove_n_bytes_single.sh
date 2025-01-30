@@ -9,7 +9,7 @@
         echo "Switch Directory to generated/Remove_n_bytes "
         cd ../generated/Remove_n_bytes
         echo "Compile CPP Program ..."
-        g++ -DDEF_Width=8 -DDEF_N=6 -DTRACE=$trace -Iobj_dir -Iusr -I/usr/share/verilator/include obj_dir/VRemove_n_bytes__Syms.cpp obj_dir/VRemove_n_bytes__Trace__Slow.cpp obj_dir/VRemove_n_bytes__Trace.cpp obj_dir/VRemove_n_bytes.cpp usr/testbench.cpp usr/Remove_n_bytes.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
+        g++ -DDEF_Width=8 -DDEF_N=6 -DTRACE=$trace -Iobj_dir -I../include -Iusr -I/usr/share/verilator/include obj_dir/VRemove_n_bytes__Syms.cpp obj_dir/VRemove_n_bytes__Trace__Slow.cpp obj_dir/VRemove_n_bytes__Trace.cpp obj_dir/VRemove_n_bytes.cpp usr/testbench.cpp usr/Remove_n_bytes.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
         echo "Run CPP Testbench"
         ./usr/testbench.o
         status=$?
@@ -29,7 +29,7 @@
         echo "Switch Directory to generated/Remove_n_bytes "
         cd ..
         echo "Compile CPP Program ..."
-        g++ -DDEF_Width=8 -DDEF_N=6 -DTRACE=$trace -Iobj_dir -Iusr -I/usr/share/verilator/include obj_dir/VRemove_n_bytes__Syms.cpp obj_dir/VRemove_n_bytes__Trace__Slow.cpp obj_dir/VRemove_n_bytes__Trace.cpp obj_dir/VRemove_n_bytes.cpp usr/testbench.cpp usr/Remove_n_bytes.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
+        g++ -DDEF_Width=8 -DDEF_N=6 -DTRACE=$trace -Iobj_dir -I../include -Iusr -I/usr/share/verilator/include obj_dir/VRemove_n_bytes__Syms.cpp obj_dir/VRemove_n_bytes__Trace__Slow.cpp obj_dir/VRemove_n_bytes__Trace.cpp obj_dir/VRemove_n_bytes.cpp usr/testbench.cpp usr/Remove_n_bytes.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
         echo "Run CPP Testbench"
         ./usr/testbench.o
         status=$?

@@ -63,7 +63,8 @@ if main_src != "" and len(file_srcs) > 0:
         main_file.write('\n\n')
         main_file.write('//-----------------------------------')
         main_file.write('//  '+obj)
-        main_file.write('//-----------------------------------')
+        main_file.write('//-----------------------------------//')
+        main_file.write('\n\n')
         for line in Lines:
             main_file.write(line)
 

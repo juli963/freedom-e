@@ -24,7 +24,7 @@ create_verilog()
 compile_c()
 {
     echo "Compile CPP Program ..."
-    g++ -g -DDEF_Inwidth=$1 -DDEF_Outwidth=$2 -DDEBUG=$trace -Iobj_dir -Iusr -I/usr/share/verilator/include obj_dir/VBig_to_small__Syms.cpp obj_dir/VBig_to_small__Trace__Slow.cpp obj_dir/VBig_to_small__Trace.cpp obj_dir/VBig_to_small.cpp usr/testbench.cpp usr/Big_to_small.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
+    g++ -g -DDEF_Inwidth=$1 -DDEF_Outwidth=$2 -DDEBUG=$trace -Iobj_dir -I../include -Iusr -I/usr/share/verilator/include obj_dir/VBig_to_small__Syms.cpp obj_dir/VBig_to_small__Trace__Slow.cpp obj_dir/VBig_to_small__Trace.cpp obj_dir/VBig_to_small.cpp usr/testbench.cpp usr/Big_to_small.cpp /usr/share/verilator/include/verilated.cpp /usr/share/verilator/include/verilated_vcd_c.cpp -o usr/testbench.o
 }
 
 run_prog(){

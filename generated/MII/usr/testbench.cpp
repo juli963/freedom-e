@@ -1,7 +1,7 @@
 #include "Console_Defines.h"
 #include "MII.h"
-#include "MII_PHY.h"
-#include "PHY_Bus2.h"
+#include "net/phy/MII_PHY.h"
+#include "net/bus/PHY_Bus2.h"
 
 #include <ctime>
 

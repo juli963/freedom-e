@@ -1,10 +1,11 @@
 
 #include "Console_Defines.h"
 #include "RGMIIv2.h"
-#include "MII_PHY.h"
-#include "RGMII_PHY.h"
-#include "PHY_Bus2.h"
-#include "PHY.h"
+#include "net/phy/MII_PHY.h"
+#include "net/phy/RGMII_PHY.h"
+#include "net/phy/PHY.h"
+#include "net/bus/PHY_Bus2.h"
+
 
 #include <ctime>
 

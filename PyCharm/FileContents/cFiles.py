@@ -128,6 +128,9 @@ int main(int argc, char **argv) {
                 tb->opentrace("trace.vcd");
         #endif
         tb->init();
+
+        // 1 for no error, 0 for error
+        return 0;
 }
 """
 
